@@ -36,7 +36,7 @@
                     <div class="text-sm text-gray-500 mt-1">Dados de baja</div>
                 </div>
                 <div class="p-4 bg-purple-50 rounded-lg text-center">
-                    <div class="text-3xl font-bold text-purple-600">${{ number_format($totalValue, 2) }}</div>
+                    <div class="text-3xl font-bold text-purple-600">{{ format_gs($totalValue) }}</div>
                     <div class="text-sm text-gray-500 mt-1">Valor total</div>
                 </div>
             </div>

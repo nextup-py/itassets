@@ -51,8 +51,7 @@ class LicenseInfolist
 
                         TextEntry::make('purchase_price')
                             ->label('Precio de compra')
-                            ->money('MXN')
-                            ->placeholder('—'),
+                            ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_gs($state)),
 
                         TextEntry::make('supplier.name')
                             ->label('Proveedor')

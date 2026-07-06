@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,6 +23,8 @@ class DatabaseSeeder extends Seeder
             'name'     => env('ADMIN_NAME', 'Admin'),
             'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
         ]);
+
+        Setting::set('exchange_rate_usd_pyg', 6500);
 
         $this->call([
             RoleSeeder::class,

@@ -23,17 +23,16 @@ class AssetValueWidget extends StatsOverviewWidget
         $maintenanceCost = (float) Asset::where('status', 'maintenance')->sum('purchase_price');
 
         return [
-            Stat::make('Valor total del inventario', '$' . number_format($totalValue, 2))
+            Stat::make('Valor total del inventario', \format_gs($totalValue))
                 ->description("{$totalAssets} activos registrados")
-                ->descriptionIcon('heroicon-m-currency-dollar')
                 ->icon('heroicon-o-banknotes')
                 ->color('success'),
 
-            Stat::make('Valor en activos asignados', '$' . number_format($assignedValue, 2))
+            Stat::make('Valor en activos asignados', \format_gs($assignedValue))
                 ->icon('heroicon-o-user-group')
                 ->color('primary'),
 
-            Stat::make('Precio promedio por activo', '$' . number_format($avgPrice ?: 0, 2))
+            Stat::make('Precio promedio por activo', \format_gs($avgPrice ?: 0))
                 ->icon('heroicon-o-calculator')
                 ->color('gray'),
         ];
