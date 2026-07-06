@@ -7,9 +7,11 @@ use Filament\Widgets\ChartWidget;
 
 class AssetsByStatusChartWidget extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 6;
+
+    protected ?string $pollingInterval = '60s';
 
     protected ?string $heading = 'Activos por estado';
 

@@ -11,9 +11,11 @@ use Filament\Widgets\TableWidget;
 
 class ActiveMaintenanceWidget extends TableWidget
 {
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 7;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 6;
+
+    protected ?string $pollingInterval = '60s';
 
     protected function getTableHeading(): string
     {

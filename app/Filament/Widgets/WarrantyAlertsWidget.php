@@ -11,9 +11,11 @@ use Filament\Widgets\TableWidget;
 
 class WarrantyAlertsWidget extends TableWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 5;
 
     protected int | string | array $columnSpan = 'full';
+
+    protected ?string $pollingInterval = '300s';
 
     protected function getTableHeading(): string
     {

@@ -8,9 +8,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class AssetValueWidget extends StatsOverviewWidget
 {
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = 'full';
+
+    protected ?string $pollingInterval = '60s';
 
     protected function getStats(): array
     {

@@ -11,19 +11,40 @@ use Filament\Widgets\TableWidget;
 
 class RecentAssetsWidget extends TableWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 6;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 6;
+
+    protected ?string $pollingInterval = '60s';
 
     protected function getTableHeading(): string
     {
         return 'Últimos activos registrados';
     }
 
+    protected function getDateRange(): ?array
+    {
+        $from = session('dashboard_date_from');
+        $to = session('dashboard_date_to');
+
+        if ($from && $to) {
+            return [$from, $to];
+        }
+
+        return null;
+    }
+
     public function table(Table $table): Table
     {
+        $query = Asset::latest()->limit(5);
+
+        $range = $this->getDateRange();
+        if ($range) {
+            $query->whereBetween('created_at', [$range[0], $range[1] . ' 23:59:59']);
+        }
+
         return $table
-            ->query(Asset::latest()->limit(5))
+            ->query($query)
             ->columns([
                 TextColumn::make('asset_tag')
                     ->label('Código')

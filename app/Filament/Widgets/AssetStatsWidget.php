@@ -12,9 +12,30 @@ class AssetStatsWidget extends StatsOverviewWidget
 
     protected int | string | array $columnSpan = 'full';
 
+    protected ?string $pollingInterval = '30s';
+
+    protected function getDateRange(): ?array
+    {
+        $from = session('dashboard_date_from');
+        $to = session('dashboard_date_to');
+
+        if ($from && $to) {
+            return [$from, $to];
+        }
+
+        return null;
+    }
+
     protected function getStats(): array
     {
-        $counts = Asset::selectRaw("status, COUNT(*) as count")
+        $query = Asset::query();
+
+        $range = $this->getDateRange();
+        if ($range) {
+            $query->whereBetween('created_at', [$range[0], $range[1] . ' 23:59:59']);
+        }
+
+        $counts = (clone $query)->selectRaw("status, COUNT(*) as count")
             ->groupBy('status')
             ->pluck('count', 'status');
 
