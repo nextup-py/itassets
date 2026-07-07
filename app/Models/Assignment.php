@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Assignment extends Model
 {
-    use HasFactory;
+    use HasFactory, Blameable, LogsActivity;
 
     protected $fillable = [
         'employee_id',
@@ -18,6 +21,8 @@ class Assignment extends Model
         'assigned_at',
         'returned_at',
         'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -62,5 +67,12 @@ class Assignment extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class License extends Model
 {
-    use HasFactory;
+    use HasFactory, Blameable, LogsActivity;
 
     protected $fillable = [
         'product_name',
@@ -21,6 +24,8 @@ class License extends Model
         'purchase_price',
         'supplier_id',
         'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -75,5 +80,12 @@ class License extends Model
     public function activeAssignments(): HasMany
     {
         return $this->hasMany(LicenseAssignment::class)->whereNull('released_at');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

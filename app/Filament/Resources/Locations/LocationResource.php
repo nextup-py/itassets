@@ -10,6 +10,7 @@ use App\Filament\Resources\Locations\Pages\ViewLocation;
 use App\Filament\Resources\Locations\Schemas\LocationForm;
 use App\Filament\Resources\Locations\Schemas\LocationInfolist;
 use App\Filament\Resources\Locations\Tables\LocationsTable;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Models\Location;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -58,7 +59,9 @@ class LocationResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ActivityRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

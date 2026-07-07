@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class MaintenanceRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, Blameable, LogsActivity;
 
     protected $fillable = [
         'asset_id',
@@ -22,6 +25,8 @@ class MaintenanceRecord extends Model
         'completed_at',
         'resolution',
         'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -102,5 +107,12 @@ class MaintenanceRecord extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

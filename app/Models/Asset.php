@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Asset extends Model
 {
-    use HasFactory;
+    use HasFactory, Blameable, LogsActivity;
 
     protected $fillable = [
         'asset_tag',
@@ -29,6 +32,8 @@ class Asset extends Model
         'location_id',
         'warranty_expiry_date',
         'warranty_supplier_id',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -125,5 +130,12 @@ class Asset extends Model
     public function maintenanceRecords(): HasMany
     {
         return $this->hasMany(MaintenanceRecord::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

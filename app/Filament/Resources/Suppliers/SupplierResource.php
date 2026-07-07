@@ -10,6 +10,7 @@ use App\Filament\Resources\Suppliers\Pages\ViewSupplier;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Filament\Resources\Suppliers\Schemas\SupplierInfolist;
 use App\Filament\Resources\Suppliers\Tables\SuppliersTable;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Models\Supplier;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -58,7 +59,9 @@ class SupplierResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ActivityRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

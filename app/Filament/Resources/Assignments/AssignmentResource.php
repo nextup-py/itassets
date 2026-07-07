@@ -8,6 +8,7 @@ use App\Filament\Resources\Assignments\Pages\EditAssignment;
 use App\Filament\Resources\Assignments\Pages\ListAssignments;
 use App\Filament\Resources\Assignments\Pages\ViewAssignment;
 use App\Filament\Resources\Assignments\Schemas\AssignmentForm;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Filament\Resources\Assignments\Schemas\AssignmentInfolist;
 use App\Filament\Resources\Assignments\Tables\AssignmentsTable;
 use App\Models\Assignment;
@@ -58,7 +59,9 @@ class AssignmentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ActivityRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

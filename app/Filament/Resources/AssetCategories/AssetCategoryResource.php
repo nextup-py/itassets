@@ -8,6 +8,7 @@ use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\ListAssetCategories;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryInfolist;
 use App\Filament\Resources\AssetCategories\Tables\AssetCategoriesTable;
 use App\Models\AssetCategory;
@@ -58,7 +59,9 @@ class AssetCategoryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ActivityRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

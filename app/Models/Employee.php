@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Employee extends Model
 {
-    use HasFactory;
+    use HasFactory, Blameable, LogsActivity;
 
     protected $fillable = [
         'legajo',
@@ -19,6 +22,8 @@ class Employee extends Model
         'position',
         'document_number',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public const STATUSES = [
@@ -49,5 +54,12 @@ class Employee extends Model
     public function activeAssignments(): HasMany
     {
         return $this->hasMany(Assignment::class)->whereNull('returned_at');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

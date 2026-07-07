@@ -16,6 +16,7 @@ class RoleSeeder extends Seeder
         $resources = [
             'asset', 'assignment', 'employee', 'license',
             'maintenance_record', 'asset_category', 'supplier', 'location',
+            'user',
         ];
 
         $actions = ['view_any', 'view', 'create', 'update', 'delete'];

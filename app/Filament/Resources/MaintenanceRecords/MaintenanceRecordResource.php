@@ -8,6 +8,7 @@ use App\Filament\Resources\MaintenanceRecords\Pages\EditMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\ListMaintenanceRecords;
 use App\Filament\Resources\MaintenanceRecords\Pages\ViewMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Schemas\MaintenanceRecordForm;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Filament\Resources\MaintenanceRecords\Schemas\MaintenanceRecordInfolist;
 use App\Filament\Resources\MaintenanceRecords\Tables\MaintenanceRecordsTable;
 use App\Models\MaintenanceRecord;
@@ -58,7 +59,9 @@ class MaintenanceRecordResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ActivityRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

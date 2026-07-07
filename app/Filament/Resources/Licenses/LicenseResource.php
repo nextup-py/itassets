@@ -9,6 +9,7 @@ use App\Filament\Resources\Licenses\Pages\ListLicenses;
 use App\Filament\Resources\Licenses\Pages\ViewLicense;
 use App\Filament\Resources\Licenses\RelationManagers\AssignmentsRelationManager;
 use App\Filament\Resources\Licenses\Schemas\LicenseForm;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Filament\Resources\Licenses\Schemas\LicenseInfolist;
 use App\Filament\Resources\Licenses\Tables\LicensesTable;
 use App\Models\License;
@@ -61,6 +62,7 @@ class LicenseResource extends Resource
     {
         return [
             AssignmentsRelationManager::class,
+            ActivityRelationManager::class,
         ];
     }
 

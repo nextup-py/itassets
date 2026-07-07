@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value'];
+    use Blameable, LogsActivity;
+
+    protected $fillable = ['key', 'value', 'created_by', 'updated_by'];
 
     public static function get(string $key, mixed $default = null): mixed
     {
@@ -34,5 +39,12 @@ class Setting extends Model
             ['key' => $key],
             ['value' => is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value]
         );
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }
