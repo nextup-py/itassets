@@ -77,7 +77,7 @@ class AssetInfolist
 
                         TextEntry::make('purchase_price')
                             ->label('Precio de compra')
-                            ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_gs($state)),
+                            ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state)),
 
                         TextEntry::make('supplier.name')
                             ->label('Proveedor')

@@ -48,7 +48,7 @@ class AssetsExport implements FromQuery, WithHeadings, WithMapping
             $asset->supplier?->name ?? '—',
             $asset->location?->name ?? '—',
             $asset->purchase_date?->format('d/m/Y') ?? '—',
-            $asset->purchase_price ? \format_gs($asset->purchase_price) : '—',
+            $asset->purchase_price ? \format_currency($asset->purchase_price) : '—',
             $assignedTo,
         ];
     }

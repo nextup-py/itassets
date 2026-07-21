@@ -49,7 +49,7 @@ class LicensesTable
 
                 TextColumn::make('purchase_price')
                     ->label('Precio')
-                    ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_gs($state))
+                    ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
