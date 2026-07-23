@@ -9,7 +9,7 @@ jobs:
   deploy:
     permissions:
       contents: write
-    uses: nextup-py/deploy-actions/.github/workflows/laravel-deploy.yml@f2616b3a2838d3c9598f22d18de3d0a644da31ec # v1.1.0
+    uses: nextup-py/deploy-actions/.github/workflows/laravel-deploy.yml@d12af88d114963c0929f859c066a035456494978 # v1.2.0
     with:
       environment_name: itassets
       run_tests: true
@@ -21,3 +21,8 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.ITASSETS_SSH_PRIVATE_KEY }}
       DEPLOY_PATH: ${{ secrets.ITASSETS_DEPLOY_PATH }}
       APP_URL: ${{ secrets.ITASSETS_APP_URL }}
+      SMTP_HOST: ${{ secrets.ITASSETS_SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.ITASSETS_SMTP_PORT }}
+      SMTP_USER: ${{ secrets.ITASSETS_SMTP_USER }}
+      SMTP_PASS: ${{ secrets.ITASSETS_SMTP_PASS }}
+      NOTIFY_EMAIL: ${{ secrets.ITASSETS_NOTIFY_EMAIL }}
