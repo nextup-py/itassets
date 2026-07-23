@@ -5,6 +5,7 @@ use App\Filament\Resources\MaintenanceRecords\Pages\EditMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\ListMaintenanceRecords;
 use App\Models\Asset;
 use App\Models\MaintenanceRecord;
+use App\Models\Setting;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -131,4 +132,12 @@ it('hides the delete bulk action from editor on the list page', function () {
     loginAsEditor();
 
     Livewire::test(ListMaintenanceRecords::class)->assertTableBulkActionHidden('delete');
+});
+
+it('formats the cost column using the configured currency instead of a hardcoded one', function () {
+    Setting::set('base_currency', 'EUR');
+    Setting::set('display_locale', 'de_DE');
+    MaintenanceRecord::factory()->create(['cost' => 100]);
+
+    Livewire::test(ListMaintenanceRecords::class)->assertSee('100,00 €');
 });

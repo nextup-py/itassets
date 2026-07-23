@@ -115,8 +115,7 @@ class MaintenanceRecordsRelationManager extends RelationManager
 
                 TextColumn::make('cost')
                     ->label('Costo')
-                    ->money('MXN')
-                    ->placeholder('—'),
+                    ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state)),
 
                 TextColumn::make('started_at')
                     ->label('Inicio')

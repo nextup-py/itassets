@@ -53,8 +53,7 @@ class MaintenanceRecordInfolist
 
                         TextEntry::make('cost')
                             ->label('Costo')
-                            ->money('MXN')
-                            ->placeholder('—'),
+                            ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state)),
 
                         TextEntry::make('started_at')
                             ->label('Fecha de inicio')

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\MaintenanceRecords\Tables;
 
-use App\Models\Asset;
 use App\Models\MaintenanceRecord;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -53,8 +52,7 @@ class MaintenanceRecordsTable
 
                 TextColumn::make('cost')
                     ->label('Costo')
-                    ->money('MXN')
-                    ->placeholder('—')
+                    ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state))
                     ->sortable()
                     ->toggleable(),
 

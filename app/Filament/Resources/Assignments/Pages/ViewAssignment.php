@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Assignments\Pages;
 
 use App\Filament\Resources\Assignments\AssignmentResource;
-use App\Models\Assignment;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;

@@ -41,7 +41,7 @@ class LicenseForm
 
                         TextInput::make('license_key')
                             ->label('Clave / Número de licencia')
-                            ->maxLength(500)
+                            ->maxLength(255)
                             ->password()
                             ->revealable()
                             ->columnSpanFull(),
