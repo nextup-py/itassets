@@ -26,7 +26,7 @@ class SuppliersTable
                     ->placeholder('—'),
 
                 TextColumn::make('email')
-                    ->label('Correo')
+                    ->label('Correo electrónico')
                     ->searchable()
                     ->placeholder('—')
                     ->copyable(),

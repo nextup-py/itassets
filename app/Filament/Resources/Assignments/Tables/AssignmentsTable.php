@@ -27,6 +27,7 @@ class AssignmentsTable
                 TextColumn::make('employee.department')
                     ->label('Departamento')
                     ->placeholder('—')
+                    ->searchable()
                     ->toggleable(),
 
                 TextColumn::make('asset_list')

@@ -26,7 +26,7 @@ class AssetForm
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         TextInput::make('asset_tag')
-                            ->label('Código (asset tag)')
+                            ->label('Código')
                             ->placeholder('Se genera automáticamente')
                             ->maxLength(20)
                             ->unique(Asset::class, 'asset_tag', ignoreRecord: true)
@@ -85,7 +85,7 @@ class AssetForm
                         Textarea::make('notes')
                             ->label('Notas')
                             ->rows(3)
-                            ->maxLength(2000)
+                            ->maxLength(1000)
                             ->columnSpanFull(),
                     ])
                     ->columns(3),

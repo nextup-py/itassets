@@ -26,7 +26,7 @@ class LicenseInfolist
                             ->formatStateUsing(fn (string $state): string => License::TYPES[$state] ?? $state),
 
                         TextEntry::make('seats')
-                            ->label('Seats (usados / total)')
+                            ->label('Puestos (usados / total)')
                             ->state(fn (License $record): string => $record->usedSeats() . ' / ' . $record->total_seats)
                             ->badge()
                             ->color(fn (License $record): string => $record->availableSeats() === 0 ? 'danger' : 'success'),

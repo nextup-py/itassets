@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Licenses\Tables;
 
 use App\Models\License;
+use App\Models\Supplier;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -29,7 +30,7 @@ class LicensesTable
                     ->formatStateUsing(fn (string $state): string => License::TYPES[$state] ?? $state),
 
                 TextColumn::make('seats')
-                    ->label('Seats (usados / total)')
+                    ->label('Puestos (usados / total)')
                     ->state(fn (License $record): string => $record->usedSeats() . ' / ' . $record->total_seats)
                     ->badge()
                     ->color(fn (License $record): string => $record->availableSeats() === 0 ? 'danger' : 'success'),
@@ -45,6 +46,7 @@ class LicensesTable
                 TextColumn::make('supplier.name')
                     ->label('Proveedor')
                     ->placeholder('—')
+                    ->searchable()
                     ->toggleable(),
 
                 TextColumn::make('purchase_price')
@@ -57,6 +59,10 @@ class LicensesTable
                 SelectFilter::make('license_type')
                     ->label('Tipo')
                     ->options(License::TYPES),
+
+                SelectFilter::make('supplier_id')
+                    ->label('Proveedor')
+                    ->options(Supplier::pluck('name', 'id')),
             ])
             ->recordActions([
                 ViewAction::make(),

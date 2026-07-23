@@ -44,7 +44,7 @@ class SupplierForm
                 Textarea::make('notes')
                     ->label('Notas')
                     ->rows(3)
-                    ->maxLength(2000)
+                    ->maxLength(1000)
                     ->columnSpanFull(),
             ])
             ->columns(2);

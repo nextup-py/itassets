@@ -45,7 +45,7 @@ class EmployeesTable
                     ->placeholder('—'),
 
                 TextColumn::make('email')
-                    ->label('Correo')
+                    ->label('Correo electrónico')
                     ->searchable()
                     ->placeholder('—')
                     ->copyable()
@@ -62,6 +62,12 @@ class EmployeesTable
                     ->formatStateUsing(fn (Employee $record): string => $record->getStatusLabel())
                     ->color(fn (Employee $record): string => $record->getStatusBadgeColor())
                     ->sortable(),
+
+                TextColumn::make('created_at')
+                    ->label('Creado')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')

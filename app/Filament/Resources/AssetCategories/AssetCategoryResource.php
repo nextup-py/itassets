@@ -8,9 +8,9 @@ use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\ListAssetCategories;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
-use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryInfolist;
 use App\Filament\Resources\AssetCategories\Tables\AssetCategoriesTable;
+use App\Filament\Resources\Shared\ActivityRelationManager;
 use App\Models\AssetCategory;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -36,7 +36,7 @@ class AssetCategoryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Categorías de Activos';
 
-    protected static ?string $navigationLabel = 'Categorías';
+    protected static ?string $navigationLabel = 'Categorías de Activos';
 
     protected static \UnitEnum|string|null $navigationGroup = 'Configuración';
 

@@ -43,6 +43,7 @@ class AssetsTable
 
                 TextColumn::make('category.name')
                     ->label('Categoría')
+                    ->searchable()
                     ->sortable()
                     ->badge(),
 
@@ -75,6 +76,7 @@ class AssetsTable
                 TextColumn::make('location.name')
                     ->label('Ubicación')
                     ->placeholder('—')
+                    ->searchable()
                     ->sortable()
                     ->toggleable(),
 
@@ -87,7 +89,7 @@ class AssetsTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
-                    ->label('Registrado')
+                    ->label('Creado')
                     ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

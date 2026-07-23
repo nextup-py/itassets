@@ -48,6 +48,7 @@ class MaintenanceRecordForm
                             ->label('Descripción del problema / motivo')
                             ->required()
                             ->rows(3)
+                            ->maxLength(1000)
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
@@ -93,11 +94,13 @@ class MaintenanceRecordForm
                         Textarea::make('resolution')
                             ->label('Diagnóstico / Resolución')
                             ->rows(3)
+                            ->maxLength(1000)
                             ->columnSpanFull(),
 
                         Textarea::make('notes')
                             ->label('Notas adicionales')
                             ->rows(2)
+                            ->maxLength(1000)
                             ->columnSpanFull(),
                     ]),
             ]);

@@ -32,7 +32,7 @@ class LicenseForm
                             ->columnSpan(1),
 
                         TextInput::make('total_seats')
-                            ->label('Total de seats')
+                            ->label('Total de puestos')
                             ->required()
                             ->numeric()
                             ->minValue(1)
@@ -82,6 +82,7 @@ class LicenseForm
                         Textarea::make('notes')
                             ->label('Notas')
                             ->rows(3)
+                            ->maxLength(1000)
                             ->columnSpanFull(),
                     ])
                     ->collapsed(),

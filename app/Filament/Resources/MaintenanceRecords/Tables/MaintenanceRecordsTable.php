@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MaintenanceRecords\Tables;
 
 use App\Models\MaintenanceRecord;
+use App\Models\Supplier;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -48,6 +49,7 @@ class MaintenanceRecordsTable
                 TextColumn::make('supplier.name')
                     ->label('Proveedor')
                     ->placeholder('—')
+                    ->searchable()
                     ->toggleable(),
 
                 TextColumn::make('cost')
@@ -75,6 +77,10 @@ class MaintenanceRecordsTable
                 SelectFilter::make('status')
                     ->label('Estado')
                     ->options(MaintenanceRecord::STATUSES),
+
+                SelectFilter::make('supplier_id')
+                    ->label('Proveedor')
+                    ->options(Supplier::pluck('name', 'id')),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -61,7 +61,7 @@ class AssignmentForm
                             ->columnSpan(3),
 
                         TextInput::make('charger_serial')
-                            ->label('Cargador SN')
+                            ->label('Cargador N/S')
                             ->maxLength(100)
                             ->columnSpan(2),
 
