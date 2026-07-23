@@ -90,7 +90,6 @@ class AssetImport implements ToModel, WithHeadingRow, WithUpserts
         if (! $category) {
             $category = AssetCategory::create([
                 'name'        => $name,
-                'type'        => 'other',
                 'description' => 'Creado automáticamente durante la importación',
             ]);
         }

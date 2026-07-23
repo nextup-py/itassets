@@ -1,7 +1,9 @@
 <?php
 
+use App\Filament\Resources\Assets\Pages\ListAssets;
 use App\Models\Asset;
 use App\Models\User;
+use Livewire\Livewire;
 
 beforeEach(function () {
     createRolesAndPermissions();
@@ -33,4 +35,19 @@ it('can render view page', function () {
 
 it('returns 404 for non-existent asset', function () {
     $this->get('/admin/assets/99999')->assertNotFound();
+});
+
+it('has a supplier filter on the assets table', function () {
+    Livewire::test(ListAssets::class)->assertTableFilterExists('supplier_id');
+});
+
+it('shows the export action to admins (who have export_report)', function () {
+    Livewire::test(ListAssets::class)->assertActionVisible('exportAssets');
+});
+
+it('hides the export action from editors (who lack export_report)', function () {
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(ListAssets::class)->assertActionHidden('exportAssets');
 });

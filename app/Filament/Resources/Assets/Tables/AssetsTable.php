@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Assets\Tables;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
+use App\Models\Supplier;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -106,6 +107,10 @@ class AssetsTable
                 SelectFilter::make('location_id')
                     ->label('Ubicación')
                     ->options(Location::pluck('name', 'id')),
+
+                SelectFilter::make('supplier_id')
+                    ->label('Proveedor')
+                    ->options(Supplier::pluck('name', 'id')),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -61,6 +61,7 @@ class Reports extends Page
             ->label('Exportar activos')
             ->icon('heroicon-o-document-arrow-down')
             ->color('success')
+            ->visible(fn () => auth()->user()?->can('export_report') ?? false)
             ->form([
                 Select::make('status')
                     ->label('Filtrar por estado')
@@ -92,6 +93,7 @@ class Reports extends Page
             ->label('Exportar asignaciones')
             ->icon('heroicon-o-document-arrow-down')
             ->color('warning')
+            ->visible(fn () => auth()->user()?->can('export_report') ?? false)
             ->form([
                 Select::make('status')
                     ->label('Filtrar por estado')
