@@ -109,3 +109,23 @@ it('shows the assets belonging to the category in the Activos tab', function () 
         'pageClass' => ViewAssetCategory::class,
     ])->assertCanSeeTableRecords([$asset]);
 });
+
+it('blocks deleting a category that still has assets attached, with a friendly notification', function () {
+    $category = AssetCategory::factory()->create();
+    Asset::factory()->create(['asset_category_id' => $category->id]);
+
+    Livewire::test(EditAssetCategory::class, ['record' => $category->getRouteKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    expect(AssetCategory::find($category->id))->not->toBeNull();
+});
+
+it('allows deleting a category with no assets attached', function () {
+    $category = AssetCategory::factory()->create();
+
+    Livewire::test(EditAssetCategory::class, ['record' => $category->getRouteKey()])
+        ->callAction('delete');
+
+    expect(AssetCategory::find($category->id))->toBeNull();
+});
