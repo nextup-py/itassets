@@ -81,3 +81,55 @@ it('sends notifications to Admin and Editor roles', function () {
     expect($editor->notifications()->count())->toBeGreaterThanOrEqual(1);
     expect($viewer->notifications()->count())->toBe(0);
 });
+
+it('does not duplicate warranty notifications when the command runs twice in the same day', function () {
+    Asset::factory()->create(['warranty_expiry_date' => now()->addDays(30)]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+    $admin = User::first();
+    $countAfterFirstRun = $admin->notifications()->count();
+    expect($countAfterFirstRun)->toBeGreaterThanOrEqual(1);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    expect($admin->notifications()->count())->toBe($countAfterFirstRun);
+});
+
+it('re-sends the warranty notification after the cooldown period elapses', function () {
+    Asset::factory()->create(['warranty_expiry_date' => now()->addDays(30)]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+    $admin = User::first();
+    $countAfterFirstRun = $admin->notifications()->count();
+
+    $this->travel(8)->days();
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    expect($admin->notifications()->count())->toBe($countAfterFirstRun * 2);
+});
+
+it('does not duplicate license notifications when the command runs twice in the same day', function () {
+    License::factory()->create(['expiry_date' => now()->addDays(30)]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+    $admin = User::first();
+    $countAfterFirstRun = $admin->notifications()->count();
+    expect($countAfterFirstRun)->toBeGreaterThanOrEqual(1);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    expect($admin->notifications()->count())->toBe($countAfterFirstRun);
+});
+
+it('does not duplicate maintenance notifications when the command runs twice in the same day', function () {
+    MaintenanceRecord::factory()->inProgress()->create(['started_at' => now()->subDays(10)]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+    $admin = User::first();
+    $countAfterFirstRun = $admin->notifications()->count();
+    expect($countAfterFirstRun)->toBeGreaterThanOrEqual(1);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    expect($admin->notifications()->count())->toBe($countAfterFirstRun);
+});
