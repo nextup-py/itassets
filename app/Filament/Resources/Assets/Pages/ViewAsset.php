@@ -36,6 +36,7 @@ class ViewAsset extends ViewRecord
                 ->label('Asignar activo')
                 ->icon('heroicon-o-user-plus')
                 ->color('success')
+                ->authorize('update_asset')
                 ->visible(fn () => ! in_array($this->record->status, ['assigned', 'maintenance', 'retired', 'lost']))
                 ->form([
                     Select::make('employee_id')
@@ -75,6 +76,7 @@ class ViewAsset extends ViewRecord
                 ->label('Registrar devolución')
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->color('warning')
+                ->authorize('update_asset')
                 ->visible(fn () => $this->record->status === 'assigned')
                 ->form([
                     DatePicker::make('returned_at')
@@ -100,6 +102,7 @@ class ViewAsset extends ViewRecord
                 ->label('Enviar a mantenimiento')
                 ->icon('heroicon-o-wrench-screwdriver')
                 ->color('warning')
+                ->authorize('update_asset')
                 ->visible(fn () => ! in_array($this->record->status, ['maintenance', 'retired', 'lost']))
                 ->form([
                     Select::make('type')
@@ -140,6 +143,7 @@ class ViewAsset extends ViewRecord
                 ->label('Cerrar mantenimiento')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
+                ->authorize('update_asset')
                 ->visible(fn () => $this->record->status === 'maintenance')
                 ->form([
                     Select::make('new_asset_status')

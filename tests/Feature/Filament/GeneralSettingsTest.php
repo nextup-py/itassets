@@ -45,3 +45,15 @@ it('saves regional settings with a different currency/locale/timezone combinatio
     expect(Setting::get('display_locale'))->toBe('de_DE');
     expect(Setting::get('timezone'))->toBe('Europe/Berlin');
 });
+
+it('denies viewer access', function () {
+    loginAsViewer();
+
+    Livewire::test(GeneralSettings::class)->assertForbidden();
+});
+
+it('allows editor access', function () {
+    loginAsEditor();
+
+    Livewire::test(GeneralSettings::class)->assertSuccessful();
+});

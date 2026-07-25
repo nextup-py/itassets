@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Setting;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -29,10 +30,16 @@ class PdfSettings extends Page implements HasForms
 
     public ?array $data = [];
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasAnyRole(['Admin', 'Editor']) ?? false;
+    }
+
     public function mount(): void
     {
         $this->form->fill([
             'company_name' => Setting::get('company_name', ''),
+            'company_logo' => Setting::get('company_logo', null),
             'pdf_intro'    => Setting::get('pdf_intro', ''),
             'pdf_clauses'  => collect(Setting::get('pdf_clauses', []))->map(fn ($clause) => ['clause' => $clause])->toArray(),
             'pdf_closing'  => Setting::get('pdf_closing', ''),
@@ -48,6 +55,15 @@ class PdfSettings extends Page implements HasForms
                     ->required()
                     ->maxLength(255)
                     ->columnSpan(2),
+
+                FileUpload::make('company_logo')
+                    ->label('Logo de la empresa')
+                    ->image()
+                    ->disk('public')
+                    ->directory('branding')
+                    ->maxSize(2048)
+                    ->imagePreviewHeight('120')
+                    ->columnSpanFull(),
 
                 Textarea::make('pdf_intro')
                     ->label('Texto introductorio')
@@ -91,6 +107,7 @@ class PdfSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         Setting::set('company_name', $data['company_name']);
+        Setting::set('company_logo', $data['company_logo']);
         Setting::set('pdf_intro', $data['pdf_intro']);
         Setting::set('pdf_clauses', collect($data['pdf_clauses'])->pluck('clause')->toArray());
         Setting::set('pdf_closing', $data['pdf_closing']);

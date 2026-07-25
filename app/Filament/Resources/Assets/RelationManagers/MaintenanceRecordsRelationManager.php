@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Assets\RelationManagers;
 use App\Filament\Concerns\HasRelationManagerPermissions;
 use App\Models\MaintenanceRecord;
 use App\Models\Supplier;
+use App\Services\MaintenanceService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -157,13 +158,7 @@ class MaintenanceRecordsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make()
-                    ->after(function (MaintenanceRecord $record, array $data): void {
-                        $newAssetStatus = $data['new_asset_status'] ?? null;
-
-                        if ($newAssetStatus && $record->status === 'completed' && $record->asset) {
-                            $record->asset->update(['status' => $newAssetStatus]);
-                        }
-                    }),
+                    ->after(fn (MaintenanceRecord $record, array $data) => app(MaintenanceService::class)->syncAssetStatus($record, $data['new_asset_status'] ?? null)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

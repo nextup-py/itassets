@@ -30,6 +30,11 @@ class GeneralSettings extends Page implements HasForms
 
     public ?array $data = [];
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasAnyRole(['Admin', 'Editor']) ?? false;
+    }
+
     public function mount(): void
     {
         $this->form->fill([
@@ -77,7 +82,7 @@ class GeneralSettings extends Page implements HasForms
 
                         Select::make('timezone')
                             ->label('Zona horaria')
-                            ->helperText('Solo informativo por ahora.')
+                            ->helperText('Define en qué zona horaria se muestran las fechas/horas del panel y a qué hora corre la verificación diaria de vencimientos.')
                             ->options(array_combine(\DateTimeZone::listIdentifiers(), \DateTimeZone::listIdentifiers()))
                             ->searchable()
                             ->required()

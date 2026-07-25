@@ -16,6 +16,8 @@ class CheckExpirations extends Command
     protected $signature = 'notifications:check';
     protected $description = 'Check warranties, licenses and maintenance records for expirations and alerts';
 
+    private const COOLDOWN_DAYS = 7;
+
     public function handle(): void
     {
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
@@ -44,6 +46,10 @@ class CheckExpirations extends Command
             $daysRemaining = now()->diffInDays($asset->warranty_expiry_date, false);
 
             foreach ($admins as $admin) {
+                if ($this->recentlyNotified($admin, WarrantyExpiryNotification::class, 'asset_id', $asset->id)) {
+                    continue;
+                }
+
                 $admin->notify(new WarrantyExpiryNotification($asset, (int) $daysRemaining));
             }
         }
@@ -61,6 +67,10 @@ class CheckExpirations extends Command
             $daysRemaining = now()->diffInDays($license->expiry_date, false);
 
             foreach ($admins as $admin) {
+                if ($this->recentlyNotified($admin, LicenseExpiryNotification::class, 'license_id', $license->id)) {
+                    continue;
+                }
+
                 $admin->notify(new LicenseExpiryNotification($license, (int) $daysRemaining));
             }
         }
@@ -76,10 +86,23 @@ class CheckExpirations extends Command
 
         foreach ($prolonged as $record) {
             foreach ($admins as $admin) {
+                if ($this->recentlyNotified($admin, MaintenanceAlertNotification::class, 'maintenance_id', $record->id)) {
+                    continue;
+                }
+
                 $admin->notify(new MaintenanceAlertNotification($record, 'prolonged'));
             }
         }
 
         $this->info("Checked {$prolonged->count()} prolonged maintenance records.");
+    }
+
+    protected function recentlyNotified(User $admin, string $notificationClass, string $dataKey, int|string $id): bool
+    {
+        return $admin->notifications()
+            ->where('type', $notificationClass)
+            ->where("data->{$dataKey}", $id)
+            ->where('created_at', '>=', now()->subDays(self::COOLDOWN_DAYS))
+            ->exists();
     }
 }

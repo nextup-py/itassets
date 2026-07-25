@@ -31,7 +31,17 @@
         $intro   = \App\Models\Setting::get('pdf_intro', '');
         $clauses = \App\Models\Setting::get('pdf_clauses', []);
         $closing = \App\Models\Setting::get('pdf_closing', '');
+
+        $logo = \App\Models\Setting::get('company_logo');
+        $logoDataUri = null;
+        if ($logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($logo)) {
+            $logoDataUri = 'data:' . \Illuminate\Support\Facades\Storage::disk('public')->mimeType($logo) . ';base64,' . base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($logo));
+        }
     @endphp
+
+    @if ($logoDataUri)
+        <img src="{{ $logoDataUri }}" style="max-height: 60px; display: block; margin: 0 auto 10px;">
+    @endif
 
     <h1>Documento de Asignación de Equipamiento</h1>
 

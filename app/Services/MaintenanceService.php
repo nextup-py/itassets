@@ -48,4 +48,13 @@ class MaintenanceService
     {
         return Supplier::pluck('name', 'id')->toArray();
     }
+
+    public function syncAssetStatus(MaintenanceRecord $record, ?string $newAssetStatus): void
+    {
+        if (! $newAssetStatus || $record->status !== 'completed' || ! $record->asset) {
+            return;
+        }
+
+        $record->asset->update(['status' => $newAssetStatus]);
+    }
 }
