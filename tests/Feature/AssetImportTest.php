@@ -61,6 +61,31 @@ it('updates existing asset by tag', function () {
     expect($asset->name)->toBe('Updated Name');
 });
 
+it('skips invalid rows and imports the valid ones instead of aborting the whole batch', function () {
+    $rows = [
+        ['asset_tag', 'nombre', 'categoria', 'marca', 'modelo', 'numero_de_serie', 'estado', 'empleado_asignado', 'ubicacion', 'fecha_de_compra', 'proveedor', 'costo'],
+        ['IT-1001', 'Laptop válida 1', 'Hardware', 'HP', 'ProBook', 'SN-A', 'Disponible', '', 'Oficina Central', '15/01/2026', 'Tech Distribuidora', '15000'],
+        ['IT-1002', str_repeat('x', 300), 'Hardware', 'HP', 'ProBook', 'SN-B', 'Disponible', '', 'Oficina Central', '15/01/2026', 'Tech Distribuidora', '15000'],
+        ['IT-1003', 'Laptop válida 2', 'Hardware', 'HP', 'ProBook', 'SN-C', 'Disponible', '', 'Oficina Central', '15/01/2026', 'Tech Distribuidora', '15000'],
+    ];
+
+    $path = tempnam(sys_get_temp_dir(), 'asset_import') . '.csv';
+    $handle = fopen($path, 'w');
+    foreach ($rows as $row) {
+        fputcsv($handle, $row);
+    }
+    fclose($handle);
+
+    $import = new AssetImport;
+    Excel::import($import, $path);
+    unlink($path);
+
+    expect(Asset::where('asset_tag', 'IT-1001')->exists())->toBeTrue();
+    expect(Asset::where('asset_tag', 'IT-1003')->exists())->toBeTrue();
+    expect(Asset::where('asset_tag', 'IT-1002')->exists())->toBeFalse();
+    expect($import->failures())->toHaveCount(1);
+});
+
 it('normalizes spanish statuses', function () {
     $import = new AssetImport;
 

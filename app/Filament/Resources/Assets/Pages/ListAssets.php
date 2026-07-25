@@ -61,11 +61,21 @@ class ListAssets extends ListRecords
                         $import = new AssetImport;
                         Excel::import($import, $path);
 
-                        Notification::make()
-                            ->title('Importación completada')
-                            ->body('Los activos se importaron correctamente.')
-                            ->success()
-                            ->send();
+                        $skippedCount = $import->failures()->count() + $import->errors()->count();
+
+                        if ($skippedCount > 0) {
+                            Notification::make()
+                                ->title('Importación completada con filas omitidas')
+                                ->body("Se importaron los datos válidos. {$skippedCount} fila(s) se omitieron por errores de validación o datos inválidos.")
+                                ->warning()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Importación completada')
+                                ->body('Los activos se importaron correctamente.')
+                                ->success()
+                                ->send();
+                        }
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title('Error al importar')

@@ -8,12 +8,19 @@ use App\Models\Employee;
 use App\Models\Location;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithUpserts;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
-class AssetImport implements ToModel, WithHeadingRow, WithUpserts
+class AssetImport implements ToModel, WithHeadingRow, WithUpserts, WithValidation, SkipsOnFailure, SkipsOnError
 {
+    use SkipsFailures, SkipsErrors;
+
     protected array $categories = [];
     protected array $suppliers = [];
     protected array $locations = [];
@@ -74,6 +81,25 @@ class AssetImport implements ToModel, WithHeadingRow, WithUpserts
     public function uniqueBy(): array
     {
         return ['asset_tag'];
+    }
+
+    public function rules(): array
+    {
+        return [
+            'asset_tag'         => 'nullable|string|max:255',
+            'codigo'            => 'nullable|string|max:255',
+            'name'              => 'nullable|string|max:255',
+            'nombre'            => 'nullable|string|max:255',
+            'marca'             => 'nullable|string|max:255',
+            'modelo'            => 'nullable|string|max:255',
+            'numero_de_serie'   => 'nullable|string|max:255',
+            'serial_number'     => 'nullable|string|max:255',
+            'categoria'         => 'nullable|string|max:255',
+            'proveedor'         => 'nullable|string|max:255',
+            'ubicacion'         => 'nullable|string|max:255',
+            'empleado_asignado' => 'nullable|string|max:255',
+            'employee'          => 'nullable|string|max:255',
+        ];
     }
 
     // -------------------------------------------------------------------------
