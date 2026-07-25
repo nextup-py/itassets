@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MaintenanceRecords\Pages;
 
 use App\Filament\Resources\MaintenanceRecords\MaintenanceRecordResource;
+use App\Services\MaintenanceService;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -29,8 +30,6 @@ class EditMaintenanceRecord extends EditRecord
 
     protected function afterSave(): void
     {
-        if ($this->pendingAssetStatus && $this->record->status === 'completed' && $this->record->asset) {
-            $this->record->asset->update(['status' => $this->pendingAssetStatus]);
-        }
+        app(MaintenanceService::class)->syncAssetStatus($this->record, $this->pendingAssetStatus);
     }
 }
