@@ -71,6 +71,7 @@ function createRolesAndPermissions(): void
         \Spatie\Permission\Models\Permission::whereNotIn('name', [
             ...array_map(fn ($r) => "delete_{$r}", $resources),
             'export_report',
+            'import_asset',
         ])->pluck('name')
     );
 

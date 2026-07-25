@@ -239,3 +239,12 @@ it('hides the import and template actions from viewers (who lack import_asset)',
         ->assertActionHidden('importAssets')
         ->assertActionHidden('downloadTemplate');
 });
+
+it('hides the import and template actions from editors (who lack import_asset)', function () {
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(ListAssets::class)
+        ->assertActionHidden('importAssets')
+        ->assertActionHidden('downloadTemplate');
+});
