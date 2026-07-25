@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\Assets\Pages\ListAssets;
+use App\Filament\Resources\Assets\Pages\ViewAsset;
 use App\Models\Asset;
 use App\Models\User;
 use Livewire\Livewire;
@@ -50,4 +51,55 @@ it('hides the export action from editors (who lack export_report)', function () 
     $this->actingAs($editor);
 
     Livewire::test(ListAssets::class)->assertActionHidden('exportAssets');
+});
+
+it('shows the asset lifecycle actions to admins (who have update_asset)', function () {
+    $available = Asset::factory()->available()->create();
+    Livewire::test(ViewAsset::class, ['record' => $available->getRouteKey()])
+        ->assertActionVisible('assign')
+        ->assertActionVisible('sendToMaintenance');
+
+    $assigned = Asset::factory()->assigned()->create();
+    Livewire::test(ViewAsset::class, ['record' => $assigned->getRouteKey()])
+        ->assertActionVisible('return');
+
+    $inMaintenance = Asset::factory()->maintenance()->create();
+    Livewire::test(ViewAsset::class, ['record' => $inMaintenance->getRouteKey()])
+        ->assertActionVisible('closeMaintenance');
+});
+
+it('shows the asset lifecycle actions to editors (who have update_asset)', function () {
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    $available = Asset::factory()->available()->create();
+    Livewire::test(ViewAsset::class, ['record' => $available->getRouteKey()])
+        ->assertActionVisible('assign')
+        ->assertActionVisible('sendToMaintenance');
+
+    $assigned = Asset::factory()->assigned()->create();
+    Livewire::test(ViewAsset::class, ['record' => $assigned->getRouteKey()])
+        ->assertActionVisible('return');
+
+    $inMaintenance = Asset::factory()->maintenance()->create();
+    Livewire::test(ViewAsset::class, ['record' => $inMaintenance->getRouteKey()])
+        ->assertActionVisible('closeMaintenance');
+});
+
+it('hides the asset lifecycle actions from viewers (who lack update_asset)', function () {
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    $available = Asset::factory()->available()->create();
+    Livewire::test(ViewAsset::class, ['record' => $available->getRouteKey()])
+        ->assertActionHidden('assign')
+        ->assertActionHidden('sendToMaintenance');
+
+    $assigned = Asset::factory()->assigned()->create();
+    Livewire::test(ViewAsset::class, ['record' => $assigned->getRouteKey()])
+        ->assertActionHidden('return');
+
+    $inMaintenance = Asset::factory()->maintenance()->create();
+    Livewire::test(ViewAsset::class, ['record' => $inMaintenance->getRouteKey()])
+        ->assertActionHidden('closeMaintenance');
 });
