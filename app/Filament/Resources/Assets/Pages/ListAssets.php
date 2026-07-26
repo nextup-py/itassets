@@ -14,6 +14,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListAssets extends ListRecords
@@ -56,16 +57,26 @@ class ListAssets extends ListRecords
                     try {
                         $path = $file instanceof \Livewire\TemporaryUploadedFile
                             ? $file->getRealPath()
-                            : storage_path('app/' . $file);
+                            : Storage::disk('local')->path($file);
 
                         $import = new AssetImport;
                         Excel::import($import, $path);
 
-                        Notification::make()
-                            ->title('Importación completada')
-                            ->body('Los activos se importaron correctamente.')
-                            ->success()
-                            ->send();
+                        $skippedCount = $import->failures()->count() + $import->errors()->count();
+
+                        if ($skippedCount > 0) {
+                            Notification::make()
+                                ->title('Importación completada con filas omitidas')
+                                ->body("Se importaron los datos válidos. {$skippedCount} fila(s) se omitieron por errores de validación o datos inválidos.")
+                                ->warning()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Importación completada')
+                                ->body('Los activos se importaron correctamente.')
+                                ->success()
+                                ->send();
+                        }
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title('Error al importar')

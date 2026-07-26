@@ -11,6 +11,8 @@ use App\Models\Employee;
 use App\Models\MaintenanceRecord;
 use App\Models\User;
 use App\Services\AssignmentService;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -247,4 +249,19 @@ it('hides the import and template actions from editors (who lack import_asset)',
     Livewire::test(ListAssets::class)
         ->assertActionHidden('importAssets')
         ->assertActionHidden('downloadTemplate');
+});
+
+it('imports assets from a real uploaded file through the importAssets action', function () {
+    Storage::fake('local');
+    AssetCategory::factory()->create(['name' => 'Hardware']);
+
+    $csv = "asset_tag,nombre,categoria,marca,modelo,numero_de_serie,estado,empleado_asignado,ubicacion,fecha_de_compra,proveedor,costo\n"
+        . "IT-UP001,Uploaded Laptop,Hardware,HP,ProBook,SN-UP-1,Disponible,,,,,\n";
+    $file = UploadedFile::fake()->createWithContent('assets.csv', $csv);
+
+    Livewire::test(ListAssets::class)
+        ->callAction('importAssets', data: ['file' => $file])
+        ->assertHasNoActionErrors();
+
+    expect(Asset::where('asset_tag', 'IT-UP001')->exists())->toBeTrue();
 });
