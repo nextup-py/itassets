@@ -4,6 +4,8 @@ namespace App\Imports;
 
 use App\Models\Asset;
 use App\Models\AssetCategory;
+use App\Models\Assignment;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Location;
 use App\Models\Supplier;
@@ -25,6 +27,7 @@ class AssetImport implements ToModel, WithHeadingRow, WithUpserts, WithValidatio
     protected array $suppliers = [];
     protected array $locations = [];
     protected array $employees = [];
+    protected ?int $defaultDepartmentId = null;
 
     public function __construct()
     {
@@ -67,11 +70,12 @@ class AssetImport implements ToModel, WithHeadingRow, WithUpserts, WithValidatio
         if ($employeeName) {
             $employeeId = $this->resolveEmployee($employeeName);
             if ($employeeId && ! $asset->assignments()->active()->exists()) {
-                $asset->assignments()->create([
+                $assignment = Assignment::create([
                     'employee_id' => $employeeId,
                     'assigned_by' => 'Importación',
                     'assigned_at' => now(),
                 ]);
+                $assignment->assets()->attach($asset->id, ['assigned_at' => now()]);
             }
         }
 
@@ -167,16 +171,25 @@ class AssetImport implements ToModel, WithHeadingRow, WithUpserts, WithValidatio
         $employee = Employee::firstOrCreate(
             ['name' => $name],
             [
-                'status' => 'active',
                 'legajo' => 'IMPORT-' . strtoupper(Str::random(6)),
                 'document_number' => 'IMPORT-' . strtoupper(Str::random(6)),
-                'department_id' => null,
-                'position' => null,
+                'email' => 'import-' . strtolower(Str::random(8)) . '@pendiente.itassets.test',
+                'department_id' => $this->resolveDefaultDepartmentId(),
+                'position' => 'Pendiente',
             ]
         );
 
         $this->employees[$name] = $employee->id;
         return $employee->id;
+    }
+
+    protected function resolveDefaultDepartmentId(): int
+    {
+        if ($this->defaultDepartmentId === null) {
+            $this->defaultDepartmentId = Department::firstOrCreate(['name' => 'Sin asignar'])->id;
+        }
+
+        return $this->defaultDepartmentId;
     }
 
     // -------------------------------------------------------------------------
