@@ -14,6 +14,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListAssets extends ListRecords
@@ -56,7 +57,7 @@ class ListAssets extends ListRecords
                     try {
                         $path = $file instanceof \Livewire\TemporaryUploadedFile
                             ? $file->getRealPath()
-                            : storage_path('app/' . $file);
+                            : Storage::disk('local')->path($file);
 
                         $import = new AssetImport;
                         Excel::import($import, $path);
