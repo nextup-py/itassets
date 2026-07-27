@@ -37,3 +37,10 @@ it('still lets everyone see the page and its stats', function () {
 
     $this->get('/admin/reports')->assertOk();
 });
+
+it('shows the heading in spanish', function () {
+    createRolesAndPermissions();
+    $this->actingAs(User::factory()->admin()->create());
+
+    $this->get('/admin/reports')->assertSeeText('Reportes');
+});

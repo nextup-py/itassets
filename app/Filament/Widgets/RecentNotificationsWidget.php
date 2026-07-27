@@ -41,7 +41,7 @@ class RecentNotificationsWidget extends TableWidget
                 TextColumn::make('data')
                     ->label('Mensaje')
                     ->html()
-                    ->state(fn (DatabaseNotification $record): string => $record->data['message'] ?? '—')
+                    ->state(fn (DatabaseNotification $record): string => $record->data['message'] ?? $record->data['title'] ?? '—')
                     ->wrap(),
 
                 TextColumn::make('read_at')
@@ -60,10 +60,6 @@ class RecentNotificationsWidget extends TableWidget
                             ->success()
                             ->send();
                     }),
-            ])
-            ->filters([])
-            ->headerActions([])
-            ->recordActions([])
-            ->toolbarActions([]);
+            ]);
     }
 }
