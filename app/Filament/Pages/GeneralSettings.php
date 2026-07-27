@@ -26,6 +26,8 @@ class GeneralSettings extends Page implements HasForms
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $title = 'Configuración general';
+
     protected string $view = 'filament.pages.general-settings';
 
     public ?array $data = [];
@@ -58,19 +60,22 @@ class GeneralSettings extends Page implements HasForms
                             ->helperText('Código ISO 4217 en el que se cargan los montos (ej. PYG, USD, ARS).')
                             ->required()
                             ->maxLength(3)
+                            ->regex('/^[A-Za-z]{3}$/')
                             ->columnSpan(1),
 
                         TextInput::make('display_currency')
                             ->label('Moneda de reporte (opcional)')
                             ->helperText('Si se completa y difiere de la moneda base, los montos se muestran también convertidos a esta moneda.')
                             ->maxLength(3)
+                            ->regex('/^[A-Za-z]{3}$/')
                             ->columnSpan(1),
 
                         TextInput::make('exchange_rate')
                             ->label('Tasa de cambio (moneda base → moneda de reporte)')
                             ->helperText('Solo se usa si la moneda de reporte difiere de la moneda base.')
+                            ->required()
                             ->numeric()
-                            ->minValue(0)
+                            ->minValue(0.01)
                             ->columnSpan(1),
 
                         TextInput::make('display_locale')
@@ -78,6 +83,7 @@ class GeneralSettings extends Page implements HasForms
                             ->helperText('Ej: es_PY, es_AR, en_US. Define el símbolo y separadores de miles/decimales.')
                             ->required()
                             ->maxLength(10)
+                            ->regex('/^[a-z]{2}_[A-Z]{2}$/')
                             ->columnSpan(1),
 
                         Select::make('timezone')
@@ -104,8 +110,8 @@ class GeneralSettings extends Page implements HasForms
     {
         $data = $this->form->getState();
 
-        Setting::set('base_currency', $data['base_currency']);
-        Setting::set('display_currency', $data['display_currency']);
+        Setting::set('base_currency', strtoupper($data['base_currency']));
+        Setting::set('display_currency', $data['display_currency'] ? strtoupper($data['display_currency']) : '');
         Setting::set('exchange_rate', $data['exchange_rate']);
         Setting::set('display_locale', $data['display_locale']);
         Setting::set('timezone', $data['timezone']);

@@ -23,37 +23,9 @@ class Reports extends Page
 
     protected static ?int $navigationSort = 5;
 
+    protected static ?string $title = 'Reportes';
+
     protected string $view = 'filament.pages.reports';
-
-    public function getTotalAssetsProperty(): int
-    {
-        return Asset::count();
-    }
-
-    public function getAvailableAssetsProperty(): int
-    {
-        return Asset::whereIn('status', ['available', 'stock'])->count();
-    }
-
-    public function getAssignedAssetsProperty(): int
-    {
-        return Asset::where('status', 'assigned')->count();
-    }
-
-    public function getMaintenanceAssetsProperty(): int
-    {
-        return Asset::where('status', 'maintenance')->count();
-    }
-
-    public function getRetiredAssetsProperty(): int
-    {
-        return Asset::where('status', 'retired')->count();
-    }
-
-    public function getTotalValueProperty(): float
-    {
-        return (float) Asset::sum('purchase_price');
-    }
 
     public function exportAssetsAction(): Action
     {

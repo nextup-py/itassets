@@ -57,3 +57,55 @@ it('allows editor access', function () {
 
     Livewire::test(GeneralSettings::class)->assertSuccessful();
 });
+
+it('rejects a base_currency that is not a 3-letter code', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['base_currency' => 'PY1'])
+        ->call('save')
+        ->assertHasFormErrors(['base_currency' => 'regex']);
+});
+
+it('rejects a display_currency that is not a 3-letter code', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['display_currency' => 'US$'])
+        ->call('save')
+        ->assertHasFormErrors(['display_currency' => 'regex']);
+});
+
+it('rejects a display_locale that does not match the xx_XX format', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['display_locale' => 'espy'])
+        ->call('save')
+        ->assertHasFormErrors(['display_locale' => 'regex']);
+});
+
+it('requires an exchange_rate', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['exchange_rate' => null])
+        ->call('save')
+        ->assertHasFormErrors(['exchange_rate' => 'required']);
+});
+
+it('rejects an exchange_rate of 0', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['exchange_rate' => 0])
+        ->call('save')
+        ->assertHasFormErrors(['exchange_rate' => 'min']);
+});
+
+it('normalizes currency codes to uppercase when saving', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm([
+            'base_currency' => 'pyg',
+            'display_currency' => 'usd',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(Setting::get('base_currency'))->toBe('PYG');
+    expect(Setting::get('display_currency'))->toBe('USD');
+});
+
+it('renders the save button inside a real form so the submit actually works', function () {
+    $this->get('/admin/general-settings')->assertSee('wire:submit="save"', false);
+});

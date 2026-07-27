@@ -26,6 +26,7 @@ class RecentAssetsWidget extends TableWidget
     {
         return $table
             ->query(Asset::latest()->limit(5))
+            ->paginated(false)
             ->columns([
                 TextColumn::make('asset_tag')
                     ->label('Código')

@@ -26,6 +26,8 @@ class PdfSettings extends Page implements HasForms
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $title = 'PDF Asignación';
+
     protected string $view = 'filament.pages.pdf-settings';
 
     public ?array $data = [];

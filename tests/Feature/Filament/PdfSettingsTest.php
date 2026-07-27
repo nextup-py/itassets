@@ -60,3 +60,7 @@ it('allows editor access', function () {
 
     Livewire::test(PdfSettings::class)->assertSuccessful();
 });
+
+it('renders the save button inside a real form so the submit actually works', function () {
+    $this->get('/admin/pdf-settings')->assertSee('wire:submit="save"', false);
+});

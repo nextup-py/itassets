@@ -20,9 +20,11 @@ class AssetStatsWidget extends StatsOverviewWidget
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        $total     = array_sum($counts->toArray());
-        $available = (int) ($counts['available'] ?? 0) + (int) ($counts['stock'] ?? 0);
-        $assigned  = (int) ($counts['assigned'] ?? 0);
+        $total       = array_sum($counts->toArray());
+        $available   = (int) ($counts['available'] ?? 0) + (int) ($counts['stock'] ?? 0);
+        $assigned    = (int) ($counts['assigned'] ?? 0);
+        $maintenance = (int) ($counts['maintenance'] ?? 0);
+        $retired     = (int) ($counts['retired'] ?? 0);
 
         return [
             Stat::make('Total de activos', $total)
@@ -36,6 +38,14 @@ class AssetStatsWidget extends StatsOverviewWidget
             Stat::make('Asignados', $assigned)
                 ->icon('heroicon-o-user')
                 ->color('primary'),
+
+            Stat::make('En mantenimiento', $maintenance)
+                ->icon('heroicon-o-wrench-screwdriver')
+                ->color('warning'),
+
+            Stat::make('Dados de baja', $retired)
+                ->icon('heroicon-o-archive-box-x-mark')
+                ->color('danger'),
         ];
     }
 }

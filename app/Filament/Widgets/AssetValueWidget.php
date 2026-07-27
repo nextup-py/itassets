@@ -20,7 +20,6 @@ class AssetValueWidget extends StatsOverviewWidget
         $avgPrice = Asset::whereNotNull('purchase_price')->avg('purchase_price');
         $totalAssets = Asset::count();
         $assignedValue = (float) Asset::where('status', 'assigned')->sum('purchase_price');
-        $maintenanceCost = (float) Asset::where('status', 'maintenance')->sum('purchase_price');
 
         return [
             Stat::make('Valor total del inventario', \format_currency($totalValue))

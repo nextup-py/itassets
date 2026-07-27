@@ -27,10 +27,7 @@ class WarrantyAlertsWidget extends TableWidget
         return $table
             ->query(
                 Asset::whereNotNull('warranty_expiry_date')
-                    ->where(function ($q) {
-                        $q->whereBetween('warranty_expiry_date', [now(), now()->addDays(60)])
-                          ->orWhere('warranty_expiry_date', '<', now());
-                    })
+                    ->whereBetween('warranty_expiry_date', [now()->subDays(60), now()->addDays(60)])
                     ->orderBy('warranty_expiry_date')
             )
             ->columns([
