@@ -6,7 +6,7 @@ use App\Models\Supplier;
 use App\Services\MaintenanceService;
 
 beforeEach(function () {
-    loginAsAdmin();
+    $this->admin = loginAsAdmin();
     $this->service = app(MaintenanceService::class);
 });
 
@@ -69,4 +69,30 @@ it('returns suppliers list', function () {
     $suppliers = $this->service->getSuppliers();
 
     expect($suppliers)->toHaveCount(3);
+});
+
+it('notifies managers when a new maintenance record is started', function () {
+    $asset = Asset::factory()->available()->create();
+
+    $record = $this->service->start($asset, [
+        'type'        => 'repair',
+        'description' => 'Broken screen',
+        'started_at'  => '2026-07-01',
+    ]);
+
+    $notification = $this->admin->notifications()
+        ->where('type', \App\Notifications\MaintenanceAlertNotification::class)
+        ->where('data->alert_type', 'started')
+        ->first();
+
+    expect($notification)->not->toBeNull();
+    expect($notification->data['maintenance_id'])->toBe($record->id);
+
+    $filamentNotification = $this->admin->notifications()
+        ->where('type', \Filament\Notifications\DatabaseNotification::class)
+        ->where('data->format', 'filament')
+        ->where('data->title', 'like', 'Mantenimiento iniciado%')
+        ->first();
+
+    expect($filamentNotification)->not->toBeNull();
 });

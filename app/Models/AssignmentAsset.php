@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\AssetAssignmentNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -30,6 +31,14 @@ class AssignmentAsset extends Pivot
         static::created(function (AssignmentAsset $pivot) {
             if ($pivot->asset) {
                 $pivot->asset->update(['status' => 'assigned']);
+
+                foreach (User::managers()->get() as $manager) {
+                    (new AssetAssignmentNotification(
+                        $pivot->asset,
+                        'assigned',
+                        $pivot->assignment?->employee,
+                    ))->sendToManager($manager);
+                }
             }
         });
 

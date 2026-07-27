@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\MaintenanceAlertNotification;
 use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +87,10 @@ class MaintenanceRecord extends Model
         static::created(function (MaintenanceRecord $record) {
             if ($record->status !== 'completed' && $record->asset) {
                 $record->asset->update(['status' => 'maintenance']);
+
+                foreach (User::managers()->get() as $manager) {
+                    (new MaintenanceAlertNotification($record, 'started'))->sendToManager($manager);
+                }
             }
         });
 

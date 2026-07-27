@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Asset;
+use App\Notifications\Concerns\SendsToManagers;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,7 +12,7 @@ use Illuminate\Notifications\Notification;
 
 class WarrantyExpiryNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SendsToManagers;
 
     public function __construct(
         public Asset $asset,
@@ -57,5 +59,17 @@ class WarrantyExpiryNotification extends Notification implements ShouldQueue
                 ? "Garantía vencida: {$this->asset->asset_tag} {$this->asset->name}"
                 : "Garantía por vencer ({$this->daysRemaining} días): {$this->asset->asset_tag} {$this->asset->name}",
         ];
+    }
+
+    public function toFilament(): FilamentNotification
+    {
+        $isExpired = $this->daysRemaining <= 0;
+
+        return FilamentNotification::make()
+            ->title($isExpired
+                ? "Garantía vencida: {$this->asset->asset_tag} {$this->asset->name}"
+                : "Garantía por vencer ({$this->daysRemaining} días): {$this->asset->asset_tag} {$this->asset->name}")
+            ->body('Vencimiento: ' . ($this->asset->warranty_expiry_date?->format('d/m/Y') ?? '—'))
+            ->status($isExpired ? 'danger' : 'warning');
     }
 }
