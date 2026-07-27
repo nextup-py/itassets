@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\License;
+use App\Notifications\Concerns\SendsToManagers;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,7 +12,7 @@ use Illuminate\Notifications\Notification;
 
 class LicenseExpiryNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SendsToManagers;
 
     public function __construct(
         public License $license,
@@ -57,5 +59,17 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
                 ? "Licencia vencida: {$this->license->product_name}"
                 : "Licencia por vencer ({$this->daysRemaining} días): {$this->license->product_name}",
         ];
+    }
+
+    public function toFilament(): FilamentNotification
+    {
+        $isExpired = $this->daysRemaining <= 0;
+
+        return FilamentNotification::make()
+            ->title($isExpired
+                ? "Licencia vencida: {$this->license->product_name}"
+                : "Licencia por vencer ({$this->daysRemaining} días): {$this->license->product_name}")
+            ->body('Vencimiento: ' . ($this->license->expiry_date?->format('d/m/Y') ?? '—'))
+            ->status($isExpired ? 'danger' : 'warning');
     }
 }

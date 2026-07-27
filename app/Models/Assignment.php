@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\AssetAssignmentNotification;
 use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,8 +35,14 @@ class Assignment extends Model
     {
         static::updated(function (Assignment $assignment) {
             if ($assignment->wasChanged('returned_at') && ! is_null($assignment->returned_at)) {
+                $managers = User::managers()->get();
+
                 foreach ($assignment->assets as $asset) {
                     $asset->update(['status' => 'available']);
+
+                    foreach ($managers as $manager) {
+                        (new AssetAssignmentNotification($asset, 'returned', $assignment->employee))->sendToManager($manager);
+                    }
                 }
             }
         });

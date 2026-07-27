@@ -126,3 +126,56 @@ it('returns null active assignment for returned asset', function () {
 
     expect($this->service->activeAssignment($asset))->toBeNull();
 });
+
+it('notifies managers when an asset is assigned', function () {
+    $asset = Asset::factory()->available()->create();
+    $employee = Employee::factory()->create();
+
+    $this->service->assign($asset, [
+        'employee_id' => $employee->id,
+        'assigned_at' => '2026-07-01',
+    ]);
+
+    $notification = $this->admin->notifications()
+        ->where('type', \App\Notifications\AssetAssignmentNotification::class)
+        ->where('data->alert_type', 'assigned')
+        ->first();
+
+    expect($notification)->not->toBeNull();
+    expect($notification->data['asset_id'])->toBe($asset->id);
+
+    $filamentNotification = $this->admin->notifications()
+        ->where('type', \Filament\Notifications\DatabaseNotification::class)
+        ->where('data->format', 'filament')
+        ->first();
+
+    expect($filamentNotification)->not->toBeNull();
+    expect($filamentNotification->data['title'])->toContain('Activo asignado');
+});
+
+it('notifies managers when an asset is returned', function () {
+    $asset = Asset::factory()->available()->create();
+    $employee = Employee::factory()->create();
+    $this->service->assign($asset, [
+        'employee_id' => $employee->id,
+        'assigned_at' => '2026-06-01',
+    ]);
+
+    $this->service->return($asset, ['returned_at' => '2026-07-01']);
+
+    $notification = $this->admin->notifications()
+        ->where('type', \App\Notifications\AssetAssignmentNotification::class)
+        ->where('data->alert_type', 'returned')
+        ->first();
+
+    expect($notification)->not->toBeNull();
+    expect($notification->data['asset_id'])->toBe($asset->id);
+
+    $filamentNotification = $this->admin->notifications()
+        ->where('type', \Filament\Notifications\DatabaseNotification::class)
+        ->where('data->format', 'filament')
+        ->where('data->title', 'like', 'Activo devuelto%')
+        ->first();
+
+    expect($filamentNotification)->not->toBeNull();
+});

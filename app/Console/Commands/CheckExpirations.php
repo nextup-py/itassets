@@ -22,7 +22,7 @@ class CheckExpirations extends Command
     {
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $admins = User::role(['Admin', 'Editor'])->get();
+        $admins = User::managers()->get();
 
         if ($admins->isEmpty()) {
             $this->warn('No users with Admin/Editor role found.');
@@ -50,7 +50,7 @@ class CheckExpirations extends Command
                     continue;
                 }
 
-                $admin->notify(new WarrantyExpiryNotification($asset, (int) $daysRemaining));
+                (new WarrantyExpiryNotification($asset, (int) $daysRemaining))->sendToManager($admin);
             }
         }
 
@@ -71,7 +71,7 @@ class CheckExpirations extends Command
                     continue;
                 }
 
-                $admin->notify(new LicenseExpiryNotification($license, (int) $daysRemaining));
+                (new LicenseExpiryNotification($license, (int) $daysRemaining))->sendToManager($admin);
             }
         }
 
@@ -90,7 +90,7 @@ class CheckExpirations extends Command
                     continue;
                 }
 
-                $admin->notify(new MaintenanceAlertNotification($record, 'prolonged'));
+                (new MaintenanceAlertNotification($record, 'prolonged'))->sendToManager($admin);
             }
         }
 
