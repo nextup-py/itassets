@@ -3,9 +3,11 @@
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php)
 ![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel)
 ![Filament](https://img.shields.io/badge/Filament-5-EB8B5E?logo=filament)
-![Tests](https://img.shields.io/badge/tests-124_passing-green)
+![Tests](https://img.shields.io/badge/tests-290_passing-green)
 
 Sistema de gestión de activos informáticos construido con **Laravel 13** + **Filament 5**. Permite administrar el ciclo de vida completo de activos de TI: adquisición, asignación, mantenimiento y baja.
+
+Además del CRUD de activos, incluye: catálogos de Departamentos/Categorías/Ubicaciones/Proveedores, gestión de Empleados y Usuarios (con desactivación en vez de borrado, y autoservicio de contraseña/perfil), notificaciones de vencimiento de garantías/licencias y mantenimientos prolongados (por email y por una campana de notificaciones dentro del panel), Dashboard con estadísticas y gráficos, página de Reportes con exportación a Excel, y Configuración general (moneda, zona horaria) + configuración del PDF de asignación (con logo de empresa).
 
 Para entender el *por qué* detrás de las decisiones de diseño (no solo el *qué*), ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
@@ -19,6 +21,10 @@ Para entender el *por qué* detrás de las decisiones de diseño (no solo el *qu
 - **Spatie Activitylog** (auditoría)
 - **DomPDF** (PDF de asignaciones)
 - **Laravel Excel** (importación/exportación)
+
+## Recursos gestionados
+
+Activos, Asignaciones, Mantenimientos, Licencias, Categorías de Activos, Ubicaciones, Proveedores, Departamentos, Empleados y Usuarios — organizados en el menú en 4 grupos: **Inventario**, **Catálogos**, **Administración** y **Sistema**.
 
 ## Requisitos
 
@@ -63,7 +69,7 @@ El seeder crea un usuario administrador por defecto (configurable en `.env`):
 | Rol | Permisos |
 |-----|----------|
 | **Admin** | Acceso completo a todos los recursos (crear, leer, actualizar, eliminar) |
-| **Editor** | CRUD excepto eliminar + importar activos |
+| **Editor** | CRUD excepto eliminar, importar activos y exportar reportes |
 | **Viewer** | Solo lectura en todos los recursos |
 
 ## Tests
@@ -72,7 +78,7 @@ El seeder crea un usuario administrador por defecto (configurable en `.env`):
 php artisan test
 ```
 
-**124 tests** · **290 assertions** · Cobertura: modelos, servicios, comandos, notificaciones, Filament, importación/exportación.
+**290 tests** · **852 assertions** · Cobertura: modelos, servicios, comandos, notificaciones (incluida la campana in-panel), Filament (resources, páginas de configuración/reportes, widgets del Dashboard), importación/exportación.
 
 ## Scripts útiles
 
