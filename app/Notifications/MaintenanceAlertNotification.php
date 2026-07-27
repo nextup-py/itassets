@@ -29,7 +29,6 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
 
         $subject = match ($this->alertType) {
             'prolonged' => "Mantenimiento prolongado: {$assetTag} {$assetName}",
-            'completed' => "Mantenimiento completado: {$assetTag} {$assetName}",
             default     => "Alerta de mantenimiento: {$assetTag} {$assetName}",
         };
 
@@ -38,7 +37,6 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             ->greeting('Hola, ' . $notifiable->name)
             ->line(match ($this->alertType) {
                 'prolonged' => "El mantenimiento del activo **{$assetName}** ({$assetTag}) lleva más de 7 días en curso.",
-                'completed' => "El mantenimiento del activo **{$assetName}** ({$assetTag}) ha sido completado.",
                 default     => "Alerta de mantenimiento para el activo **{$assetName}** ({$assetTag}).",
             })
             ->line("Tipo: {$this->record->type}")
@@ -64,7 +62,6 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             'alert_type'     => $this->alertType,
             'message'        => match ($this->alertType) {
                 'prolonged' => "Mantenimiento prolongado: {$assetTag} - {$assetName} ({$this->record->started_at?->diffForHumans()})",
-                'completed' => "Mantenimiento completado: {$assetTag} - {$assetName}",
                 default     => "Alerta de mantenimiento: {$assetTag} - {$assetName}",
             },
         ];
