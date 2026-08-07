@@ -38,7 +38,7 @@ class WarrantyExpiryNotification extends Notification implements ShouldQueue
                 ? "La garantía del activo **{$this->asset->name}** ({$this->asset->asset_tag}) ha vencido."
                 : "La garantía del activo **{$this->asset->name}** ({$this->asset->asset_tag}) vencerá en {$this->daysRemaining} días."
             )
-            ->line("Fecha de vencimiento: {$this->asset->warranty_expiry_date?->format('d/m/Y')}")
+            ->line("Fecha de vencimiento: {$this->asset->warranty_expiry_date?->format(current_date_format())}")
             ->when($this->asset->supplier, fn ($msg) => $msg->line("Proveedor: {$this->asset->supplier->name}"))
             ->action('Ver activo', url("/admin/assets/{$this->asset->id}"))
             ->salutation('ITAssets');
@@ -52,7 +52,7 @@ class WarrantyExpiryNotification extends Notification implements ShouldQueue
             'asset_id'      => $this->asset->id,
             'asset_tag'     => $this->asset->asset_tag,
             'asset_name'    => $this->asset->name,
-            'expiry_date'   => $this->asset->warranty_expiry_date?->format('d/m/Y'),
+            'expiry_date'   => $this->asset->warranty_expiry_date?->format(current_date_format()),
             'days_remaining' => $this->daysRemaining,
             'type'          => $isExpired ? 'warranty_expired' : 'warranty_expiring',
             'message'       => $isExpired
@@ -69,7 +69,7 @@ class WarrantyExpiryNotification extends Notification implements ShouldQueue
             ->title($isExpired
                 ? "Garantía vencida: {$this->asset->asset_tag} {$this->asset->name}"
                 : "Garantía por vencer ({$this->daysRemaining} días): {$this->asset->asset_tag} {$this->asset->name}")
-            ->body('Vencimiento: ' . ($this->asset->warranty_expiry_date?->format('d/m/Y') ?? '—'))
+            ->body('Vencimiento: ' . ($this->asset->warranty_expiry_date?->format(current_date_format()) ?? '—'))
             ->status($isExpired ? 'danger' : 'warning');
     }
 }

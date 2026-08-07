@@ -39,12 +39,12 @@ class LicenseInfolist
 
                         TextEntry::make('purchase_date')
                             ->label('Fecha de compra')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('—'),
 
                         TextEntry::make('expiry_date')
                             ->label('Vencimiento')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('Sin vencimiento')
                             ->color(fn (License $record): ?string => $record->expiry_date?->isPast() ? 'danger'
                                 : ($record->expiry_date?->diffInDays(now()) <= 60 ? 'warning' : null)),

@@ -92,12 +92,12 @@ class MaintenanceRecordForm
                             ->label('Fecha de inicio')
                             ->required()
                             ->default(now())
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->columnSpan(1),
 
                         DatePicker::make('completed_at')
                             ->label('Fecha de término')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->after('started_at')
                             ->columnSpan(1),
                     ])

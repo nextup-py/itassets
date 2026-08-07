@@ -21,3 +21,17 @@ if (! function_exists('format_currency')) {
         return str_replace("\xC2\xA0", ' ', $formatted);
     }
 }
+
+if (! function_exists('current_date_format')) {
+    function current_date_format(): string
+    {
+        return Setting::get('date_format', 'd/m/Y');
+    }
+}
+
+if (! function_exists('current_datetime_format')) {
+    function current_datetime_format(): string
+    {
+        return current_date_format() . ' H:i';
+    }
+}

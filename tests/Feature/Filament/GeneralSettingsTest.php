@@ -8,7 +8,7 @@ beforeEach(function () {
     loginAsAdmin();
 });
 
-it('saves all five regional settings', function () {
+it('saves all six regional settings', function () {
     Livewire::test(GeneralSettings::class)
         ->fillForm([
             'base_currency' => 'PYG',
@@ -16,6 +16,7 @@ it('saves all five regional settings', function () {
             'exchange_rate' => 6500,
             'display_locale' => 'es_PY',
             'timezone' => 'America/Asuncion',
+            'date_format' => 'Y-m-d',
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -25,6 +26,7 @@ it('saves all five regional settings', function () {
     expect((float) Setting::get('exchange_rate'))->toBe(6500.0);
     expect(Setting::get('display_locale'))->toBe('es_PY');
     expect(Setting::get('timezone'))->toBe('America/Asuncion');
+    expect(Setting::get('date_format'))->toBe('Y-m-d');
 });
 
 it('saves regional settings with a different currency/locale/timezone combination', function () {
@@ -91,6 +93,13 @@ it('rejects an exchange_rate of 0', function () {
         ->fillForm(['exchange_rate' => 0])
         ->call('save')
         ->assertHasFormErrors(['exchange_rate' => 'min']);
+});
+
+it('requires a date_format', function () {
+    Livewire::test(GeneralSettings::class)
+        ->fillForm(['date_format' => null])
+        ->call('save')
+        ->assertHasFormErrors(['date_format' => 'required']);
 });
 
 it('normalizes currency codes to uppercase when saving', function () {

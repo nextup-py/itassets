@@ -72,7 +72,7 @@ class AssetInfolist
                     ->schema([
                         TextEntry::make('purchase_date')
                             ->label('Fecha de compra')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('—'),
 
                         TextEntry::make('purchase_price')
@@ -95,7 +95,7 @@ class AssetInfolist
                     ->schema([
                         TextEntry::make('warranty_expiry_date')
                             ->label('Vence')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('Sin garantía registrada')
                             ->color(fn ($record) => $record?->warranty_expiry_date?->isPast() ? 'danger' : 'success'),
 

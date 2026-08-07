@@ -42,7 +42,7 @@ class WarrantyAlertsWidget extends TableWidget
 
                 TextColumn::make('warranty_expiry_date')
                     ->label('Vence el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->color(fn ($record) => $record->warranty_expiry_date->isPast() ? 'danger' : 'warning'),
 
                 TextColumn::make('warrantySupplier.name')

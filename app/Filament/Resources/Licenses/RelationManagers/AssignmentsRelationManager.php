@@ -71,12 +71,12 @@ class AssignmentsRelationManager extends RelationManager
                     ->label('Fecha de asignación')
                     ->required()
                     ->default(now())
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->columnSpan(1),
 
                 DatePicker::make('released_at')
                     ->label('Fecha de liberación')
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->after('assigned_at')
                     ->columnSpan(1),
 
@@ -110,12 +110,12 @@ class AssignmentsRelationManager extends RelationManager
 
                 TextColumn::make('assigned_at')
                     ->label('Asignado el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable(),
 
                 TextColumn::make('released_at')
                     ->label('Liberado el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('Activo')
                     ->sortable(),
             ])

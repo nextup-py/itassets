@@ -45,6 +45,7 @@ class GeneralSettings extends Page implements HasForms
             'exchange_rate' => Setting::get('exchange_rate', 1),
             'display_locale' => Setting::get('display_locale', 'en_US'),
             'timezone' => Setting::get('timezone', config('app.timezone')),
+            'date_format' => Setting::get('date_format', 'd/m/Y'),
         ]);
     }
 
@@ -93,6 +94,17 @@ class GeneralSettings extends Page implements HasForms
                             ->searchable()
                             ->required()
                             ->columnSpan(2),
+
+                        Select::make('date_format')
+                            ->label('Formato de fecha')
+                            ->helperText('Define cómo se muestran las fechas en el panel, los exports y el PDF de asignación.')
+                            ->options([
+                                'd/m/Y' => 'DD/MM/AAAA (31/12/2026)',
+                                'm/d/Y' => 'MM/DD/AAAA (12/31/2026)',
+                                'Y-m-d' => 'AAAA-MM-DD (2026-12-31)',
+                            ])
+                            ->required()
+                            ->columnSpan(2),
                     ])
                     ->columns(2),
 
@@ -115,6 +127,7 @@ class GeneralSettings extends Page implements HasForms
         Setting::set('exchange_rate', $data['exchange_rate']);
         Setting::set('display_locale', $data['display_locale']);
         Setting::set('timezone', $data['timezone']);
+        Setting::set('date_format', $data['date_format']);
 
         Notification::make()
             ->title('Configuración guardada correctamente')

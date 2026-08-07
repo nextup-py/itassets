@@ -38,8 +38,8 @@ class AssignmentsExport implements FromQuery, WithHeadings, WithMapping
             $assignment->employee?->department?->name ?? '—',
             $assignment->assets->map(fn ($a) => "[{$a->asset_tag}] {$a->name}")->implode(', '),
             $assignment->assigned_by ?? '—',
-            $assignment->assigned_at?->format('d/m/Y') ?? '—',
-            $assignment->returned_at?->format('d/m/Y') ?? 'Activo',
+            $assignment->assigned_at?->format(current_date_format()) ?? '—',
+            $assignment->returned_at?->format(current_date_format()) ?? 'Activo',
             $assignment->notes ?? '—',
         ];
     }

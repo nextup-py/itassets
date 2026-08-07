@@ -45,7 +45,7 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             })
             ->line("Tipo: {$this->record->type}")
             ->line("Estado: {$this->record->status}")
-            ->line("Iniciado: {$this->record->started_at?->format('d/m/Y')}")
+            ->line("Iniciado: {$this->record->started_at?->format(current_date_format())}")
             ->when($this->record->technician, fn ($msg) => $msg->line("Técnico: {$this->record->technician}"))
             ->action('Ver mantenimiento', url("/admin/maintenance-records/{$this->record->id}"))
             ->salutation('ITAssets');
@@ -62,7 +62,7 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             'asset_name'     => $assetName,
             'type'           => $this->record->type,
             'status'         => $this->record->status,
-            'started_at'     => $this->record->started_at?->format('d/m/Y'),
+            'started_at'     => $this->record->started_at?->format(current_date_format()),
             'alert_type'     => $this->alertType,
             'message'        => match ($this->alertType) {
                 'prolonged' => "Mantenimiento prolongado: {$assetTag} - {$assetName} ({$this->record->started_at?->diffForHumans()})",

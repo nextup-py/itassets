@@ -41,12 +41,12 @@ class AssignmentForm
                     ->label('Fecha de asignación')
                     ->required()
                     ->default(now())
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->columnSpan(1),
 
                 DatePicker::make('returned_at')
                     ->label('Fecha de devolución')
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->after('assigned_at')
                     ->columnSpan(1),
 

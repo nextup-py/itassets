@@ -24,11 +24,11 @@ class AssignmentInfolist
 
                         TextEntry::make('assigned_at')
                             ->label('Asignado el')
-                            ->date('d/m/Y'),
+                            ->date(current_date_format()),
 
                         TextEntry::make('returned_at')
                             ->label('Devuelto el')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('Aún no devuelto')
                             ->color(fn ($state) => is_null($state) ? 'success' : null),
                     ])

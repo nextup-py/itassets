@@ -91,12 +91,12 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->label('Fecha de inicio')
                     ->required()
                     ->default(now())
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->columnSpan(1),
 
                 DatePicker::make('completed_at')
                     ->label('Fecha de término')
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat(current_date_format())
                     ->after('started_at')
                     ->columnSpan(1),
 
@@ -139,12 +139,12 @@ class MaintenanceRecordsRelationManager extends RelationManager
 
                 TextColumn::make('started_at')
                     ->label('Inicio')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable(),
 
                 TextColumn::make('completed_at')
                     ->label('Término')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('En curso'),
             ])
             ->filters([

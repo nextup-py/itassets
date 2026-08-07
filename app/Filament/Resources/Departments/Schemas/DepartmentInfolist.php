@@ -21,12 +21,12 @@ class DepartmentInfolist
 
                         TextEntry::make('created_at')
                             ->label('Creado el')
-                            ->dateTime('d/m/Y H:i')
+                            ->dateTime(current_datetime_format())
                             ->columnSpan(1),
 
                         TextEntry::make('updated_at')
                             ->label('Actualizado el')
-                            ->dateTime('d/m/Y H:i')
+                            ->dateTime(current_datetime_format())
                             ->columnSpan(1),
                     ])
                     ->columns(2),
