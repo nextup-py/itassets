@@ -135,6 +135,52 @@ it('requires name and asset_category_id to create', function () {
         ->assertHasFormErrors(['name', 'asset_category_id']);
 });
 
+it('creates an asset with its own currency', function () {
+    $category = AssetCategory::factory()->create();
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Laptop importada',
+            'asset_category_id' => $category->id,
+            'status' => 'stock',
+            'purchase_price' => 1500,
+            'currency' => 'EUR',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Asset::where('name', 'Laptop importada')->first()->currency)->toBe('EUR');
+});
+
+it('creates an asset without a currency (optional field)', function () {
+    $category = AssetCategory::factory()->create();
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Laptop sin moneda',
+            'asset_category_id' => $category->id,
+            'status' => 'stock',
+            'currency' => '',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Asset::where('name', 'Laptop sin moneda')->first()->currency)->toBeNull();
+});
+
+it('rejects a currency that is not a 3-letter code', function () {
+    $category = AssetCategory::factory()->create();
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Laptop',
+            'asset_category_id' => $category->id,
+            'currency' => 'US$',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['currency' => 'regex']);
+});
+
 it('auto-generates the asset_tag through the create form when left blank', function () {
     $category = AssetCategory::factory()->create();
 

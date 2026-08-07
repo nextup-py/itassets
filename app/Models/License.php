@@ -22,6 +22,7 @@ class License extends Model
         'purchase_date',
         'expiry_date',
         'purchase_price',
+        'currency',
         'supplier_id',
         'notes',
         'created_by',

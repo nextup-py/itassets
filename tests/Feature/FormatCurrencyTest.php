@@ -53,3 +53,28 @@ it('converts between two non-USD, non-PYG currencies', function () {
 
     expect(format_currency(100))->toBe('£86.00');
 });
+
+it('shows an explicit currency as-is, ignoring the base/display conversion', function () {
+    Setting::set('base_currency', 'PYG');
+    Setting::set('display_currency', 'USD');
+    Setting::set('exchange_rate', 0.00015);
+    Setting::set('display_locale', 'en_US');
+
+    expect(format_currency(100, 'EUR'))->toBe('€100.00');
+});
+
+it('treats a currency matching base_currency the same as no currency at all', function () {
+    Setting::set('base_currency', 'PYG');
+    Setting::set('display_currency', 'USD');
+    Setting::set('exchange_rate', 0.00015);
+    Setting::set('display_locale', 'en_US');
+
+    expect(format_currency(6500, 'PYG'))->toBe(format_currency(6500));
+});
+
+it('ignores a null currency the same as omitting the argument', function () {
+    Setting::set('base_currency', 'EUR');
+    Setting::set('display_locale', 'de_DE');
+
+    expect(format_currency(100, null))->toBe(format_currency(100));
+});

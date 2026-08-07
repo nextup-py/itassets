@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Licenses\Pages\CreateLicense;
 use App\Filament\Resources\Licenses\Pages\ListLicenses;
 use App\Models\Asset;
 use App\Models\Employee;
@@ -10,6 +11,47 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     loginAsAdmin();
+});
+
+it('creates a license with its own currency', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Adobe Creative Cloud',
+            'license_type' => 'subscription',
+            'total_seats' => 5,
+            'purchase_price' => 600,
+            'currency' => 'USD',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(License::where('product_name', 'Adobe Creative Cloud')->first()->currency)->toBe('USD');
+});
+
+it('creates a license without a currency (optional field)', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Slack Enterprise',
+            'license_type' => 'subscription',
+            'total_seats' => 5,
+            'currency' => '',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(License::where('product_name', 'Slack Enterprise')->first()->currency)->toBeNull();
+});
+
+it('rejects a license currency that is not a 3-letter code', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Slack Enterprise',
+            'license_type' => 'subscription',
+            'total_seats' => 5,
+            'currency' => 'US$',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['currency' => 'regex']);
 });
 
 it('rejects lowering total_seats below currently used seats', function () {
