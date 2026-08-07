@@ -48,11 +48,9 @@ function createRolesAndPermissions(): void
 {
     app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-    $resources = ['asset', 'assignment', 'employee', 'license',
-        'maintenance_record', 'asset_category', 'supplier', 'location', 'user', 'department',
-    ];
-    $actions = ['view_any', 'view', 'create', 'update', 'delete'];
-    $extraPermissions = ['import_asset', 'export_report'];
+    $resources = \Database\Seeders\RoleSeeder::RESOURCES;
+    $actions = \Database\Seeders\RoleSeeder::ACTIONS;
+    $extraPermissions = \Database\Seeders\RoleSeeder::EXTRA_PERMISSIONS;
 
     foreach ($resources as $resource) {
         foreach ($actions as $action) {
@@ -70,8 +68,7 @@ function createRolesAndPermissions(): void
     $editor->syncPermissions(
         \Spatie\Permission\Models\Permission::whereNotIn('name', [
             ...array_map(fn ($r) => "delete_{$r}", $resources),
-            'export_report',
-            'import_asset',
+            ...$extraPermissions,
         ])->pluck('name')
     );
 
