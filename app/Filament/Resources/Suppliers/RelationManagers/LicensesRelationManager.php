@@ -32,7 +32,7 @@ class LicensesRelationManager extends RelationManager
 
                 TextColumn::make('expiry_date')
                     ->label('Vence')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('Sin vencimiento'),
             ])
             ->recordActions([

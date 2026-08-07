@@ -47,14 +47,14 @@ class UsersTable
 
                 TextColumn::make('last_login_at')
                     ->label('Último acceso')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime(current_datetime_format())
                     ->placeholder('Nunca')
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->label('Creado')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

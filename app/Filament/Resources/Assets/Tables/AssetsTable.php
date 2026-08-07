@@ -83,7 +83,7 @@ class AssetsTable
 
                 TextColumn::make('warranty_expiry_date')
                     ->label('Garantía')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('—')
                     ->color(fn ($record) => $record?->warranty_expiry_date?->isPast() ? 'danger' : null)
                     ->sortable()
@@ -91,7 +91,7 @@ class AssetsTable
 
                 TextColumn::make('created_at')
                     ->label('Creado')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

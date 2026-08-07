@@ -45,7 +45,7 @@ class ActivityRelationManager extends RelationManager
 
                 TextColumn::make('created_at')
                     ->label('Fecha')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime(current_datetime_format())
                     ->sortable(),
             ])
             ->filters([

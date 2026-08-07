@@ -57,11 +57,11 @@ class MaintenanceRecordInfolist
 
                         TextEntry::make('started_at')
                             ->label('Fecha de inicio')
-                            ->date('d/m/Y'),
+                            ->date(current_date_format()),
 
                         TextEntry::make('completed_at')
                             ->label('Fecha de término')
-                            ->date('d/m/Y')
+                            ->date(current_date_format())
                             ->placeholder('En curso'),
                     ])
                     ->columns(2),

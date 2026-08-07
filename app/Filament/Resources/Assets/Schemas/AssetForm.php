@@ -96,7 +96,7 @@ class AssetForm
                     ->schema([
                         DatePicker::make('purchase_date')
                             ->label('Fecha de compra')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->columnSpan(1),
 
                         TextInput::make('purchase_price')
@@ -128,7 +128,7 @@ class AssetForm
                     ->schema([
                         DatePicker::make('warranty_expiry_date')
                             ->label('Fecha de vencimiento de garantía')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->columnSpan(1),
 
                         Select::make('warranty_supplier_id')

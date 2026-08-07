@@ -32,7 +32,7 @@ class AssetCategoriesTable
 
                 TextColumn::make('created_at')
                     ->label('Creado')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

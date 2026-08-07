@@ -41,12 +41,12 @@ class AssignmentsTable
 
                 TextColumn::make('assigned_at')
                     ->label('Asignado el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable(),
 
                 TextColumn::make('returned_at')
                     ->label('Devuelto el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('Activo')
                     ->sortable(),
 

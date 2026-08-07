@@ -38,11 +38,11 @@ class MaintenanceRecordsRelationManager extends RelationManager
 
                 TextColumn::make('started_at')
                     ->label('Inicio')
-                    ->date('d/m/Y'),
+                    ->date(current_date_format()),
 
                 TextColumn::make('completed_at')
                     ->label('Término')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('En curso'),
             ])
             ->recordActions([

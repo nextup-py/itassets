@@ -48,7 +48,7 @@
     @if ($intro)
         <p>{{ str_replace(
             [':company', ':date', ':employee', ':document', ':position'],
-            [$company, $assignment->assigned_at->format('d/m/Y'), optional($assignment->employee)->name ?? '—', optional($assignment->employee)->document_number ?? '—', optional($assignment->employee)->position ?? '—'],
+            [$company, $assignment->assigned_at->format(current_date_format()), optional($assignment->employee)->name ?? '—', optional($assignment->employee)->document_number ?? '—', optional($assignment->employee)->position ?? '—'],
             $intro
         ) }}</p>
     @else
@@ -87,7 +87,7 @@
                     <td>{{ $asset->serial_number ?? '—' }}</td>
                     <td>{{ $asset->pivot->charger_serial ?? '—' }}</td>
                     <td>{{ $asset->pivot->ticket_number ?? '—' }}</td>
-                    <td>{{ $asset->pivot->assigned_at ? \Carbon\Carbon::parse($asset->pivot->assigned_at)->format('d/m/Y') : '—' }}</td>
+                    <td>{{ $asset->pivot->assigned_at ? \Carbon\Carbon::parse($asset->pivot->assigned_at)->format(current_date_format()) : '—' }}</td>
                     <td>{{ $asset->pivot->notes ?? '—' }}</td>
                 </tr>
             @endforeach
@@ -135,7 +135,7 @@
     @endif
 
     <div class="footer">
-        Documento generado el {{ now()->format('d/m/Y H:i') }}
+        Documento generado el {{ now()->format(current_datetime_format()) }}
     </div>
 
 </body>

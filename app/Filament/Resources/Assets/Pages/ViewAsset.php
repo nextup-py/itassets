@@ -49,7 +49,7 @@ class ViewAsset extends ViewRecord
                         ->label('Fecha de asignación')
                         ->required()
                         ->default(now())
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat(current_date_format()),
 
                     TextInput::make('charger_serial')
                         ->label('Cargador N/S')
@@ -83,7 +83,7 @@ class ViewAsset extends ViewRecord
                         ->label('Fecha de devolución')
                         ->required()
                         ->default(now())
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat(current_date_format()),
 
                     Textarea::make('notes')
                         ->label('Notas de devolución')
@@ -128,7 +128,7 @@ class ViewAsset extends ViewRecord
                         ->label('Fecha de inicio')
                         ->required()
                         ->default(now())
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat(current_date_format()),
                 ])
                 ->action(function (array $data) use ($maintenanceService): void {
                     $maintenanceService->start($this->record, $data);
@@ -160,7 +160,7 @@ class ViewAsset extends ViewRecord
                         ->label('Fecha de término')
                         ->required()
                         ->default(now())
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat(current_date_format()),
 
                     Textarea::make('resolution')
                         ->label('Resolución / Diagnóstico final')

@@ -40,7 +40,7 @@ class LicensesTable
 
                 TextColumn::make('expiry_date')
                     ->label('Vence')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('Sin vencimiento')
                     ->color(fn (License $record): ?string => $record->expiry_date?->isPast() ? 'danger'
                         : ($record->expiry_date?->diffInDays(now()) <= 60 ? 'warning' : null))

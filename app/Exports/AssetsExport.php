@@ -47,7 +47,7 @@ class AssetsExport implements FromQuery, WithHeadings, WithMapping
             Asset::CONDITIONS[$asset->condition] ?? $asset->condition ?? '—',
             $asset->supplier?->name ?? '—',
             $asset->location?->name ?? '—',
-            $asset->purchase_date?->format('d/m/Y') ?? '—',
+            $asset->purchase_date?->format(current_date_format()) ?? '—',
             $asset->purchase_price ? \format_currency($asset->purchase_price) : '—',
             $assignedTo,
         ];

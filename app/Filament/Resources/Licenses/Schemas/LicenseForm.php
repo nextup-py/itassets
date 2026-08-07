@@ -59,12 +59,12 @@ class LicenseForm
                     ->schema([
                         DatePicker::make('purchase_date')
                             ->label('Fecha de compra')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->columnSpan(1),
 
                         DatePicker::make('expiry_date')
                             ->label('Fecha de vencimiento')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat(current_date_format())
                             ->after('purchase_date')
                             ->columnSpan(1),
 

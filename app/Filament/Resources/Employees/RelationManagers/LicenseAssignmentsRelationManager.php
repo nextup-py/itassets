@@ -34,12 +34,12 @@ class LicenseAssignmentsRelationManager extends RelationManager
 
                 TextColumn::make('assigned_at')
                     ->label('Asignada el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->sortable(),
 
                 TextColumn::make('released_at')
                     ->label('Liberada el')
-                    ->date('d/m/Y')
+                    ->date(current_date_format())
                     ->placeholder('Activa')
                     ->sortable(),
 

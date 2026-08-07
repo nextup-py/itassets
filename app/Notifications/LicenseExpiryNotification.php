@@ -38,7 +38,7 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
                 ? "La licencia **{$this->license->product_name}** ha vencido."
                 : "La licencia **{$this->license->product_name}** vencerá en {$this->daysRemaining} días."
             )
-            ->line("Fecha de vencimiento: {$this->license->expiry_date?->format('d/m/Y')}")
+            ->line("Fecha de vencimiento: {$this->license->expiry_date?->format(current_date_format())}")
             ->line("Asientos totales: {$this->license->total_seats}")
             ->line("Asientos utilizados: {$this->license->usedSeats()}")
             ->action('Ver licencia', url("/admin/licenses/{$this->license->id}"))
@@ -52,7 +52,7 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
         return [
             'license_id'    => $this->license->id,
             'product_name'  => $this->license->product_name,
-            'expiry_date'   => $this->license->expiry_date?->format('d/m/Y'),
+            'expiry_date'   => $this->license->expiry_date?->format(current_date_format()),
             'days_remaining' => $this->daysRemaining,
             'type'          => $isExpired ? 'license_expired' : 'license_expiring',
             'message'       => $isExpired
@@ -69,7 +69,7 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
             ->title($isExpired
                 ? "Licencia vencida: {$this->license->product_name}"
                 : "Licencia por vencer ({$this->daysRemaining} días): {$this->license->product_name}")
-            ->body('Vencimiento: ' . ($this->license->expiry_date?->format('d/m/Y') ?? '—'))
+            ->body('Vencimiento: ' . ($this->license->expiry_date?->format(current_date_format()) ?? '—'))
             ->status($isExpired ? 'danger' : 'warning');
     }
 }
