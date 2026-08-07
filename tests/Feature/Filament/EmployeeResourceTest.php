@@ -45,6 +45,44 @@ it('creates an employee', function () {
     expect(Employee::where('name', 'Jane Doe')->exists())->toBeTrue();
 });
 
+it('creates an employee with a document_type', function () {
+    $department = Department::factory()->create();
+
+    Livewire::test(CreateEmployee::class)
+        ->fillForm([
+            'name' => 'Jane Doe',
+            'legajo' => 'AMP-999',
+            'document_number' => '99999999',
+            'document_type' => 'dni',
+            'department_id' => $department->id,
+            'position' => 'Analista',
+            'email' => 'jane.doe@example.com',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Employee::where('name', 'Jane Doe')->first()->document_type)->toBe('dni');
+});
+
+it('creates an employee without a document_type since it is optional', function () {
+    $department = Department::factory()->create();
+
+    Livewire::test(CreateEmployee::class)
+        ->fillForm([
+            'name' => 'Jane Doe',
+            'legajo' => 'AMP-999',
+            'document_number' => '99999999',
+            'document_type' => null,
+            'department_id' => $department->id,
+            'position' => 'Analista',
+            'email' => 'jane.doe@example.com',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Employee::where('name', 'Jane Doe')->first()->document_type)->toBeNull();
+});
+
 it('requires a legajo to create', function () {
     Livewire::test(CreateEmployee::class)
         ->fillForm([
@@ -281,4 +319,18 @@ it('has no create/edit/delete actions on the Licencias tab (read-only)', functio
         ->assertTableActionDoesNotExist('create')
         ->assertTableActionDoesNotExist('edit')
         ->assertTableActionDoesNotExist('delete');
+});
+
+it('shows document_type on the employee view page', function () {
+    $employee = Employee::factory()->create(['document_type' => 'passport']);
+
+    Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
+        ->assertOk();
+});
+
+it('lists employees when some have no document_type', function () {
+    Employee::factory()->create(['document_type' => null]);
+    Employee::factory()->create(['document_type' => 'ci']);
+
+    $this->get('/admin/employees')->assertOk();
 });

@@ -14,6 +14,15 @@ class Employee extends Model
 {
     use HasFactory, Blameable, LogsActivity;
 
+    public const DOCUMENT_TYPES = [
+        'ci'       => 'Cédula de identidad (CI)',
+        'dni'      => 'DNI',
+        'passport' => 'Pasaporte',
+        'ruc'      => 'RUC',
+        'rfc'      => 'RFC',
+        'other'    => 'Otro',
+    ];
+
     protected $fillable = [
         'legajo',
         'name',
@@ -22,6 +31,7 @@ class Employee extends Model
         'department_id',
         'position',
         'document_number',
+        'document_type',
         'is_active',
         'created_by',
         'updated_by',
