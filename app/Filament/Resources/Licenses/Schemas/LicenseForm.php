@@ -75,6 +75,14 @@ class LicenseForm
                             ->minValue(0)
                             ->columnSpan(1),
 
+                        TextInput::make('currency')
+                            ->label('Moneda')
+                            ->helperText('Código ISO 4217 (ej. USD, EUR). En blanco = moneda base de la instalación.')
+                            ->default(fn () => \App\Models\Setting::get('base_currency', 'USD'))
+                            ->maxLength(3)
+                            ->regex('/^[A-Za-z]{3}$/')
+                            ->columnSpan(1),
+
                         Select::make('supplier_id')
                             ->label('Proveedor')
                             ->options(Supplier::pluck('name', 'id'))

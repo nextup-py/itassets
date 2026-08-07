@@ -28,6 +28,7 @@ class Asset extends Model
         'notes',
         'purchase_date',
         'purchase_price',
+        'currency',
         'supplier_id',
         'location_id',
         'warranty_expiry_date',
