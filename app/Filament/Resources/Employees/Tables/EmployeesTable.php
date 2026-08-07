@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Tables;
 
+use App\Models\Employee;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -28,6 +29,12 @@ class EmployeesTable
                     ->label('Documento de identidad')
                     ->searchable()
                     ->placeholder('—'),
+
+                TextColumn::make('document_type')
+                    ->label('Tipo de documento')
+                    ->formatStateUsing(fn (?string $state): ?string => $state ? (Employee::DOCUMENT_TYPES[$state] ?? $state) : null)
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('name')
                     ->label('Nombre')
@@ -75,6 +82,10 @@ class EmployeesTable
                 SelectFilter::make('department_id')
                     ->label('Departamento')
                     ->relationship('department', 'name'),
+
+                SelectFilter::make('document_type')
+                    ->label('Tipo de documento')
+                    ->options(Employee::DOCUMENT_TYPES),
             ])
             ->recordActions([
                 ViewAction::make(),

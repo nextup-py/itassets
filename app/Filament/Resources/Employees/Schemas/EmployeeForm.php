@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\Models\Employee;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -40,6 +41,14 @@ class EmployeeForm
                             ->unique(ignoreRecord: true)
                             ->placeholder('Ej: 12.345.678')
                             ->helperText('DNI, pasaporte u otro documento de identidad.')
+                            ->columnSpan(1),
+
+                        Select::make('document_type')
+                            ->label('Tipo de documento')
+                            ->options(Employee::DOCUMENT_TYPES)
+                            ->default('ci')
+                            ->native(false)
+                            ->placeholder('Seleccionar...')
                             ->columnSpan(1),
                     ])
                     ->columns(2),

@@ -20,6 +20,7 @@ class EmployeeFactory extends Factory
             'department_id' => Department::factory(),
             'position' => $this->faker->jobTitle(),
             'document_number' => $this->faker->unique()->numerify('########'),
+            'document_type' => $this->faker->randomElement(array_keys(Employee::DOCUMENT_TYPES)),
             'is_active' => true,
         ];
     }

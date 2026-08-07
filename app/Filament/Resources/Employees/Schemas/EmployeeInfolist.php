@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\Models\Employee;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -25,6 +26,11 @@ class EmployeeInfolist
 
                         TextEntry::make('document_number')
                             ->label('Documento de identidad'),
+
+                        TextEntry::make('document_type')
+                            ->label('Tipo de documento')
+                            ->formatStateUsing(fn (?string $state): ?string => $state ? (Employee::DOCUMENT_TYPES[$state] ?? $state) : null)
+                            ->placeholder('—'),
 
                         IconEntry::make('is_active')
                             ->label('Activo')
