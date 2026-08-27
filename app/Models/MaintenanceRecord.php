@@ -7,12 +7,13 @@ use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class MaintenanceRecord extends Model
 {
-    use HasFactory, Blameable, LogsActivity;
+    use Blameable, HasFactory, LogsActivity;
 
     protected $fillable = [
         'asset_id',
@@ -31,37 +32,37 @@ class MaintenanceRecord extends Model
     ];
 
     protected $casts = [
-        'started_at'   => 'date',
+        'started_at' => 'date',
         'completed_at' => 'date',
-        'cost'         => 'decimal:2',
+        'cost' => 'decimal:2',
     ];
 
     public const TYPES = [
-        'repair'      => 'Reparación',
-        'preventive'  => 'Mantenimiento preventivo',
-        'warranty'    => 'Garantía',
-        'upgrade'     => 'Actualización / Upgrade',
-        'other'       => 'Otro',
+        'repair' => 'Reparación',
+        'preventive' => 'Mantenimiento preventivo',
+        'warranty' => 'Garantía',
+        'upgrade' => 'Actualización / Upgrade',
+        'other' => 'Otro',
     ];
 
     public const STATUSES = [
-        'pending'     => 'Pendiente',
+        'pending' => 'Pendiente',
         'in_progress' => 'En proceso',
-        'completed'   => 'Completado',
+        'completed' => 'Completado',
     ];
 
     public const STATUS_COLORS = [
-        'pending'     => 'warning',
+        'pending' => 'warning',
         'in_progress' => 'info',
-        'completed'   => 'success',
+        'completed' => 'success',
     ];
 
     public const TYPE_COLORS = [
-        'repair'     => 'danger',
+        'repair' => 'danger',
         'preventive' => 'success',
-        'warranty'   => 'warning',
-        'upgrade'    => 'info',
-        'other'      => 'gray',
+        'warranty' => 'warning',
+        'upgrade' => 'info',
+        'other' => 'gray',
     ];
 
     public function getStatusLabel(): string
@@ -124,6 +125,14 @@ class MaintenanceRecord extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function supplies(): BelongsToMany
+    {
+        return $this->belongsToMany(Supply::class, 'maintenance_record_supply')
+            ->using(MaintenanceRecordSupply::class)
+            ->withPivot(['quantity_used'])
+            ->withTimestamps();
     }
 
     public function getActivitylogOptions(): LogOptions

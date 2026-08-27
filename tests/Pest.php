@@ -1,6 +1,11 @@
 <?php
 
+use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /*
@@ -46,69 +51,70 @@ expect()->extend('toBeOne', function () {
 
 function createRolesAndPermissions(): void
 {
-    app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+    app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    $resources = \Database\Seeders\RoleSeeder::RESOURCES;
-    $actions = \Database\Seeders\RoleSeeder::ACTIONS;
-    $extraPermissions = \Database\Seeders\RoleSeeder::EXTRA_PERMISSIONS;
+    $resources = RoleSeeder::RESOURCES;
+    $actions = RoleSeeder::ACTIONS;
+    $extraPermissions = RoleSeeder::EXTRA_PERMISSIONS;
 
+    // Keep this in sync with RoleSeeder::RESOURCES — see class doc there.
     foreach ($resources as $resource) {
         foreach ($actions as $action) {
-            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => "{$action}_{$resource}"]);
+            Permission::firstOrCreate(['name' => "{$action}_{$resource}"]);
         }
     }
     foreach ($extraPermissions as $permission) {
-        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permission]);
+        Permission::firstOrCreate(['name' => $permission]);
     }
 
-    $admin = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin']);
-    $admin->syncPermissions(\Spatie\Permission\Models\Permission::all());
+    $admin = Role::firstOrCreate(['name' => 'Admin']);
+    $admin->syncPermissions(Permission::all());
 
-    $editor = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Editor']);
+    $editor = Role::firstOrCreate(['name' => 'Editor']);
     $editor->syncPermissions(
-        \Spatie\Permission\Models\Permission::whereNotIn('name', [
+        Permission::whereNotIn('name', [
             ...array_map(fn ($r) => "delete_{$r}", $resources),
             ...$extraPermissions,
         ])->pluck('name')
     );
 
-    $viewer = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Viewer']);
+    $viewer = Role::firstOrCreate(['name' => 'Viewer']);
     $viewer->syncPermissions(
-        \Spatie\Permission\Models\Permission::whereIn('name', [
+        Permission::whereIn('name', [
             ...array_map(fn ($r) => "view_any_{$r}", $resources),
             ...array_map(fn ($r) => "view_{$r}", $resources),
         ])->pluck('name')
     );
 }
 
-function makeAdminUser(): \App\Models\User
+function makeAdminUser(): User
 {
     createRolesAndPermissions();
 
-    return \App\Models\User::factory()->admin()->create([
+    return User::factory()->admin()->create([
         'email' => 'admin@test.com',
     ]);
 }
 
-function makeEditorUser(): \App\Models\User
+function makeEditorUser(): User
 {
     createRolesAndPermissions();
 
-    return \App\Models\User::factory()->editor()->create([
+    return User::factory()->editor()->create([
         'email' => 'editor@test.com',
     ]);
 }
 
-function makeViewerUser(): \App\Models\User
+function makeViewerUser(): User
 {
     createRolesAndPermissions();
 
-    return \App\Models\User::factory()->viewer()->create([
+    return User::factory()->viewer()->create([
         'email' => 'viewer@test.com',
     ]);
 }
 
-function loginAsAdmin(): \App\Models\User
+function loginAsAdmin(): User
 {
     $user = makeAdminUser();
     test()->actingAs($user);
@@ -116,7 +122,7 @@ function loginAsAdmin(): \App\Models\User
     return $user;
 }
 
-function loginAsEditor(): \App\Models\User
+function loginAsEditor(): User
 {
     $user = makeEditorUser();
     test()->actingAs($user);
@@ -124,7 +130,7 @@ function loginAsEditor(): \App\Models\User
     return $user;
 }
 
-function loginAsViewer(): \App\Models\User
+function loginAsViewer(): User
 {
     $user = makeViewerUser();
     test()->actingAs($user);

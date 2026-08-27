@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class RoleSeeder extends Seeder
     public const RESOURCES = [
         'asset', 'assignment', 'employee', 'license',
         'maintenance_record', 'asset_category', 'supplier', 'location',
-        'user', 'department',
+        'user', 'department', 'supply', 'supply_adjustment',
     ];
 
     public const ACTIONS = ['view_any', 'view', 'create', 'update', 'delete'];
@@ -30,7 +31,7 @@ class RoleSeeder extends Seeder
 
     public function run(): void
     {
-        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
         foreach (self::RESOURCES as $resource) {
             foreach (self::ACTIONS as $action) {
