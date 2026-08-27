@@ -7,6 +7,7 @@ use App\Filament\Resources\MaintenanceRecords\Pages\CreateMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\EditMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\ListMaintenanceRecords;
 use App\Filament\Resources\MaintenanceRecords\Pages\ViewMaintenanceRecord;
+use App\Filament\Resources\MaintenanceRecords\RelationManagers\SuppliesRelationManager;
 use App\Filament\Resources\MaintenanceRecords\Schemas\MaintenanceRecordForm;
 use App\Filament\Resources\MaintenanceRecords\Schemas\MaintenanceRecordInfolist;
 use App\Filament\Resources\MaintenanceRecords\Tables\MaintenanceRecordsTable;
@@ -26,6 +27,7 @@ class MaintenanceRecordResource extends Resource
     {
         return 'maintenance_record';
     }
+
     protected static ?string $model = MaintenanceRecord::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
@@ -60,6 +62,7 @@ class MaintenanceRecordResource extends Resource
     public static function getRelations(): array
     {
         return [
+            SuppliesRelationManager::class,
             ActivityRelationManager::class,
         ];
     }
@@ -67,10 +70,10 @@ class MaintenanceRecordResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListMaintenanceRecords::route('/'),
+            'index' => ListMaintenanceRecords::route('/'),
             'create' => CreateMaintenanceRecord::route('/create'),
-            'view'   => ViewMaintenanceRecord::route('/{record}'),
-            'edit'   => EditMaintenanceRecord::route('/{record}/edit'),
+            'view' => ViewMaintenanceRecord::route('/{record}'),
+            'edit' => EditMaintenanceRecord::route('/{record}/edit'),
         ];
     }
 }

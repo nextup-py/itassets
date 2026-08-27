@@ -109,35 +109,18 @@ it('prevents an admin from removing their own Admin role', function () {
     expect($admin->fresh()->hasRole('Admin'))->toBeTrue();
 });
 
-it('prevents demoting the last admin away from the Admin role', function () {
+// Note: the "someone else demotes the last remaining Admin" branch of the
+// last-admin guard in EditUser::beforeSave() is now unreachable via the UI —
+// reaching EditUser requires being an Admin yourself (see AdminOnlyAccessTest),
+// so a distinct actor implies at least 2 Admins exist, and self-demotion is
+// covered separately by "prevents an admin from removing their own Admin role".
+
+it('denies editor from reaching the edit form at all, so it can never grant the Admin role', function () {
     loginAsEditor();
-    $onlyAdmin = User::factory()->admin()->create();
-    $viewerRoleId = Role::where('name', 'Viewer')->value('id');
-
-    Livewire::test(EditUser::class, ['record' => $onlyAdmin->getRouteKey()])
-        ->fillForm([
-            'name' => $onlyAdmin->name,
-            'email' => $onlyAdmin->email,
-            'roles' => [$viewerRoleId],
-        ])
-        ->call('save');
-
-    expect($onlyAdmin->fresh()->hasRole('Admin'))->toBeTrue();
-});
-
-it('prevents an editor from granting the Admin role to another user', function () {
-    loginAsEditor();
-    $adminRoleId = Role::where('name', 'Admin')->value('id');
-    $viewerRoleId = Role::where('name', 'Viewer')->value('id');
     $target = User::factory()->viewer()->create();
 
     Livewire::test(EditUser::class, ['record' => $target->getRouteKey()])
-        ->fillForm([
-            'name' => $target->name,
-            'email' => $target->email,
-            'roles' => [$viewerRoleId, $adminRoleId],
-        ])
-        ->call('save');
+        ->assertForbidden();
 
     expect($target->fresh()->hasRole('Admin'))->toBeFalse();
 });
@@ -169,17 +152,17 @@ it('denies viewer from creating a user', function () {
     Livewire::test(CreateUser::class)->assertForbidden();
 });
 
-it('hides the toggleActive action from editor on the edit page', function () {
+it('denies editor access to the edit page entirely (toggleActive included)', function () {
     $user = User::factory()->create();
     loginAsEditor();
 
     Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
-        ->assertActionHidden('toggleActive');
+        ->assertForbidden();
 });
 
-it('hides the deactivate bulk action from editor on the list page', function () {
+it('denies editor access to the list page entirely (deactivate bulk action included)', function () {
     User::factory()->create();
     loginAsEditor();
 
-    Livewire::test(ListUsers::class)->assertTableBulkActionHidden('deactivate');
+    Livewire::test(ListUsers::class)->assertForbidden();
 });

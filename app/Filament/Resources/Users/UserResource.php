@@ -17,6 +17,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -25,6 +27,18 @@ class UserResource extends Resource
     protected static function getPermissionName(): string
     {
         return 'user';
+    }
+
+    // "Administración" is Admin-only: Editor/Viewer must never see or reach
+    // this resource, regardless of their {action}_user permission grants.
+    // Overriding authorizeAbility() (rather than the get*AuthorizationResponse
+    // methods individually) keeps this one extra check in a single place
+    // while still going through every check the trait wires up.
+    protected static function authorizeAbility(string $ability): Response
+    {
+        return Auth::user()?->hasRole('Admin') && Auth::user()->can($ability)
+            ? Response::allow()
+            : Response::deny();
     }
 
     protected static ?string $model = User::class;
@@ -68,10 +82,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListUsers::route('/'),
+            'index' => ListUsers::route('/'),
             'create' => CreateUser::route('/create'),
-            'view'   => ViewUser::route('/{record}'),
-            'edit'   => EditUser::route('/{record}/edit'),
+            'view' => ViewUser::route('/{record}'),
+            'edit' => EditUser::route('/{record}/edit'),
         ];
     }
 }
