@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
 use App\Models\Supplier;
+use App\Support\Currencies;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -106,12 +107,11 @@ class AssetForm
                             ->minValue(0)
                             ->columnSpan(1),
 
-                        TextInput::make('currency')
+                        Select::make('currency')
                             ->label('Moneda')
-                            ->helperText('Código ISO 4217 (ej. USD, EUR). En blanco = moneda base de la instalación.')
-                            ->default(fn () => \App\Models\Setting::get('base_currency', 'USD'))
-                            ->maxLength(3)
-                            ->regex('/^[A-Za-z]{3}$/')
+                            ->helperText('En blanco = moneda base de la instalación.')
+                            ->options(Currencies::LIST)
+                            ->searchable()
                             ->columnSpan(1),
 
                         Select::make('supplier_id')

@@ -29,9 +29,11 @@ class RecentNotificationsWidget extends TableWidget
                 DatabaseNotification::query()
                     ->where('notifiable_type', auth()->user()?->getMorphClass() ?? '')
                     ->where('notifiable_id', auth()->id() ?? 0)
+                    ->where('data->format', 'filament')
                     ->latest()
                     ->limit(10)
             )
+            ->paginated(false)
             ->columns([
                 TextColumn::make('created_at')
                     ->label('')

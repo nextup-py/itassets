@@ -25,6 +25,7 @@ class AssetStatsWidget extends StatsOverviewWidget
         $assigned    = (int) ($counts['assigned'] ?? 0);
         $maintenance = (int) ($counts['maintenance'] ?? 0);
         $retired     = (int) ($counts['retired'] ?? 0);
+        $lost        = (int) ($counts['lost'] ?? 0);
 
         return [
             Stat::make('Total de activos', $total)
@@ -45,6 +46,10 @@ class AssetStatsWidget extends StatsOverviewWidget
 
             Stat::make('Dados de baja', $retired)
                 ->icon('heroicon-o-archive-box-x-mark')
+                ->color('danger'),
+
+            Stat::make('Perdidos / Robados', $lost)
+                ->icon('heroicon-o-exclamation-triangle')
                 ->color('danger'),
         ];
     }

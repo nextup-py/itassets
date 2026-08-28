@@ -152,6 +152,22 @@ it('creates an asset with its own currency', function () {
     expect(Asset::where('name', 'Laptop importada')->first()->currency)->toBe('EUR');
 });
 
+it('defaults the currency field to blank, not the installation\'s base currency', function () {
+    $category = AssetCategory::factory()->create();
+    \App\Models\Setting::set('base_currency', 'USD');
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Laptop default',
+            'asset_category_id' => $category->id,
+            'status' => 'stock',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Asset::where('name', 'Laptop default')->first()->currency)->toBeNull();
+});
+
 it('creates an asset without a currency (optional field)', function () {
     $category = AssetCategory::factory()->create();
 
@@ -168,7 +184,7 @@ it('creates an asset without a currency (optional field)', function () {
     expect(Asset::where('name', 'Laptop sin moneda')->first()->currency)->toBeNull();
 });
 
-it('rejects a currency that is not a 3-letter code', function () {
+it('rejects a currency value that is not one of the offered options', function () {
     $category = AssetCategory::factory()->create();
 
     Livewire::test(CreateAsset::class)
@@ -178,7 +194,9 @@ it('rejects a currency that is not a 3-letter code', function () {
             'currency' => 'US$',
         ])
         ->call('create')
-        ->assertHasFormErrors(['currency' => 'regex']);
+        ->assertHasFormErrors(['currency']);
+
+    expect(Asset::where('name', 'Laptop')->exists())->toBeFalse();
 });
 
 it('auto-generates the asset_tag through the create form when left blank', function () {

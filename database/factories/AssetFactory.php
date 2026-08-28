@@ -57,4 +57,9 @@ class AssetFactory extends Factory
     {
         return $this->state(['status' => 'retired', 'condition' => 'poor']);
     }
+
+    public function lost(): static
+    {
+        return $this->state(['status' => 'lost']);
+    }
 }
