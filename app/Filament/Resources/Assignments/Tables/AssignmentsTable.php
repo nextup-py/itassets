@@ -21,7 +21,7 @@ class AssignmentsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('employee.department')
+                TextColumn::make('employee.department.name')
                     ->label('Departamento')
                     ->placeholder('—')
                     ->searchable()

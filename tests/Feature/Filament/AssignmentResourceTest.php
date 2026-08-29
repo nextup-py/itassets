@@ -89,3 +89,13 @@ it('fills in assigned_by from the authenticated user when created from this reso
 it('has an employee filter on the assignments table', function () {
     Livewire::test(ListAssignments::class)->assertTableFilterExists('employee_id');
 });
+
+it('shows the employee department name, not a raw object, in the department column', function () {
+    $department = \App\Models\Department::factory()->create(['name' => 'Soporte Técnico']);
+    $employee = Employee::factory()->create(['department_id' => $department->id]);
+    Assignment::factory()->create(['employee_id' => $employee->id]);
+
+    Livewire::test(ListAssignments::class)
+        ->toggleAllTableColumns()
+        ->assertSee('Soporte Técnico');
+});

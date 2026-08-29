@@ -19,7 +19,8 @@ class SuppliersTable
                 TextColumn::make('contact_name')
                     ->label('Contacto')
                     ->searchable()
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('email')
                     ->label('Correo electrónico')

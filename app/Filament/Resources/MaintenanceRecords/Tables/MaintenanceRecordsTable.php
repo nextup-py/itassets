@@ -44,19 +44,19 @@ class MaintenanceRecordsTable
                     ->placeholder('—')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('supplier.name')
                     ->label('Proveedor')
                     ->placeholder('—')
                     ->searchable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('cost')
                     ->label('Costo')
                     ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state))
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('started_at')
                     ->label('Inicio')

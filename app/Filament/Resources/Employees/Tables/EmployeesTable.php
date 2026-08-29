@@ -25,7 +25,8 @@ class EmployeesTable
                 TextColumn::make('document_number')
                     ->label('Documento de identidad')
                     ->searchable()
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('document_type')
                     ->label('Tipo de documento')

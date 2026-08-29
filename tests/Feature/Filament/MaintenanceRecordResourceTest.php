@@ -133,7 +133,9 @@ it('formats the cost column using the configured currency instead of a hardcoded
     Setting::set('display_locale', 'de_DE');
     MaintenanceRecord::factory()->create(['cost' => 100]);
 
-    Livewire::test(ListMaintenanceRecords::class)->assertSee('100,00 €');
+    Livewire::test(ListMaintenanceRecords::class)
+        ->toggleAllTableColumns()
+        ->assertSee('100,00 €');
 });
 
 it('reverts the asset to available when its only active maintenance record is deleted', function () {

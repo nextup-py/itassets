@@ -48,7 +48,7 @@ class UsersTable
                     ->dateTime(current_datetime_format())
                     ->placeholder('Nunca')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Creado')

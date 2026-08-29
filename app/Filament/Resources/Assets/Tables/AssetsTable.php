@@ -79,7 +79,7 @@ class AssetsTable
                     ->placeholder('—')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('warranty_expiry_date')
                     ->label('Garantía')
