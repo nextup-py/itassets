@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Supplies\Tables;
 
-use App\Models\AssetCategory;
-use App\Models\Location;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -65,11 +63,15 @@ class SuppliesTable
             ->filters([
                 SelectFilter::make('asset_category_id')
                     ->label('Categoría')
-                    ->options(AssetCategory::pluck('name', 'id')),
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 SelectFilter::make('location_id')
                     ->label('Ubicación')
-                    ->options(Location::pluck('name', 'id')),
+                    ->relationship('location', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 ViewAction::make(),

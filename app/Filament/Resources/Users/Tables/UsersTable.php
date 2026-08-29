@@ -61,7 +61,9 @@ class UsersTable
             ->filters([
                 SelectFilter::make('roles')
                     ->label('Rol')
-                    ->relationship('roles', 'name'),
+                    ->relationship('roles', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 TernaryFilter::make('is_active')
                     ->label('Activo'),

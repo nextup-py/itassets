@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Assignments\Tables;
 
 use App\Models\Assignment;
-use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -53,6 +52,8 @@ class AssignmentsTable
                 TextColumn::make('assigned_by')
                     ->label('Asignado por')
                     ->placeholder('—')
+                    ->searchable()
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -63,7 +64,9 @@ class AssignmentsTable
 
                 SelectFilter::make('employee_id')
                     ->label('Empleado')
-                    ->options(Employee::pluck('name', 'id')),
+                    ->relationship('employee', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 ViewAction::make(),

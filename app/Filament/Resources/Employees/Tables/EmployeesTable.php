@@ -81,7 +81,9 @@ class EmployeesTable
 
                 SelectFilter::make('department_id')
                     ->label('Departamento')
-                    ->relationship('department', 'name'),
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 SelectFilter::make('document_type')
                     ->label('Tipo de documento')

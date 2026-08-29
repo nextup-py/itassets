@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Licenses\Tables;
 
 use App\Models\License;
-use App\Models\Supplier;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -65,7 +64,9 @@ class LicensesTable
 
                 SelectFilter::make('supplier_id')
                     ->label('Proveedor')
-                    ->options(Supplier::pluck('name', 'id')),
+                    ->relationship('supplier', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 Filter::make('expiry_status')
                     ->label('Estado de vencimiento')

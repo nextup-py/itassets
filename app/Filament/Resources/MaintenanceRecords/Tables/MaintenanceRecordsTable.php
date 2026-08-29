@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\MaintenanceRecords\Tables;
 
 use App\Models\MaintenanceRecord;
-use App\Models\Supplier;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -46,6 +45,8 @@ class MaintenanceRecordsTable
                 TextColumn::make('technician')
                     ->label('Técnico')
                     ->placeholder('—')
+                    ->searchable()
+                    ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('supplier.name')
@@ -82,7 +83,9 @@ class MaintenanceRecordsTable
 
                 SelectFilter::make('supplier_id')
                     ->label('Proveedor')
-                    ->options(Supplier::pluck('name', 'id')),
+                    ->relationship('supplier', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 Filter::make('prolonged')
                     ->label('Prolongado (>7 días)')
