@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Licenses\Tables;
 
 use App\Models\License;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -97,7 +96,6 @@ class LicensesTable
                     }),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('renew')
                     ->label('Renovar')
                     ->icon('heroicon-o-arrow-path')

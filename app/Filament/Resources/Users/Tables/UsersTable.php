@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Users\Tables;
 use App\Models\User;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -66,9 +65,6 @@ class UsersTable
 
                 TernaryFilter::make('is_active')
                     ->label('Activo'),
-            ])
-            ->recordActions([
-                ViewAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

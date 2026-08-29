@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Locations\Tables;
 
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -44,9 +43,6 @@ class LocationsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([])
-            ->recordActions([
-                ViewAction::make(),
-            ])
             ->defaultSort('name');
     }
 }

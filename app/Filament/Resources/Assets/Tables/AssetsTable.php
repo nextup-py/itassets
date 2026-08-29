@@ -6,7 +6,6 @@ use App\Models\Asset;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -120,7 +119,6 @@ class AssetsTable
                     ->preload(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('changeStatus')
                     ->label('Cambiar estado')
                     ->icon('heroicon-o-arrow-path')

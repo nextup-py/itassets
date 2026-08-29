@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Employees\Tables;
 
 use App\Models\Employee;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -88,7 +87,6 @@ class EmployeesTable
                     ->options(Employee::DOCUMENT_TYPES),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('toggleActive')
                     ->label(fn (Employee $record) => $record->is_active ? 'Desactivar' : 'Activar')
                     ->icon(fn (Employee $record) => $record->is_active ? 'heroicon-o-no-symbol' : 'heroicon-o-check-circle')

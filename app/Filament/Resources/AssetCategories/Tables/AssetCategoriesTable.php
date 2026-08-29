@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\AssetCategories\Tables;
 
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -34,9 +33,6 @@ class AssetCategoriesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([])
-            ->recordActions([
-                ViewAction::make(),
-            ])
             ->defaultSort('name');
     }
 }

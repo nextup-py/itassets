@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Suppliers\Tables;
 
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -62,9 +61,6 @@ class SuppliersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([])
-            ->recordActions([
-                ViewAction::make(),
-            ])
             ->defaultSort('name');
     }
 }

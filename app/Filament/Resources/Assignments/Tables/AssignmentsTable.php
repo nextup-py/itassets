@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Assignments\Tables;
 
 use App\Models\Assignment;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -66,7 +65,6 @@ class AssignmentsTable
                     ->preload(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('pdf')
                     ->label('PDF')
                     ->icon('heroicon-o-printer')

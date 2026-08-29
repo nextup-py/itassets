@@ -6,7 +6,6 @@ use App\Models\Supply;
 use App\Models\SupplyAdjustment;
 use App\Services\SupplyAdjustmentService;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -80,7 +79,6 @@ class SuppliesTable
                     ->preload(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('manualAdjustment')
                     ->label('Baja manual')
                     ->icon('heroicon-o-minus-circle')

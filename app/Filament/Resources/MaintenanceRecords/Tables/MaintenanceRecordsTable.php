@@ -4,7 +4,6 @@ namespace App\Filament\Resources\MaintenanceRecords\Tables;
 
 use App\Models\MaintenanceRecord;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -92,7 +91,6 @@ class MaintenanceRecordsTable
                     ->toggle(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('complete')
                     ->label('Marcar completado')
                     ->icon('heroicon-o-check-circle')
