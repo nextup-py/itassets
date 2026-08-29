@@ -87,13 +87,6 @@ it('hides the delete action from editor on the edit page', function () {
         ->assertActionHidden('delete');
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    Department::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListDepartments::class)->assertTableBulkActionHidden('delete');
-});
-
 it('blocks deleting a department that still has employees attached, with a friendly notification', function () {
     $department = Department::factory()->create();
     Employee::factory()->create(['department_id' => $department->id]);

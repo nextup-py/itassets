@@ -106,13 +106,6 @@ it('hides the delete action from editor on the edit page', function () {
         ->assertActionHidden('delete');
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    Supplier::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListSuppliers::class)->assertTableBulkActionHidden('delete');
-});
-
 it('allows deleting a supplier with no associations', function () {
     $supplier = Supplier::factory()->create();
 

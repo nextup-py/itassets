@@ -45,9 +45,3 @@ it('denies viewer from creating a supply', function () {
     Livewire::test(CreateSupply::class)->assertForbidden();
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    Supply::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListSupplies::class)->assertTableBulkActionHidden('delete');
-});

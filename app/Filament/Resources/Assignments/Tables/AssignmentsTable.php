@@ -4,9 +4,6 @@ namespace App\Filament\Resources\Assignments\Tables;
 
 use App\Models\Assignment;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -75,12 +72,14 @@ class AssignmentsTable
                     ->icon('heroicon-o-printer')
                     ->color('gray')
                     ->url(fn (Assignment $record) => route('assignments.pdf', $record), shouldOpenInNewTab: true),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Action::make('returnNow')
+                    ->label('Devolver ahora')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->authorize('update_assignment')
+                    ->visible(fn (Assignment $record) => $record->isActive())
+                    ->requiresConfirmation()
+                    ->action(fn (Assignment $record) => $record->update(['returned_at' => now()])),
             ])
             ->defaultSort('assigned_at', 'desc');
     }

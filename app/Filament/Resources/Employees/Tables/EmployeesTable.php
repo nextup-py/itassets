@@ -3,9 +3,7 @@
 namespace App\Filament\Resources\Employees\Tables;
 
 use App\Models\Employee;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -91,12 +89,13 @@ class EmployeesTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Action::make('toggleActive')
+                    ->label(fn (Employee $record) => $record->is_active ? 'Desactivar' : 'Activar')
+                    ->icon(fn (Employee $record) => $record->is_active ? 'heroicon-o-no-symbol' : 'heroicon-o-check-circle')
+                    ->color(fn (Employee $record) => $record->is_active ? 'danger' : 'success')
+                    ->authorize('update_employee')
+                    ->requiresConfirmation()
+                    ->action(fn (Employee $record) => $record->update(['is_active' => ! $record->is_active])),
             ])
             ->defaultSort('name');
     }

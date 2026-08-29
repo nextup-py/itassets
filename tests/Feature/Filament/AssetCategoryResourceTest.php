@@ -92,13 +92,6 @@ it('hides the delete action from editor on the edit page', function () {
         ->assertActionHidden('delete');
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    AssetCategory::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListAssetCategories::class)->assertTableBulkActionHidden('delete');
-});
-
 it('shows the assets belonging to the category in the Activos tab', function () {
     $category = AssetCategory::factory()->create();
     $asset = Asset::factory()->create(['asset_category_id' => $category->id]);

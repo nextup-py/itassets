@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\Licenses\Tables;
 
 use App\Models\License;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -98,12 +98,27 @@ class LicensesTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Action::make('renew')
+                    ->label('Renovar')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->authorize('update_license')
+                    ->visible(fn (License $record): bool => $record->expiry_date
+                        && $record->expiry_date->diffInDays(now(), false) >= -60)
+                    ->form([
+                        DatePicker::make('expiry_date')
+                            ->label('Nueva fecha de vencimiento')
+                            ->required()
+                            ->default(fn (License $record) => $record->expiry_date)
+                            ->displayFormat(current_date_format()),
+
+                        TextInput::make('total_seats')
+                            ->label('Puestos totales')
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(fn (License $record) => $record->total_seats),
+                    ])
+                    ->action(fn (License $record, array $data) => $record->update($data)),
             ])
             ->defaultSort('product_name');
     }

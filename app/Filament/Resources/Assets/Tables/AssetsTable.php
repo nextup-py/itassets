@@ -3,17 +3,21 @@
 namespace App\Filament\Resources\Assets\Tables;
 
 use App\Models\Asset;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class AssetsTable
 {
+    private const QUICK_STATUSES = ['stock', 'available', 'retired', 'lost'];
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -117,11 +121,32 @@ class AssetsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                Action::make('changeStatus')
+                    ->label('Cambiar estado')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('gray')
+                    ->authorize('update_asset')
+                    ->form([
+                        Select::make('status')
+                            ->label('Nuevo estado')
+                            ->required()
+                            ->options(array_intersect_key(Asset::STATUSES, array_flip(self::QUICK_STATUSES))),
+                    ])
+                    ->action(fn (Asset $record, array $data) => $record->update(['status' => $data['status']])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    BulkAction::make('changeStatus')
+                        ->label('Cambiar estado')
+                        ->icon('heroicon-o-arrow-path')
+                        ->authorize('update_asset')
+                        ->form([
+                            Select::make('status')
+                                ->label('Nuevo estado')
+                                ->required()
+                                ->options(array_intersect_key(Asset::STATUSES, array_flip(self::QUICK_STATUSES))),
+                        ])
+                        ->action(fn (Collection $records, array $data) => $records->each->update(['status' => $data['status']])),
                 ]),
             ])
             ->defaultSort('asset_tag');

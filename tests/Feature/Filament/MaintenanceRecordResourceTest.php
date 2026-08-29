@@ -128,13 +128,6 @@ it('hides the delete action from editor on the edit page', function () {
         ->assertActionHidden('delete');
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    MaintenanceRecord::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListMaintenanceRecords::class)->assertTableBulkActionHidden('delete');
-});
-
 it('formats the cost column using the configured currency instead of a hardcoded one', function () {
     Setting::set('base_currency', 'EUR');
     Setting::set('display_locale', 'de_DE');

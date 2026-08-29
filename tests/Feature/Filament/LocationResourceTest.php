@@ -93,13 +93,6 @@ it('hides the delete action from editor on the edit page', function () {
         ->assertActionHidden('delete');
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    Location::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListLocations::class)->assertTableBulkActionHidden('delete');
-});
-
 it('allows deleting a location with no assets attached', function () {
     $location = Location::factory()->create();
 

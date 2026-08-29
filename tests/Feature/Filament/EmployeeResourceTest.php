@@ -190,13 +190,6 @@ it('denies viewer from creating an employee', function () {
     Livewire::test(CreateEmployee::class)->assertForbidden();
 });
 
-it('hides the delete bulk action from editor on the list page', function () {
-    Employee::factory()->create();
-    loginAsEditor();
-
-    Livewire::test(ListEmployees::class)->assertTableBulkActionHidden('delete');
-});
-
 it('blocks deleting an employee that has an assignment, with a friendly notification', function () {
     $employee = Employee::factory()->create();
     Assignment::factory()->returned()->create(['employee_id' => $employee->id]);
