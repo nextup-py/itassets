@@ -19,6 +19,7 @@ class ViewEmployee extends ViewRecord
                 ->label('Nueva asignación')
                 ->icon('heroicon-o-plus')
                 ->color('success')
+                ->authorize('create_assignment')
                 ->url(fn () => AssignmentResource::getUrl('create') . '?employee_id=' . $this->record->id),
             EditAction::make(),
         ];

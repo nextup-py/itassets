@@ -381,3 +381,19 @@ it('shows active assignment and license assignment counts on the employee view p
         ->assertSee('2')
         ->assertSee('1');
 });
+
+it('shows the newAssignment action to admins (who have create_assignment)', function () {
+    $employee = Employee::factory()->create();
+
+    Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
+        ->assertActionVisible('newAssignment');
+});
+
+it('hides the newAssignment action from viewers (who lack create_assignment)', function () {
+    $employee = Employee::factory()->create();
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
+        ->assertActionHidden('newAssignment');
+});

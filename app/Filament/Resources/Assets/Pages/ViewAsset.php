@@ -75,7 +75,7 @@ class ViewAsset extends ViewRecord
             Action::make('return')
                 ->label('Registrar devolución')
                 ->icon('heroicon-o-arrow-uturn-left')
-                ->color('warning')
+                ->color('gray')
                 ->authorize('update_asset')
                 ->visible(fn () => $this->record->status === 'assigned')
                 ->form([

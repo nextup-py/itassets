@@ -3,6 +3,7 @@
 use App\Filament\Resources\MaintenanceRecords\Pages\CreateMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\EditMaintenanceRecord;
 use App\Filament\Resources\MaintenanceRecords\Pages\ListMaintenanceRecords;
+use App\Filament\Resources\MaintenanceRecords\Pages\ViewMaintenanceRecord;
 use App\Models\Asset;
 use App\Models\MaintenanceRecord;
 use App\Models\Setting;
@@ -183,4 +184,21 @@ it('filters prolonged maintenance records (more than 7 days old, still open)', f
         ->filterTable('prolonged')
         ->assertCanSeeTableRecords([$prolonged])
         ->assertCanNotSeeTableRecords([$recent, $completed]);
+});
+
+it('marks a maintenance record as completed from the view page header action', function () {
+    $record = MaintenanceRecord::factory()->inProgress()->create();
+
+    Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->callAction('complete');
+
+    expect($record->refresh()->status)->toBe('completed')
+        ->and($record->completed_at)->not->toBeNull();
+});
+
+it('hides the complete header action on an already-completed maintenance record', function () {
+    $record = MaintenanceRecord::factory()->completed()->create();
+
+    Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->assertActionHidden('complete');
 });

@@ -119,6 +119,7 @@ class ViewSupply extends ViewRecord
                 ->color('danger')
                 ->authorize('update_supply')
                 ->visible(fn () => $this->record->quantity_available > 0)
+                ->requiresConfirmation()
                 ->form([
                     TextInput::make('quantity')
                         ->label('Cantidad a dar de baja')
