@@ -3,13 +3,12 @@
 namespace App\Filament\Resources\Assets\RelationManagers;
 
 use App\Filament\Concerns\HasRelationManagerPermissions;
+use App\Filament\Resources\Assignments\AssignmentResource;
 use App\Models\Assignment;
-use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -41,20 +40,15 @@ class AssignmentsRelationManager extends RelationManager
                 Select::make('employee_id')
                     ->label('Empleado')
                     ->required()
-                    ->options(function (?Assignment $record): array {
-                        return Employee::query()
-                            ->where(function ($query) use ($record) {
-                                $query->where('is_active', true);
-
-                                if ($record) {
-                                    $query->orWhere('id', $record->employee_id);
-                                }
-                            })
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray();
-                    })
+                    ->relationship(
+                        name: 'employee',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query, ?Assignment $record) => $query
+                            ->where('is_active', true)
+                            ->when($record, fn (Builder $q) => $q->orWhere('id', $record->employee_id)),
+                    )
                     ->searchable()
+                    ->preload()
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')
@@ -98,7 +92,7 @@ class AssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('employee.department')
+                TextColumn::make('employee.department.name')
                     ->label('Departamento')
                     ->placeholder('—'),
 
@@ -147,7 +141,11 @@ class AssignmentsRelationManager extends RelationManager
                     ->icon('heroicon-o-printer')
                     ->color('gray')
                     ->url(fn (Assignment $record) => route('assignments.pdf', $record), shouldOpenInNewTab: true),
-                EditAction::make(),
+                Action::make('view')
+                    ->label('Ver')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (Assignment $record) => AssignmentResource::getUrl('view', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

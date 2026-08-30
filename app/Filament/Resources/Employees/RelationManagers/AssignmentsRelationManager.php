@@ -41,8 +41,7 @@ class AssignmentsRelationManager extends RelationManager
                     ->label('Activos')
                     ->getStateUsing(fn (Assignment $record): string => $record->assets
                         ->map(fn ($a) => '[' . $a->asset_tag . '] ' . $a->name)
-                        ->implode("\n"))
-                    ->searchable(),
+                        ->implode("\n")),
 
                 TextColumn::make('assigned_at')
                     ->label('Asignado el')

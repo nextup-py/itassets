@@ -3,19 +3,17 @@
 namespace App\Filament\Resources\Assets\RelationManagers;
 
 use App\Filament\Concerns\HasRelationManagerPermissions;
+use App\Filament\Resources\MaintenanceRecords\MaintenanceRecordResource;
 use App\Models\MaintenanceRecord;
-use App\Models\Supplier;
-use App\Services\MaintenanceService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -52,18 +50,6 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->live()
                     ->columnSpan(1),
 
-                Select::make('new_asset_status')
-                    ->label('Nuevo estado del activo')
-                    ->options([
-                        'available' => 'Disponible',
-                        'retired' => 'Dado de baja',
-                        'lost' => 'Perdido / Robado',
-                    ])
-                    ->default('available')
-                    ->visible(fn (Get $get): bool => $get('status') === 'completed')
-                    ->required(fn (Get $get): bool => $get('status') === 'completed')
-                    ->columnSpan(1),
-
                 Textarea::make('description')
                     ->label('Descripción / Motivo')
                     ->required()
@@ -77,8 +63,9 @@ class MaintenanceRecordsRelationManager extends RelationManager
 
                 Select::make('supplier_id')
                     ->label('Proveedor')
-                    ->options(Supplier::pluck('name', 'id'))
+                    ->relationship('supplier', 'name')
                     ->searchable()
+                    ->preload()
                     ->columnSpan(1),
 
                 TextInput::make('cost')
@@ -157,8 +144,11 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->label('Nuevo mantenimiento'),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->after(fn (MaintenanceRecord $record, array $data) => app(MaintenanceService::class)->syncAssetStatus($record, $data['new_asset_status'] ?? null)),
+                Action::make('view')
+                    ->label('Ver')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (MaintenanceRecord $record) => MaintenanceRecordResource::getUrl('view', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

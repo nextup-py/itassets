@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Licenses\RelationManagers;
 
 use App\Filament\Concerns\HasRelationManagerPermissions;
 use App\Models\Asset;
-use App\Models\Employee;
 use App\Models\LicenseAssignment;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -39,31 +38,24 @@ class AssignmentsRelationManager extends RelationManager
             ->components([
                 Select::make('asset_id')
                     ->label('Activo (opcional)')
-                    ->options(
-                        Asset::orderBy('asset_tag')
-                            ->get()
-                            ->mapWithKeys(fn ($a) => [$a->id => "[{$a->asset_tag}] {$a->name}"])
-                    )
+                    ->relationship('asset', 'asset_tag')
+                    ->getOptionLabelFromRecordUsing(fn (Asset $record) => "[{$record->asset_tag}] {$record->name}")
                     ->searchable()
+                    ->preload()
                     ->nullable()
                     ->columnSpan(1),
 
                 Select::make('employee_id')
                     ->label('Empleado (opcional)')
-                    ->options(function (?LicenseAssignment $record): array {
-                        return Employee::query()
-                            ->where(function ($query) use ($record) {
-                                $query->where('is_active', true);
-
-                                if ($record?->employee_id) {
-                                    $query->orWhere('id', $record->employee_id);
-                                }
-                            })
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray();
-                    })
+                    ->relationship(
+                        name: 'employee',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query, ?LicenseAssignment $record) => $query
+                            ->where('is_active', true)
+                            ->when($record?->employee_id, fn (Builder $q) => $q->orWhere('id', $record->employee_id)),
+                    )
                     ->searchable()
+                    ->preload()
                     ->nullable()
                     ->columnSpan(1),
 
