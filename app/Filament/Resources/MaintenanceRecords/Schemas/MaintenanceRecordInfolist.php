@@ -12,6 +12,7 @@ class MaintenanceRecordInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información del mantenimiento')
                     ->icon('heroicon-o-wrench-screwdriver')

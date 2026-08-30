@@ -11,6 +11,7 @@ class SupplyInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información general')
                     ->icon('heroicon-o-information-circle')
@@ -21,7 +22,12 @@ class SupplyInfolist
                         TextEntry::make('category.name')
                             ->label('Categoría')
                             ->placeholder('—'),
+                    ])
+                    ->columns(2),
 
+                Section::make('Existencias')
+                    ->icon('heroicon-o-archive-box')
+                    ->schema([
                         TextEntry::make('quantity_available')
                             ->label('Disponible')
                             ->badge()
@@ -32,6 +38,17 @@ class SupplyInfolist
                             ->badge()
                             ->color(fn ($state) => $state > 0 ? 'warning' : 'gray'),
 
+                        TextEntry::make('total')
+                            ->label('Total')
+                            ->state(fn ($record) => $record->quantity_available + $record->quantity_damaged)
+                            ->badge()
+                            ->color('gray'),
+                    ])
+                    ->columns(3),
+
+                Section::make('Origen')
+                    ->icon('heroicon-o-truck')
+                    ->schema([
                         TextEntry::make('supplier.name')
                             ->label('Proveedor')
                             ->placeholder('—'),
@@ -39,13 +56,17 @@ class SupplyInfolist
                         TextEntry::make('location.name')
                             ->label('Ubicación')
                             ->placeholder('—'),
-
-                        TextEntry::make('notes')
-                            ->label('Notas')
-                            ->placeholder('—')
-                            ->columnSpanFull(),
                     ])
                     ->columns(2),
+
+                Section::make('Notas')
+                    ->icon('heroicon-o-document-text')
+                    ->schema([
+                        TextEntry::make('notes')
+                            ->label('')
+                            ->placeholder('Sin notas')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }

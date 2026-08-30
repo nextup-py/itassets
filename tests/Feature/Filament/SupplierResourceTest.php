@@ -174,3 +174,15 @@ it('has no create/edit/delete actions on the Activos tab (read-only)', function 
         ->assertTableActionDoesNotExist('edit')
         ->assertTableActionDoesNotExist('delete');
 });
+
+it('shows asset, license and maintenance record counts on the supplier view page', function () {
+    $supplier = Supplier::factory()->create();
+    Asset::factory()->count(2)->create(['supplier_id' => $supplier->id]);
+    License::factory()->create(['supplier_id' => $supplier->id]);
+    MaintenanceRecord::factory()->count(3)->create(['supplier_id' => $supplier->id]);
+
+    Livewire::test(ViewSupplier::class, ['record' => $supplier->getRouteKey()])
+        ->assertSee('2')
+        ->assertSee('1')
+        ->assertSee('3');
+});

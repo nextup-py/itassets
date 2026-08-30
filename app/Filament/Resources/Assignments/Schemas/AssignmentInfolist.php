@@ -11,6 +11,7 @@ class AssignmentInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Asignación')
                     ->icon('heroicon-o-arrows-right-left')
@@ -31,6 +32,11 @@ class AssignmentInfolist
                             ->date(current_date_format())
                             ->placeholder('Aún no devuelto')
                             ->color(fn ($state) => is_null($state) ? 'success' : null),
+
+                        TextEntry::make('assets_count')
+                            ->label('Cantidad de activos')
+                            ->state(fn ($record) => $record->assets()->count())
+                            ->badge(),
                     ])
                     ->columns(2),
 

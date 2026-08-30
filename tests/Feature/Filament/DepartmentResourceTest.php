@@ -3,6 +3,7 @@
 use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Departments\Pages\EditDepartment;
 use App\Filament\Resources\Departments\Pages\ListDepartments;
+use App\Filament\Resources\Departments\Pages\ViewDepartment;
 use App\Models\Department;
 use App\Models\Employee;
 use Livewire\Livewire;
@@ -105,4 +106,12 @@ it('allows deleting a department with no employees attached', function () {
         ->callAction('delete');
 
     expect(Department::find($department->id))->toBeNull();
+});
+
+it('shows the employee count on the department view page', function () {
+    $department = Department::factory()->create();
+    Employee::factory()->count(2)->create(['department_id' => $department->id]);
+
+    Livewire::test(ViewDepartment::class, ['record' => $department->getRouteKey()])
+        ->assertSee('2');
 });

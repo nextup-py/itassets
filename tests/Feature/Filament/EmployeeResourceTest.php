@@ -371,3 +371,13 @@ it('imports employees from a real uploaded file through the importEmployees acti
 
     expect(Employee::where('legajo', 'EMP-UP001')->exists())->toBeTrue();
 });
+
+it('shows active assignment and license assignment counts on the employee view page', function () {
+    $employee = Employee::factory()->create();
+    Assignment::factory()->count(2)->create(['employee_id' => $employee->id, 'returned_at' => null]);
+    LicenseAssignment::factory()->create(['employee_id' => $employee->id]);
+
+    Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
+        ->assertSee('2')
+        ->assertSee('1');
+});

@@ -13,8 +13,9 @@ class EmployeeInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Section::make('Información general')
+                Section::make('Identidad')
                     ->icon('heroicon-o-user')
                     ->schema([
                         TextEntry::make('name')
@@ -35,7 +36,12 @@ class EmployeeInfolist
                         IconEntry::make('is_active')
                             ->label('Activo')
                             ->boolean(),
+                    ])
+                    ->columns(2),
 
+                Section::make('Empleo')
+                    ->icon('heroicon-o-briefcase')
+                    ->schema([
                         TextEntry::make('department.name')
                             ->label('Departamento')
                             ->placeholder('—'),
@@ -44,6 +50,21 @@ class EmployeeInfolist
                             ->label('Cargo')
                             ->placeholder('—'),
 
+                        TextEntry::make('active_assignments_count')
+                            ->label('Asignaciones activas')
+                            ->state(fn (Employee $record) => $record->activeAssignments()->count())
+                            ->badge(),
+
+                        TextEntry::make('license_assignments_count')
+                            ->label('Licencias asignadas')
+                            ->state(fn (Employee $record) => $record->licenseAssignments()->count())
+                            ->badge(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Contacto')
+                    ->icon('heroicon-o-envelope')
+                    ->schema([
                         TextEntry::make('email')
                             ->label('Correo electrónico')
                             ->placeholder('—')

@@ -12,6 +12,7 @@ class LicenseInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información de la licencia')
                     ->icon('heroicon-o-key')
@@ -37,17 +38,22 @@ class LicenseInfolist
                             ->copyable()
                             ->columnSpanFull(),
 
-                        TextEntry::make('purchase_date')
-                            ->label('Fecha de compra')
-                            ->date(current_date_format())
-                            ->placeholder('—'),
-
                         TextEntry::make('expiry_date')
                             ->label('Vencimiento')
                             ->date(current_date_format())
                             ->placeholder('Sin vencimiento')
                             ->color(fn (License $record): ?string => $record->expiry_date?->isPast() ? 'danger'
                                 : ($record->expiry_date?->diffInDays(now()) <= 60 ? 'warning' : null)),
+                    ])
+                    ->columns(2),
+
+                Section::make('Adquisición')
+                    ->icon('heroicon-o-shopping-cart')
+                    ->schema([
+                        TextEntry::make('purchase_date')
+                            ->label('Fecha de compra')
+                            ->date(current_date_format())
+                            ->placeholder('—'),
 
                         TextEntry::make('purchase_price')
                             ->label('Precio de compra')

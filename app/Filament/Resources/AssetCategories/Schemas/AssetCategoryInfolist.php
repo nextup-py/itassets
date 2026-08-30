@@ -11,15 +11,20 @@ class AssetCategoryInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información general')
                     ->icon('heroicon-o-tag')
                     ->schema([
                         TextEntry::make('name')
-                            ->label('Nombre')
-                            ->columnSpanFull(),
+                            ->label('Nombre'),
+
+                        TextEntry::make('assets_count')
+                            ->label('Activos')
+                            ->state(fn ($record) => $record->assets()->count())
+                            ->badge(),
                     ])
-                    ->columns(1),
+                    ->columns(2),
 
                 Section::make('Descripción')
                     ->icon('heroicon-o-document-text')

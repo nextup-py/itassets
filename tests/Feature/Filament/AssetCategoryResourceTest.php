@@ -122,3 +122,11 @@ it('allows deleting a category with no assets attached', function () {
 
     expect(AssetCategory::find($category->id))->toBeNull();
 });
+
+it('shows the asset count on the category view page', function () {
+    $category = AssetCategory::factory()->create();
+    Asset::factory()->count(2)->create(['asset_category_id' => $category->id]);
+
+    Livewire::test(ViewAssetCategory::class, ['record' => $category->getRouteKey()])
+        ->assertSee('2');
+});

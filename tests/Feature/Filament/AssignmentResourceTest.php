@@ -3,6 +3,7 @@
 use App\Filament\Resources\Assignments\Pages\CreateAssignment;
 use App\Filament\Resources\Assignments\Pages\EditAssignment;
 use App\Filament\Resources\Assignments\Pages\ListAssignments;
+use App\Filament\Resources\Assignments\Pages\ViewAssignment;
 use App\Models\Asset;
 use App\Models\Assignment;
 use App\Models\Employee;
@@ -98,4 +99,13 @@ it('shows the employee department name, not a raw object, in the department colu
     Livewire::test(ListAssignments::class)
         ->toggleAllTableColumns()
         ->assertSee('Soporte Técnico');
+});
+
+it('shows the assigned asset count on the assignment view page', function () {
+    $assignment = Assignment::factory()->create();
+    $assets = Asset::factory()->count(2)->create();
+    $assignment->assets()->attach($assets->pluck('id'), ['assigned_at' => now()]);
+
+    Livewire::test(ViewAssignment::class, ['record' => $assignment->getRouteKey()])
+        ->assertSee('2');
 });
