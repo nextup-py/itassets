@@ -31,6 +31,7 @@ class SuppliersTable
                 TextColumn::make('phone')
                     ->label('Teléfono')
                     ->placeholder('—')
+                    ->searchable()
                     ->copyable(),
 
                 TextColumn::make('website')

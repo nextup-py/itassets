@@ -60,6 +60,7 @@ class EmployeesTable
                 TextColumn::make('phone')
                     ->label('Teléfono')
                     ->placeholder('—')
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('is_active')

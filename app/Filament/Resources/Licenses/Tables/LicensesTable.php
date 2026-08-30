@@ -28,7 +28,8 @@ class LicensesTable
                 TextColumn::make('license_type')
                     ->label('Tipo')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => License::TYPES[$state] ?? $state),
+                    ->formatStateUsing(fn (string $state): string => License::TYPES[$state] ?? $state)
+                    ->sortable(),
 
                 TextColumn::make('seats')
                     ->label('Puestos (usados / total)')

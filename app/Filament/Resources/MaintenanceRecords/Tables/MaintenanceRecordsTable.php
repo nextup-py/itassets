@@ -30,7 +30,8 @@ class MaintenanceRecordsTable
                 TextColumn::make('type')
                     ->label('Tipo')
                     ->badge()
-                    ->formatStateUsing(fn (MaintenanceRecord $record): string => $record->getTypeLabel()),
+                    ->formatStateUsing(fn (MaintenanceRecord $record): string => $record->getTypeLabel())
+                    ->sortable(),
 
                 TextColumn::make('status')
                     ->label('Estado')
