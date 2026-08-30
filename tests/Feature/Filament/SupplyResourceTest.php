@@ -3,7 +3,11 @@
 use App\Filament\Resources\Supplies\Pages\CreateSupply;
 use App\Filament\Resources\Supplies\Pages\EditSupply;
 use App\Filament\Resources\Supplies\Pages\ListSupplies;
+use App\Models\AssetCategory;
 use App\Models\Supply;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -43,5 +47,46 @@ it('denies viewer from creating a supply', function () {
     loginAsViewer();
 
     Livewire::test(CreateSupply::class)->assertForbidden();
+});
+
+it('shows the import and template actions to admins (who have import_supply)', function () {
+    Livewire::test(ListSupplies::class)
+        ->assertActionVisible('importSupplies')
+        ->assertActionVisible('downloadTemplate');
+});
+
+it('hides the import and template actions from viewers (who lack import_supply)', function () {
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(ListSupplies::class)
+        ->assertActionHidden('importSupplies')
+        ->assertActionHidden('downloadTemplate');
+});
+
+it('shows the export action to admins (who have export_report)', function () {
+    Livewire::test(ListSupplies::class)->assertActionVisible('exportSupplies');
+});
+
+it('hides the export action from editors (who lack export_report)', function () {
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(ListSupplies::class)->assertActionHidden('exportSupplies');
+});
+
+it('imports supplies from a real uploaded file through the importSupplies action', function () {
+    Storage::fake('local');
+    AssetCategory::factory()->create(['name' => 'Periféricos']);
+
+    $csv = "nombre,categoria,cantidad_disponible,proveedor,ubicacion,notas\n"
+        . "Uploaded Supply,Periféricos,15,,,\n";
+    $file = UploadedFile::fake()->createWithContent('supplies.csv', $csv);
+
+    Livewire::test(ListSupplies::class)
+        ->callAction('importSupplies', data: ['file' => $file])
+        ->assertHasNoActionErrors();
+
+    expect(Supply::where('name', 'Uploaded Supply')->exists())->toBeTrue();
 });
 

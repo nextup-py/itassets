@@ -15,6 +15,9 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\License;
 use App\Models\LicenseAssignment;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -326,4 +329,45 @@ it('lists employees when some have no document_type', function () {
     Employee::factory()->create(['document_type' => 'ci']);
 
     $this->get('/admin/employees')->assertOk();
+});
+
+it('shows the import and template actions to admins (who have import_employee)', function () {
+    Livewire::test(ListEmployees::class)
+        ->assertActionVisible('importEmployees')
+        ->assertActionVisible('downloadTemplate');
+});
+
+it('hides the import and template actions from viewers (who lack import_employee)', function () {
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(ListEmployees::class)
+        ->assertActionHidden('importEmployees')
+        ->assertActionHidden('downloadTemplate');
+});
+
+it('shows the export action to admins (who have export_report)', function () {
+    Livewire::test(ListEmployees::class)->assertActionVisible('exportEmployees');
+});
+
+it('hides the export action from editors (who lack export_report)', function () {
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(ListEmployees::class)->assertActionHidden('exportEmployees');
+});
+
+it('imports employees from a real uploaded file through the importEmployees action', function () {
+    Storage::fake('local');
+    Department::factory()->create(['name' => 'Sistemas']);
+
+    $csv = "legajo,nombre,email,telefono,departamento,cargo,documento,tipo_documento,activo\n"
+        . "EMP-UP001,Uploaded Employee,uploaded@empresa.test,,Sistemas,Analista,7777777,ci,Sí\n";
+    $file = UploadedFile::fake()->createWithContent('employees.csv', $csv);
+
+    Livewire::test(ListEmployees::class)
+        ->callAction('importEmployees', data: ['file' => $file])
+        ->assertHasNoActionErrors();
+
+    expect(Employee::where('legajo', 'EMP-UP001')->exists())->toBeTrue();
 });

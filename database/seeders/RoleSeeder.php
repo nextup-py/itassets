@@ -27,7 +27,7 @@ class RoleSeeder extends Seeder
 
     public const ACTIONS = ['view_any', 'view', 'create', 'update', 'delete'];
 
-    public const EXTRA_PERMISSIONS = ['import_asset', 'export_report'];
+    public const EXTRA_PERMISSIONS = ['import_asset', 'import_employee', 'import_supply', 'export_report'];
 
     public function run(): void
     {

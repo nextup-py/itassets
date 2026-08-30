@@ -27,7 +27,7 @@ class ListAssets extends ListRecords
             // ── Descargar plantilla ──────────────────────────────────────────
             Action::make('downloadTemplate')
                 ->label('Plantilla CSV')
-                ->icon('heroicon-o-document-arrow-down')
+                ->icon('heroicon-o-document-text')
                 ->color('gray')
                 ->visible(fn () => auth()->user()?->can('import_asset') ?? false)
                 ->action(function () {
@@ -116,8 +116,7 @@ class ListAssets extends ListRecords
                         ->send();
                 }),
 
-            CreateAction::make()
-                ->label('Nuevo activo'),
+            CreateAction::make(),
         ];
     }
 }
