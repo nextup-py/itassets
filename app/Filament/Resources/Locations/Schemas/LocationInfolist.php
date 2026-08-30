@@ -32,7 +32,7 @@ class LocationInfolist
                             ->label('Sala / Área')
                             ->placeholder('—'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Notas')
                     ->icon('heroicon-o-document-text')

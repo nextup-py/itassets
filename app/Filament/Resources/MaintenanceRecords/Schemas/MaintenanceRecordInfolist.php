@@ -21,8 +21,7 @@ class MaintenanceRecordInfolist
                             ->label('Código'),
 
                         TextEntry::make('asset.name')
-                            ->label('Activo')
-                            ->columnSpan(2),
+                            ->label('Activo'),
 
                         TextEntry::make('type')
                             ->label('Tipo')
@@ -39,7 +38,7 @@ class MaintenanceRecordInfolist
                             ->label('Descripción')
                             ->columnSpanFull(),
                     ])
-                    ->columns(3),
+                    ->columns(2),
 
                 Section::make('Servicio')
                     ->icon('heroicon-o-wrench')
@@ -51,7 +50,12 @@ class MaintenanceRecordInfolist
                         TextEntry::make('supplier.name')
                             ->label('Proveedor de servicio')
                             ->placeholder('—'),
+                    ])
+                    ->columns(2),
 
+                Section::make('Costo y fechas')
+                    ->icon('heroicon-o-calendar')
+                    ->schema([
                         TextEntry::make('cost')
                             ->label('Costo')
                             ->formatStateUsing(fn ($state) => is_null($state) ? '—' : \format_currency($state)),
@@ -65,7 +69,7 @@ class MaintenanceRecordInfolist
                             ->date(current_date_format())
                             ->placeholder('En curso'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Resolución')
                     ->icon('heroicon-o-check-circle')

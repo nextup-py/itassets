@@ -30,16 +30,6 @@ class AssetInfolist
                         TextEntry::make('category.name')
                             ->label('Categoría'),
 
-                        TextEntry::make('status')
-                            ->label('Estado')
-                            ->badge()
-                            ->formatStateUsing(fn (Asset $record): string => $record->getStatusLabel())
-                            ->color(fn (Asset $record): string => $record->getStatusBadgeColor()),
-
-                        TextEntry::make('condition')
-                            ->label('Condición')
-                            ->formatStateUsing(fn (?string $state): string => $state ? (Asset::CONDITIONS[$state] ?? $state) : '—'),
-
                         TextEntry::make('brand')
                             ->label('Marca')
                             ->placeholder('—'),
@@ -52,6 +42,16 @@ class AssetInfolist
                             ->label('Número de serie')
                             ->placeholder('—')
                             ->copyable(),
+
+                        TextEntry::make('status')
+                            ->label('Estado')
+                            ->badge()
+                            ->formatStateUsing(fn (Asset $record): string => $record->getStatusLabel())
+                            ->color(fn (Asset $record): string => $record->getStatusBadgeColor()),
+
+                        TextEntry::make('condition')
+                            ->label('Condición')
+                            ->formatStateUsing(fn (?string $state): string => $state ? (Asset::CONDITIONS[$state] ?? $state) : '—'),
 
                         ImageEntry::make('photo')
                             ->label('Fotografía')

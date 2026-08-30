@@ -19,7 +19,7 @@ class LicenseInfolist
                     ->schema([
                         TextEntry::make('product_name')
                             ->label('Producto / Software')
-                            ->columnSpan(2),
+                            ->columnSpanFull(),
 
                         TextEntry::make('license_type')
                             ->label('Tipo')
@@ -32,20 +32,20 @@ class LicenseInfolist
                             ->badge()
                             ->color(fn (License $record): string => $record->availableSeats() === 0 ? 'danger' : 'success'),
 
-                        TextEntry::make('license_key')
-                            ->label('Clave / Número de licencia')
-                            ->placeholder('—')
-                            ->copyable()
-                            ->columnSpanFull(),
-
                         TextEntry::make('expiry_date')
                             ->label('Vencimiento')
                             ->date(current_date_format())
                             ->placeholder('Sin vencimiento')
                             ->color(fn (License $record): ?string => $record->expiry_date?->isPast() ? 'danger'
                                 : ($record->expiry_date?->diffInDays(now()) <= 60 ? 'warning' : null)),
+
+                        TextEntry::make('license_key')
+                            ->label('Clave / Número de licencia')
+                            ->placeholder('—')
+                            ->copyable()
+                            ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Adquisición')
                     ->icon('heroicon-o-shopping-cart')
@@ -63,7 +63,7 @@ class LicenseInfolist
                             ->label('Proveedor')
                             ->placeholder('—'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Notas')
                     ->icon('heroicon-o-document-text')

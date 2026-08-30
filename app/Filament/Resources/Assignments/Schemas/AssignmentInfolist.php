@@ -32,17 +32,17 @@ class AssignmentInfolist
                             ->date(current_date_format())
                             ->placeholder('Aún no devuelto')
                             ->color(fn ($state) => is_null($state) ? 'success' : null),
-
-                        TextEntry::make('assets_count')
-                            ->label('Cantidad de activos')
-                            ->state(fn ($record) => $record->assets()->count())
-                            ->badge(),
                     ])
                     ->columns(2),
 
                 Section::make('Activos asignados')
                     ->icon('heroicon-o-computer-desktop')
                     ->schema([
+                        TextEntry::make('assets_count')
+                            ->label('Cantidad de activos')
+                            ->state(fn ($record) => $record->assets()->count())
+                            ->badge(),
+
                         TextEntry::make('asset_list')
                             ->label('')
                             ->html()
