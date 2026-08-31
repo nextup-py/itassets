@@ -46,6 +46,7 @@ class LicenseForm
                                     }
                                 };
                             })
+                            ->helperText('No puede ser menor a la cantidad de asignaciones activas.')
                             ->columnSpan(1),
 
                         TextInput::make('license_key')
@@ -53,6 +54,7 @@ class LicenseForm
                             ->maxLength(255)
                             ->password()
                             ->revealable()
+                            ->helperText('Se oculta por seguridad; use el ícono para revelarla.')
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
@@ -69,6 +71,7 @@ class LicenseForm
                             ->numeric()
                             ->prefix('$')
                             ->minValue(0)
+                            ->helperText('Se interpreta en la moneda seleccionada abajo.')
                             ->columnSpan(1),
 
                         Select::make('currency')

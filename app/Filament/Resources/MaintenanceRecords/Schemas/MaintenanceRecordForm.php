@@ -42,6 +42,7 @@ class MaintenanceRecordForm
                             ->options(MaintenanceRecord::STATUSES)
                             ->default('pending')
                             ->live()
+                            ->helperText('Al marcar como Completado, deberá indicar el nuevo estado del activo.')
                             ->columnSpan(1),
 
                         Select::make('new_asset_status')
@@ -54,6 +55,7 @@ class MaintenanceRecordForm
                             ->default('available')
                             ->visible(fn (Get $get): bool => $get('status') === 'completed')
                             ->required(fn (Get $get): bool => $get('status') === 'completed')
+                            ->helperText('Este será el nuevo estado del activo al completar el mantenimiento.')
                             ->columnSpan(1),
 
                         Textarea::make('description')

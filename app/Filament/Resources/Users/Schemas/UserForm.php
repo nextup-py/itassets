@@ -37,6 +37,7 @@ class UserForm
                     ->same('password_confirmation')
                     ->dehydrated(fn ($state) => filled($state))
                     ->placeholder('Dejar vacío para mantener actual')
+                    ->helperText('Mínimo 8 caracteres.')
                     ->maxLength(255)
                     ->columnSpan(1),
 

@@ -30,6 +30,7 @@ class AssignmentForm
                     )
                     ->searchable()
                     ->preload()
+                    ->helperText('Solo se muestran empleados activos.')
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')
@@ -43,6 +44,7 @@ class AssignmentForm
                     ->label('Fecha de devolución')
                     ->displayFormat(current_date_format())
                     ->after('assigned_at')
+                    ->helperText('Dejar vacío si el activo sigue asignado.')
                     ->columnSpan(1),
 
                 Textarea::make('notes')
@@ -71,6 +73,7 @@ class AssignmentForm
                                     ->toArray();
                             })
                             ->searchable()
+                            ->helperText('Solo se muestran activos disponibles o en stock.')
                             ->columnSpan(3),
 
                         TextInput::make('charger_serial')

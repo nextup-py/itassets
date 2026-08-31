@@ -107,6 +107,7 @@ class AssetForm
                             ->numeric()
                             ->prefix('$')
                             ->minValue(0)
+                            ->helperText('Se interpreta en la moneda seleccionada abajo.')
                             ->columnSpan(1),
 
                         Select::make('currency')
