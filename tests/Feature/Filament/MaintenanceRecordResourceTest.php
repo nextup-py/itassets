@@ -204,6 +204,27 @@ it('hides the complete header action on an already-completed maintenance record'
         ->assertActionHidden('complete');
 });
 
+it('ignores changes to cost, technician and dates on an already-completed maintenance record', function () {
+    $record = MaintenanceRecord::factory()->completed()->create([
+        'cost' => 100,
+        'technician' => 'Juan Pérez',
+        'started_at' => now()->subDays(5),
+        'completed_at' => now()->subDay(),
+    ]);
+
+    Livewire::test(EditMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->fillForm([
+            'cost' => 999,
+            'technician' => 'Otro Técnico',
+            'new_asset_status' => 'available',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($record->fresh()->cost)->toEqual(100)
+        ->and($record->fresh()->technician)->toBe('Juan Pérez');
+});
+
 it('shows asset tag and type, not just the type, as the maintenance record page title', function () {
     $record = MaintenanceRecord::factory()->create(['type' => 'preventive']);
 

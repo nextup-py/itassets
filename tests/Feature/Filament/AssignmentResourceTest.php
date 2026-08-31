@@ -110,6 +110,31 @@ it('shows the assigned asset count on the assignment view page', function () {
         ->assertSee('2');
 });
 
+it('ignores changes to employee and assigned date on an already-returned assignment', function () {
+    $originalEmployee = Employee::factory()->create();
+    $otherEmployee = Employee::factory()->create();
+    $assignment = Assignment::factory()->create([
+        'employee_id' => $originalEmployee->id,
+        'assigned_at' => now()->subDays(10),
+        'returned_at' => now()->subDay(),
+    ]);
+    $asset = Asset::factory()->create();
+    $assignment->assets()->attach($asset->id, ['assigned_at' => $assignment->assigned_at]);
+
+    Livewire::test(EditAssignment::class, ['record' => $assignment->getRouteKey()])
+        ->fillForm([
+            'employee_id' => $otherEmployee->id,
+            'assigned_at' => now()->subDays(20)->toDateString(),
+            'assets' => [
+                ['asset_id' => $asset->id, 'charger_serial' => null, 'ticket_number' => null],
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($assignment->fresh()->employee_id)->toBe($originalEmployee->id);
+});
+
 it('shows employee name and date, not a raw id, as the assignment page title', function () {
     $employee = Employee::factory()->create(['name' => 'María García']);
     $assignment = Assignment::factory()->create(['employee_id' => $employee->id, 'assigned_at' => '2026-01-15']);

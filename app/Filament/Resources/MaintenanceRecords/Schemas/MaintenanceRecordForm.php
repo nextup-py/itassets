@@ -72,6 +72,10 @@ class MaintenanceRecordForm
                         TextInput::make('technician')
                             ->label('Técnico responsable')
                             ->maxLength(150)
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
+                            ->helperText(fn (?MaintenanceRecord $record): ?string => $record?->status === 'completed'
+                                ? 'No se puede modificar: el mantenimiento ya fue completado.'
+                                : null)
                             ->columnSpan(1),
 
                         Select::make('supplier_id')
@@ -91,6 +95,7 @@ class MaintenanceRecordForm
                             ->numeric()
                             ->prefix('$')
                             ->minValue(0)
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
                             ->columnSpan(1),
 
                         DatePicker::make('started_at')
@@ -98,12 +103,17 @@ class MaintenanceRecordForm
                             ->required()
                             ->default(now())
                             ->displayFormat(current_date_format())
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
                             ->columnSpan(1),
 
                         DatePicker::make('completed_at')
                             ->label('Fecha de término')
                             ->displayFormat(current_date_format())
                             ->after('started_at')
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
+                            ->helperText(fn (?MaintenanceRecord $record): ?string => $record?->status === 'completed'
+                                ? 'No se puede modificar: el mantenimiento ya fue completado.'
+                                : null)
                             ->columnSpan(1),
                     ])
                     ->columns(3),

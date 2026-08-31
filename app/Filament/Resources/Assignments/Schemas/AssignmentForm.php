@@ -30,7 +30,10 @@ class AssignmentForm
                     )
                     ->searchable()
                     ->preload()
-                    ->helperText('Solo se muestran empleados activos.')
+                    ->disabled(fn (?Assignment $record): bool => filled($record?->returned_at))
+                    ->helperText(fn (?Assignment $record): string => filled($record?->returned_at)
+                        ? 'No se puede modificar: la asignación ya fue devuelta.'
+                        : 'Solo se muestran empleados activos.')
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')
@@ -38,6 +41,10 @@ class AssignmentForm
                     ->required()
                     ->default(now())
                     ->displayFormat(current_date_format())
+                    ->disabled(fn (?Assignment $record): bool => filled($record?->returned_at))
+                    ->helperText(fn (?Assignment $record): ?string => filled($record?->returned_at)
+                        ? 'No se puede modificar: la asignación ya fue devuelta.'
+                        : null)
                     ->columnSpan(1),
 
                 DatePicker::make('returned_at')
