@@ -61,10 +61,12 @@ class PdfSettings extends Page implements HasForms
                 FileUpload::make('company_logo')
                     ->label('Logo de la empresa')
                     ->image()
+                    ->imageEditor()
                     ->disk('public')
                     ->directory('branding')
                     ->maxSize(2048)
                     ->imagePreviewHeight('120')
+                    ->helperText('JPG, PNG o WEBP, máx. 2MB.')
                     ->columnSpanFull(),
 
                 Textarea::make('pdf_intro')

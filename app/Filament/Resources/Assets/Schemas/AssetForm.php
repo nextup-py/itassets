@@ -79,10 +79,12 @@ class AssetForm
                         FileUpload::make('photo')
                             ->label('Fotografía')
                             ->image()
+                            ->imageEditor()
                             ->disk('public')
                             ->directory('assets/photos')
                             ->maxSize(3072)
                             ->imagePreviewHeight('160')
+                            ->helperText('JPG, PNG o WEBP, máx. 3MB.')
                             ->columnSpanFull(),
 
                         Textarea::make('notes')

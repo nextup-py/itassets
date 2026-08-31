@@ -49,6 +49,7 @@ class ListAssets extends ListRecords
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         ])
                         ->maxSize(10240)
+                        ->helperText('CSV o Excel, máx. 10MB.')
                         ->required(),
                 ])
                 ->action(function (array $data): void {
