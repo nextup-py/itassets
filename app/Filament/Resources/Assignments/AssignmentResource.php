@@ -17,6 +17,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class AssignmentResource extends Resource
 {
@@ -31,6 +33,15 @@ class AssignmentResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
+    {
+        if (! $record instanceof Assignment) {
+            return parent::getRecordTitle($record);
+        }
+
+        return $record->employee?->name . ' - ' . $record->assigned_at?->format(current_date_format());
+    }
 
     protected static ?string $modelLabel = 'Asignación';
 

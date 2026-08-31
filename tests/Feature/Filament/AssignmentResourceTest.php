@@ -109,3 +109,11 @@ it('shows the assigned asset count on the assignment view page', function () {
     Livewire::test(ViewAssignment::class, ['record' => $assignment->getRouteKey()])
         ->assertSee('2');
 });
+
+it('shows employee name and date, not a raw id, as the assignment page title', function () {
+    $employee = Employee::factory()->create(['name' => 'María García']);
+    $assignment = Assignment::factory()->create(['employee_id' => $employee->id, 'assigned_at' => '2026-01-15']);
+
+    Livewire::test(ViewAssignment::class, ['record' => $assignment->getRouteKey()])
+        ->assertSee('María García - 15/01/2026');
+});

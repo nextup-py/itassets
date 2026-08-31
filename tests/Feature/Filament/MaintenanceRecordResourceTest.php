@@ -202,3 +202,10 @@ it('hides the complete header action on an already-completed maintenance record'
     Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
         ->assertActionHidden('complete');
 });
+
+it('shows asset tag and type, not just the type, as the maintenance record page title', function () {
+    $record = MaintenanceRecord::factory()->create(['type' => 'preventive']);
+
+    Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->assertSee($record->asset->asset_tag . ' - ' . $record->getTypeLabel());
+});

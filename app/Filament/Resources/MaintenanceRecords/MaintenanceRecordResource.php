@@ -18,6 +18,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class MaintenanceRecordResource extends Resource
 {
@@ -33,6 +35,15 @@ class MaintenanceRecordResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
     protected static ?string $recordTitleAttribute = 'type';
+
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
+    {
+        if (! $record instanceof MaintenanceRecord) {
+            return parent::getRecordTitle($record);
+        }
+
+        return $record->asset?->asset_tag . ' - ' . $record->getTypeLabel();
+    }
 
     protected static ?string $modelLabel = 'Mantenimiento';
 
