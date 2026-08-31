@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Supplies\Schemas;
 
-use App\Models\AssetCategory;
-use App\Models\Location;
-use App\Models\Supplier;
+use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
+use App\Filament\Resources\Locations\Schemas\LocationForm;
+use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -28,9 +28,11 @@ class SupplyForm
 
                         Select::make('asset_category_id')
                             ->label('Categoría')
-                            ->options(AssetCategory::pluck('name', 'id'))
+                            ->required()
+                            ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => AssetCategoryForm::configure($schema))
                             ->columnSpan(1),
 
                         TextInput::make('quantity_available')
@@ -43,16 +45,18 @@ class SupplyForm
 
                         Select::make('supplier_id')
                             ->label('Proveedor')
-                            ->options(Supplier::pluck('name', 'id'))
+                            ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
 
                         Select::make('location_id')
                             ->label('Ubicación')
-                            ->options(Location::pluck('name', 'id'))
+                            ->relationship('location', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => LocationForm::configure($schema))
                             ->columnSpan(1),
 
                         Textarea::make('notes')

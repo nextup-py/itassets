@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\Filament\Resources\Departments\Schemas\DepartmentForm;
 use App\Models\Employee;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +15,7 @@ class EmployeeForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información personal')
                     ->icon('heroicon-o-user')
@@ -51,7 +53,7 @@ class EmployeeForm
                             ->placeholder('Seleccionar...')
                             ->columnSpan(1),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Datos laborales')
                     ->icon('heroicon-o-briefcase')
@@ -68,6 +70,7 @@ class EmployeeForm
                             ->required()
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => DepartmentForm::configure($schema))
                             ->columnSpan(1),
 
                         TextInput::make('position')
@@ -77,7 +80,7 @@ class EmployeeForm
                             ->placeholder('Ej: Desarrollador Backend')
                             ->columnSpan(1),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Contacto')
                     ->icon('heroicon-o-phone')

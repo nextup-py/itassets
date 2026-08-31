@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Assets\Schemas;
 
+use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
+use App\Filament\Resources\Locations\Schemas\LocationForm;
+use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Models\Asset;
-use App\Models\AssetCategory;
-use App\Models\Location;
-use App\Models\Supplier;
 use App\Support\Currencies;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -20,6 +20,7 @@ class AssetForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
 
                 // ── Información general ──────────────────────────────────────
@@ -42,9 +43,10 @@ class AssetForm
                         Select::make('asset_category_id')
                             ->label('Categoría')
                             ->required()
-                            ->options(AssetCategory::pluck('name', 'id'))
+                            ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => AssetCategoryForm::configure($schema))
                             ->columnSpan(1),
 
                         Select::make('status')
@@ -113,19 +115,27 @@ class AssetForm
                             ->options(Currencies::LIST)
                             ->searchable()
                             ->columnSpan(1),
+                    ])
+                    ->columns(3),
 
+                // ── Proveedor y ubicación ────────────────────────────────────────
+                Section::make('Proveedor y ubicación')
+                    ->icon('heroicon-o-map-pin')
+                    ->schema([
                         Select::make('supplier_id')
                             ->label('Proveedor de compra')
-                            ->options(Supplier::pluck('name', 'id'))
+                            ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
 
                         Select::make('location_id')
                             ->label('Ubicación')
-                            ->options(Location::pluck('name', 'id'))
+                            ->relationship('location', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => LocationForm::configure($schema))
                             ->columnSpan(1),
                     ])
                     ->columns(2),
@@ -141,9 +151,10 @@ class AssetForm
 
                         Select::make('warranty_supplier_id')
                             ->label('Proveedor de garantía')
-                            ->options(Supplier::pluck('name', 'id'))
+                            ->relationship('warrantySupplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
                     ])
                     ->columns(2),

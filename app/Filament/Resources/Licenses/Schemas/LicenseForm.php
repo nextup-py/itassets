@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Licenses\Schemas;
 
+use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Models\License;
-use App\Models\Supplier;
+use App\Support\Currencies;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -16,6 +17,7 @@ class LicenseForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información de la licencia')
                     ->schema([
@@ -55,17 +57,11 @@ class LicenseForm
                     ])
                     ->columns(2),
 
-                Section::make('Adquisición y vigencia')
+                Section::make('Adquisición')
                     ->schema([
                         DatePicker::make('purchase_date')
                             ->label('Fecha de compra')
                             ->displayFormat(current_date_format())
-                            ->columnSpan(1),
-
-                        DatePicker::make('expiry_date')
-                            ->label('Fecha de vencimiento')
-                            ->displayFormat(current_date_format())
-                            ->after('purchase_date')
                             ->columnSpan(1),
 
                         TextInput::make('purchase_price')
@@ -75,19 +71,29 @@ class LicenseForm
                             ->minValue(0)
                             ->columnSpan(1),
 
-                        TextInput::make('currency')
+                        Select::make('currency')
                             ->label('Moneda')
-                            ->helperText('Código ISO 4217 (ej. USD, EUR). En blanco = moneda base de la instalación.')
-                            ->default(fn () => \App\Models\Setting::get('base_currency', 'USD'))
-                            ->maxLength(3)
-                            ->regex('/^[A-Za-z]{3}$/')
+                            ->helperText('En blanco = moneda base de la instalación.')
+                            ->options(Currencies::LIST)
+                            ->searchable()
+                            ->columnSpan(1),
+                    ])
+                    ->columns(3),
+
+                Section::make('Vigencia y proveedor')
+                    ->schema([
+                        DatePicker::make('expiry_date')
+                            ->label('Fecha de vencimiento')
+                            ->displayFormat(current_date_format())
+                            ->after('purchase_date')
                             ->columnSpan(1),
 
                         Select::make('supplier_id')
                             ->label('Proveedor')
-                            ->options(Supplier::pluck('name', 'id'))
+                            ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
                     ])
                     ->columns(2),

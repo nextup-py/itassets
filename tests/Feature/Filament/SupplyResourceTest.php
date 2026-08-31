@@ -21,15 +21,28 @@ it('lists supplies', function () {
 });
 
 it('creates a supply', function () {
+    $category = AssetCategory::factory()->create();
+
     Livewire::test(CreateSupply::class)
         ->fillForm([
             'name' => 'Disco duro 1TB',
+            'asset_category_id' => $category->id,
             'quantity_available' => 10,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
     expect(Supply::where('name', 'Disco duro 1TB')->exists())->toBeTrue();
+});
+
+it('requires a category when creating a supply', function () {
+    Livewire::test(CreateSupply::class)
+        ->fillForm([
+            'name' => 'Disco duro 1TB',
+            'quantity_available' => 10,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['asset_category_id' => 'required']);
 });
 
 it('edits a supply', function () {

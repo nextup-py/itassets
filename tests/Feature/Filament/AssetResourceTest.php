@@ -329,3 +329,13 @@ it('imports assets from a real uploaded file through the importAssets action', f
 
     expect(Asset::where('asset_tag', 'IT-UP001')->exists())->toBeTrue();
 });
+
+it('creates a new category inline via createOptionForm on the asset form', function () {
+    Livewire::test(CreateAsset::class)
+        ->mountFormComponentAction('asset_category_id', 'createOption')
+        ->setFormComponentActionData(['name' => 'Nueva Categoría Inline'])
+        ->callMountedFormComponentAction()
+        ->assertHasNoFormComponentActionErrors();
+
+    expect(AssetCategory::where('name', 'Nueva Categoría Inline')->exists())->toBeTrue();
+});

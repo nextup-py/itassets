@@ -42,7 +42,7 @@ it('creates a license without a currency (optional field)', function () {
     expect(License::where('product_name', 'Slack Enterprise')->first()->currency)->toBeNull();
 });
 
-it('rejects a license currency that is not a 3-letter code', function () {
+it('rejects a license currency that is not one of the offered options', function () {
     Livewire::test(CreateLicense::class)
         ->fillForm([
             'product_name' => 'Slack Enterprise',
@@ -51,7 +51,7 @@ it('rejects a license currency that is not a 3-letter code', function () {
             'currency' => 'US$',
         ])
         ->call('create')
-        ->assertHasFormErrors(['currency' => 'regex']);
+        ->assertHasFormErrors(['currency']);
 });
 
 it('rejects lowering total_seats below currently used seats', function () {

@@ -4,13 +4,13 @@ namespace App\Filament\Resources\Assignments\Schemas;
 
 use App\Models\Asset;
 use App\Models\Assignment;
-use App\Models\Employee;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class AssignmentForm
 {
@@ -21,20 +21,15 @@ class AssignmentForm
                 Select::make('employee_id')
                     ->label('Empleado')
                     ->required()
-                    ->options(function (?Assignment $record): array {
-                        return Employee::query()
-                            ->where(function ($query) use ($record) {
-                                $query->where('is_active', true);
-
-                                if ($record) {
-                                    $query->orWhere('id', $record->employee_id);
-                                }
-                            })
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray();
-                    })
+                    ->relationship(
+                        name: 'employee',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query, ?Assignment $record) => $query
+                            ->where('is_active', true)
+                            ->when($record, fn (Builder $q) => $q->orWhere('id', $record->employee_id)),
+                    )
                     ->searchable()
+                    ->preload()
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')
@@ -94,6 +89,6 @@ class AssignmentForm
                     ->minItems(1)
                     ->reorderable(false),
             ])
-            ->columns(2);
+            ->columns(3);
     }
 }

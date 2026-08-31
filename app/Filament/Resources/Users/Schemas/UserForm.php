@@ -61,7 +61,7 @@ class UserForm
                     ->preload()
                     ->required()
                     ->helperText(fn () => auth()->user()->hasRole('Admin') ? null : 'Solo un Admin puede asignar el rol Admin.')
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
             ])
             ->columns(2);
     }

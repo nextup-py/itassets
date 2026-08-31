@@ -41,6 +41,6 @@ class LocationForm
                     ->maxLength(1000)
                     ->columnSpanFull(),
             ])
-            ->columns(2);
+            ->columns(3);
     }
 }

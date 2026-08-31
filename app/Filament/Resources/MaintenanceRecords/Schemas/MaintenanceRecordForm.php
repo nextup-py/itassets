@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\MaintenanceRecords\Schemas;
 
-use App\Models\Asset;
+use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Models\MaintenanceRecord;
-use App\Models\Supplier;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -18,18 +17,17 @@ class MaintenanceRecordForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Información del mantenimiento')
                     ->schema([
                         Select::make('asset_id')
                             ->label('Activo')
                             ->required()
-                            ->options(
-                                Asset::orderBy('asset_tag')
-                                    ->get()
-                                    ->mapWithKeys(fn ($a) => [$a->id => "[{$a->asset_tag}] {$a->name}"])
-                            )
+                            ->relationship('asset', 'asset_tag')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->asset_tag}] {$record->name}")
                             ->searchable()
+                            ->preload()
                             ->columnSpan(2),
 
                         Select::make('type')
@@ -76,11 +74,16 @@ class MaintenanceRecordForm
 
                         Select::make('supplier_id')
                             ->label('Proveedor de servicio')
-                            ->options(Supplier::pluck('name', 'id'))
+                            ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
+                    ])
+                    ->columns(2),
 
+                Section::make('Costo y fechas')
+                    ->schema([
                         TextInput::make('cost')
                             ->label('Costo')
                             ->numeric()
@@ -101,7 +104,7 @@ class MaintenanceRecordForm
                             ->after('started_at')
                             ->columnSpan(1),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Resolución')
                     ->schema([
