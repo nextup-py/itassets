@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Assets\RelationManagers;
 
 use App\Filament\Concerns\HasRelationManagerPermissions;
 use App\Filament\Resources\MaintenanceRecords\MaintenanceRecordResource;
+use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Models\MaintenanceRecord;
+use App\Services\MaintenanceService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -26,6 +29,8 @@ class MaintenanceRecordsRelationManager extends RelationManager
     protected static string $relationship = 'maintenanceRecords';
 
     protected static ?string $title = 'Historial de mantenimientos';
+
+    protected ?string $pendingAssetStatus = null;
 
     protected function getPermissionName(): string
     {
@@ -50,6 +55,18 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->live()
                     ->columnSpan(1),
 
+                Select::make('new_asset_status')
+                    ->label('Nuevo estado del activo')
+                    ->options([
+                        'available' => 'Disponible',
+                        'retired' => 'Dado de baja',
+                        'lost' => 'Perdido / Robado',
+                    ])
+                    ->default('available')
+                    ->visible(fn (Get $get): bool => $get('status') === 'completed')
+                    ->required(fn (Get $get): bool => $get('status') === 'completed')
+                    ->columnSpan(1),
+
                 Textarea::make('description')
                     ->label('Descripción / Motivo')
                     ->required()
@@ -66,6 +83,7 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->relationship('supplier', 'name')
                     ->searchable()
                     ->preload()
+                    ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                     ->columnSpan(1),
 
                 TextInput::make('cost')
@@ -141,7 +159,16 @@ class MaintenanceRecordsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Nuevo mantenimiento'),
+                    ->label('Nuevo mantenimiento')
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $this->pendingAssetStatus = $data['new_asset_status'] ?? null;
+                        unset($data['new_asset_status']);
+
+                        return $data;
+                    })
+                    ->after(function (MaintenanceRecord $record): void {
+                        app(MaintenanceService::class)->syncAssetStatus($record, $this->pendingAssetStatus);
+                    }),
             ])
             ->recordActions([
                 Action::make('view')

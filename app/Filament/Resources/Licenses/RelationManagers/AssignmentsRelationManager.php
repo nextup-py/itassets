@@ -57,6 +57,7 @@ class AssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->nullable()
+                    ->helperText('Solo se muestran empleados activos.')
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')

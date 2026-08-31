@@ -21,3 +21,25 @@ it('links each row to the maintenance record\'s own View page instead of editing
     ])
         ->assertTableActionHasUrl('view', MaintenanceRecordResource::getUrl('view', ['record' => $record]), $record);
 });
+
+it('applies the chosen new_asset_status when creating an already-completed record from this tab', function () {
+    $asset = Asset::factory()->available()->create();
+
+    Livewire::test(MaintenanceRecordsRelationManager::class, [
+        'ownerRecord' => $asset,
+        'pageClass' => ViewAsset::class,
+    ])
+        ->mountTableAction('create')
+        ->setTableActionData([
+            'type' => 'repair',
+            'status' => 'completed',
+            'new_asset_status' => 'retired',
+            'description' => 'Falla de teclado',
+            'started_at' => now()->subDay()->toDateString(),
+            'completed_at' => now()->toDateString(),
+        ])
+        ->callMountedTableAction()
+        ->assertHasNoTableActionErrors();
+
+    expect($asset->fresh()->status)->toBe('retired');
+});

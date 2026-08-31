@@ -36,6 +36,25 @@ it('creates a maintenance record', function () {
     expect(MaintenanceRecord::where('asset_id', $asset->id)->exists())->toBeTrue();
 });
 
+it('applies the chosen new_asset_status when creating a record already marked as completed', function () {
+    $asset = Asset::factory()->available()->create();
+
+    Livewire::test(CreateMaintenanceRecord::class)
+        ->fillForm([
+            'asset_id' => $asset->id,
+            'type' => 'repair',
+            'status' => 'completed',
+            'new_asset_status' => 'retired',
+            'description' => 'Falla de teclado',
+            'started_at' => now()->subDay()->toDateString(),
+            'completed_at' => now()->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect($asset->fresh()->status)->toBe('retired');
+});
+
 it('requires description, type, status, asset and started_at', function () {
     Livewire::test(CreateMaintenanceRecord::class)
         ->fillForm(['description' => ''])
