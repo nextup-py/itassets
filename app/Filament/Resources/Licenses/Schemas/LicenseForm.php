@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class LicenseForm
@@ -31,6 +32,7 @@ class LicenseForm
                             ->label('Tipo de licencia')
                             ->required()
                             ->options(License::TYPES)
+                            ->live()
                             ->columnSpan(1),
 
                         TextInput::make('total_seats')
@@ -63,6 +65,7 @@ class LicenseForm
                     ->schema([
                         DatePicker::make('purchase_date')
                             ->label('Fecha de compra')
+                            ->default(now())
                             ->displayFormat(current_date_format())
                             ->columnSpan(1),
 
@@ -89,6 +92,8 @@ class LicenseForm
                             ->label('Fecha de vencimiento')
                             ->displayFormat(current_date_format())
                             ->after('purchase_date')
+                            ->required(fn (Get $get): bool => $get('license_type') !== 'perpetual')
+                            ->helperText('No requerida para licencias perpetuas.')
                             ->columnSpan(1),
 
                         Select::make('supplier_id')

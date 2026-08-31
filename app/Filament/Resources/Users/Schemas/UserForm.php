@@ -26,6 +26,7 @@ class UserForm
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
+                    ->prefixIcon('heroicon-o-envelope')
                     ->columnSpan(1),
 
                 TextInput::make('password')

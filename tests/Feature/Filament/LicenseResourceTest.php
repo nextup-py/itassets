@@ -21,6 +21,7 @@ it('creates a license with its own currency', function () {
             'total_seats' => 5,
             'purchase_price' => 600,
             'currency' => 'USD',
+            'expiry_date' => now()->addYear()->toDateString(),
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -35,6 +36,7 @@ it('creates a license without a currency (optional field)', function () {
             'license_type' => 'subscription',
             'total_seats' => 5,
             'currency' => '',
+            'expiry_date' => now()->addYear()->toDateString(),
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -67,7 +69,7 @@ it('rejects lowering total_seats below currently used seats', function () {
 });
 
 it('allows lowering total_seats to a value still covering used seats', function () {
-    $license = License::factory()->create(['total_seats' => 5]);
+    $license = License::factory()->create(['total_seats' => 5, 'license_type' => 'perpetual', 'expiry_date' => null]);
     LicenseAssignment::factory()->count(3)->create(['license_id' => $license->id]);
 
     Livewire::test(\App\Filament\Resources\Licenses\Pages\EditLicense::class, ['record' => $license->id])
@@ -153,4 +155,28 @@ it('filters licenses by valid status', function () {
         ->filterTable('expiry_status', ['value' => 'valid'])
         ->assertCanSeeTableRecords([$valid, $noExpiry])
         ->assertCanNotSeeTableRecords([$expired, $expiringSoon]);
+});
+
+it('requires an expiry date for non-perpetual licenses', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Slack Enterprise',
+            'license_type' => 'subscription',
+            'total_seats' => 5,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['expiry_date' => 'required']);
+});
+
+it('does not require an expiry date for perpetual licenses', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Windows Server 2022',
+            'license_type' => 'perpetual',
+            'total_seats' => 1,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(License::where('product_name', 'Windows Server 2022')->first()->expiry_date)->toBeNull();
 });
