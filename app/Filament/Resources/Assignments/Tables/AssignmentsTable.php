@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Assignments\Tables;
 
 use App\Models\Assignment;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -77,7 +78,11 @@ class AssignmentsTable
                     ->authorize('update_assignment')
                     ->visible(fn (Assignment $record) => $record->isActive())
                     ->requiresConfirmation()
-                    ->action(fn (Assignment $record) => $record->update(['returned_at' => now()])),
+                    ->action(function (Assignment $record): void {
+                        $record->update(['returned_at' => now()]);
+
+                        Notification::make()->success()->title('Devolución registrada correctamente')->send();
+                    }),
             ])
             ->defaultSort('assigned_at', 'desc');
     }

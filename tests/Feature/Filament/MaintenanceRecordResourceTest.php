@@ -190,7 +190,8 @@ it('marks a maintenance record as completed from the view page header action', f
     $record = MaintenanceRecord::factory()->inProgress()->create();
 
     Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
-        ->callAction('complete');
+        ->callAction('complete')
+        ->assertNotified();
 
     expect($record->refresh()->status)->toBe('completed')
         ->and($record->completed_at)->not->toBeNull();

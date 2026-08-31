@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Employees\Tables;
 
 use App\Models\Employee;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -95,7 +96,14 @@ class EmployeesTable
                     ->color(fn (Employee $record) => $record->is_active ? 'danger' : 'success')
                     ->authorize('update_employee')
                     ->requiresConfirmation()
-                    ->action(fn (Employee $record) => $record->update(['is_active' => ! $record->is_active])),
+                    ->action(function (Employee $record): void {
+                        $record->update(['is_active' => ! $record->is_active]);
+
+                        Notification::make()
+                            ->success()
+                            ->title($record->is_active ? 'Empleado activado' : 'Empleado desactivado')
+                            ->send();
+                    }),
             ])
             ->defaultSort('name');
     }

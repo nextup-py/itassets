@@ -6,6 +6,7 @@ use App\Filament\Resources\MaintenanceRecords\MaintenanceRecordResource;
 use App\Models\MaintenanceRecord;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewMaintenanceRecord extends ViewRecord
@@ -22,10 +23,14 @@ class ViewMaintenanceRecord extends ViewRecord
                 ->authorize('update_maintenance_record')
                 ->visible(fn (MaintenanceRecord $record): bool => $record->status !== 'completed')
                 ->requiresConfirmation()
-                ->action(fn (MaintenanceRecord $record) => $record->update([
-                    'status' => 'completed',
-                    'completed_at' => $record->completed_at ?? now(),
-                ])),
+                ->action(function (MaintenanceRecord $record): void {
+                    $record->update([
+                        'status' => 'completed',
+                        'completed_at' => $record->completed_at ?? now(),
+                    ]);
+
+                    Notification::make()->success()->title('Mantenimiento marcado como completado')->send();
+                }),
 
             EditAction::make(),
         ];

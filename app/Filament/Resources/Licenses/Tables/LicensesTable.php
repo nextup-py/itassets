@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -117,7 +118,11 @@ class LicensesTable
                             ->minValue(1)
                             ->default(fn (License $record) => $record->total_seats),
                     ])
-                    ->action(fn (License $record, array $data) => $record->update($data)),
+                    ->action(function (License $record, array $data): void {
+                        $record->update($data);
+
+                        Notification::make()->success()->title('Licencia renovada correctamente')->send();
+                    }),
             ])
             ->defaultSort('product_name');
     }

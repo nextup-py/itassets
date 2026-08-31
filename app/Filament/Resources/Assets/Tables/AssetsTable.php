@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -130,7 +131,11 @@ class AssetsTable
                             ->required()
                             ->options(array_intersect_key(Asset::STATUSES, array_flip(self::QUICK_STATUSES))),
                     ])
-                    ->action(fn (Asset $record, array $data) => $record->update(['status' => $data['status']])),
+                    ->action(function (Asset $record, array $data): void {
+                        $record->update(['status' => $data['status']]);
+
+                        Notification::make()->success()->title('Estado actualizado correctamente')->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -144,7 +149,11 @@ class AssetsTable
                                 ->required()
                                 ->options(array_intersect_key(Asset::STATUSES, array_flip(self::QUICK_STATUSES))),
                         ])
-                        ->action(fn (Collection $records, array $data) => $records->each->update(['status' => $data['status']])),
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each->update(['status' => $data['status']]);
+
+                            Notification::make()->success()->title('Estado actualizado correctamente')->send();
+                        }),
                 ]),
             ])
             ->defaultSort('asset_tag');

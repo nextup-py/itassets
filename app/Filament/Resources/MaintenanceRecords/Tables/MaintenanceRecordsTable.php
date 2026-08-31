@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MaintenanceRecords\Tables;
 
 use App\Models\MaintenanceRecord;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -99,10 +100,14 @@ class MaintenanceRecordsTable
                     ->authorize('update_maintenance_record')
                     ->visible(fn (MaintenanceRecord $record): bool => $record->status !== 'completed')
                     ->requiresConfirmation()
-                    ->action(fn (MaintenanceRecord $record) => $record->update([
-                        'status' => 'completed',
-                        'completed_at' => $record->completed_at ?? now(),
-                    ])),
+                    ->action(function (MaintenanceRecord $record): void {
+                        $record->update([
+                            'status' => 'completed',
+                            'completed_at' => $record->completed_at ?? now(),
+                        ]);
+
+                        Notification::make()->success()->title('Mantenimiento marcado como completado')->send();
+                    }),
             ])
             ->defaultSort('started_at', 'desc');
     }

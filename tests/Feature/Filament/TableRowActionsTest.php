@@ -25,7 +25,8 @@ it('changes an asset status from the table row action', function () {
     $asset = Asset::factory()->available()->create();
 
     Livewire::test(ListAssets::class)
-        ->callTableAction('changeStatus', $asset, data: ['status' => 'retired']);
+        ->callTableAction('changeStatus', $asset, data: ['status' => 'retired'])
+        ->assertNotified();
 
     expect($asset->refresh()->status)->toBe('retired');
 });
@@ -45,7 +46,8 @@ it('returns an active assignment from the table row action', function () {
     $assignment = Assignment::factory()->create(['returned_at' => null]);
 
     Livewire::test(ListAssignments::class)
-        ->callTableAction('returnNow', $assignment);
+        ->callTableAction('returnNow', $assignment)
+        ->assertNotified();
 
     expect($assignment->refresh()->returned_at)->not->toBeNull();
 });
@@ -73,7 +75,8 @@ it('toggles an employee active status from the table row action', function () {
     $employee = Employee::factory()->create(['is_active' => true]);
 
     Livewire::test(ListEmployees::class)
-        ->callTableAction('toggleActive', $employee);
+        ->callTableAction('toggleActive', $employee)
+        ->assertNotified();
 
     expect($employee->refresh()->is_active)->toBeFalse();
 });
@@ -99,7 +102,8 @@ it('renews a license expiring soon from the table row action', function () {
         ->callTableAction('renew', $license, data: [
             'expiry_date' => now()->addYear()->toDateString(),
             'total_seats' => 10,
-        ]);
+        ])
+        ->assertNotified();
 
     expect($license->refresh()->total_seats)->toBe(10)
         ->and($license->expiry_date->isFuture())->toBeTrue();
@@ -128,7 +132,8 @@ it('marks a maintenance record as completed from the table row action', function
     $record = MaintenanceRecord::factory()->inProgress()->create();
 
     Livewire::test(ListMaintenanceRecords::class)
-        ->callTableAction('complete', $record);
+        ->callTableAction('complete', $record)
+        ->assertNotified();
 
     expect($record->refresh()->status)->toBe('completed')
         ->and($record->completed_at)->not->toBeNull();
