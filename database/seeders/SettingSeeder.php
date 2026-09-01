@@ -12,6 +12,8 @@ class SettingSeeder extends Seeder
         Setting::set('company_name', '');
         Setting::set('company_logo', null);
 
+        Setting::set('pdf_title', 'Documento de Asignación de Equipamiento');
+
         Setting::set('pdf_intro', 'Por medio de la presente se deja constancia de la asignación temporal por parte de **:company**, a partir del **:date** del equipamiento y los accesorios descriptos en este documento a **:employee**, con documento **:document**, que ocupa el puesto de **:position** en :company, quien en este mismo acto adquiere la obligación del cumplimiento de las cláusulas descriptas a continuación.');
 
         Setting::set('pdf_clauses', [

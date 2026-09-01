@@ -93,6 +93,8 @@ class PdfSettings extends Page implements HasForms
                     ])
                     ->addActionLabel('Agregar cláusula')
                     ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(fn (?int $index): string => 'Cláusula ' . ($index + 1))
                     ->columns(1)
                     ->columnSpanFull(),
 
