@@ -8,4 +8,5 @@ Route::get('/', function () {
 });
 
 Route::get('/assignments/{assignment}/pdf', [AssignmentPdfController::class, 'download'])
+    ->middleware('auth')
     ->name('assignments.pdf');
