@@ -78,7 +78,7 @@ class PdfSettings extends Page implements HasForms
 
                 Textarea::make('pdf_intro')
                     ->label('Texto introductorio')
-                    ->helperText('Usá :company, :date, :employee, :document, :position como marcadores.')
+                    ->helperText('Usá :company, :date, :employee, :document, :position, :legajo como marcadores.')
                     ->rows(4)
                     ->columnSpanFull(),
 

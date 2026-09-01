@@ -48,8 +48,8 @@
 
     @if ($intro)
         <p>{{ str_replace(
-            [':company', ':date', ':employee', ':document', ':position'],
-            [$company, $assignment->assigned_at->format(current_date_format()), optional($assignment->employee)->name ?? '—', optional($assignment->employee)->document_number ?? '—', optional($assignment->employee)->position ?? '—'],
+            [':company', ':date', ':employee', ':document', ':position', ':legajo'],
+            [$company, $assignment->assigned_at->format(current_date_format()), optional($assignment->employee)->name ?? '—', optional($assignment->employee)->document_number ?? '—', optional($assignment->employee)->position ?? '—', optional($assignment->employee)->legajo ?? '—'],
             $intro
         ) }}</p>
     @else
@@ -98,10 +98,6 @@
             @endforeach
         </tbody>
     </table>
-
-    <div style="margin-top: 4px; font-size: 11px;">
-        <strong>Legajo:</strong> {{ optional($assignment->employee)->legajo ?? '—' }}
-    </div>
 
     @if ($assignment->notes)
         <div class="observations">
