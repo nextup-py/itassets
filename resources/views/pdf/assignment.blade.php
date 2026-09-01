@@ -20,7 +20,6 @@
         .signature { margin-top: 40px; }
         .signature td { padding: 10px 30px; }
         .signature-line { border-top: 1px solid #222; width: 250px; margin: 0 auto; padding-top: 4px; text-align: center; }
-        .footer { margin-top: 30px; font-size: 10px; text-align: center; border-top: 1px solid #ccc; padding-top: 8px; }
         .observations { margin: 10px 0; padding: 8px; border: 1px dashed #999; font-style: italic; }
     </style>
 </head>
@@ -134,10 +133,6 @@
             </td>
         </tr>
     </table>
-
-    <div class="footer">
-        Documento generado el {{ now()->format(current_datetime_format()) }}
-    </div>
 
 </body>
 </html>
