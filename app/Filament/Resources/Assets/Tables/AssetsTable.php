@@ -13,6 +13,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class AssetsTable
 {
@@ -154,6 +156,18 @@ class AssetsTable
 
                             Notification::make()->success()->title('Estado actualizado correctamente')->send();
                         }),
+
+                    BulkAction::make('printQrCodes')
+                        ->label('Imprimir códigos QR')
+                        ->icon('heroicon-o-qr-code')
+                        ->authorize('export_report')
+                        ->deselectRecordsAfterCompletion()
+                        ->url(function (Collection $records): string {
+                            $token = Str::random(32);
+                            Cache::put("qr_sheet.{$token}", $records->pluck('id')->all(), now()->addMinutes(5));
+
+                            return route('assets.qr-sheet', $token);
+                        }, shouldOpenInNewTab: true),
                 ]),
             ])
             ->defaultSort('asset_tag');

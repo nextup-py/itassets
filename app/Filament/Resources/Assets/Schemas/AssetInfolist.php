@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Assets\Schemas;
 
 use App\Models\Asset;
+use App\Support\AssetQrCode;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -105,6 +106,18 @@ class AssetInfolist
                             ->placeholder('—'),
                     ])
                     ->columns(2),
+
+                // ── Código QR ─────────────────────────────────────────────────
+                Section::make('Código QR')
+                    ->description('Para imprimir y pegar en el activo — al escanearlo, se abre una ficha pública con los datos básicos.')
+                    ->icon('heroicon-o-qr-code')
+                    ->schema([
+                        ImageEntry::make('qr')
+                            ->label('')
+                            ->state(fn (Asset $record): string => AssetQrCode::dataUri($record))
+                            ->height(160)
+                            ->width(160),
+                    ]),
 
             ]);
     }

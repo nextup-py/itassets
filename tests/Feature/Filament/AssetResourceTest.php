@@ -227,6 +227,28 @@ it('edits an asset', function () {
     expect($asset->fresh()->condition)->toBe('poor');
 });
 
+it('shows the qr code image on the asset view page', function () {
+    $asset = Asset::factory()->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->assertSee('Código QR');
+});
+
+it('offers a bulk action to print qr codes, gated by export_report', function () {
+    $asset = Asset::factory()->create();
+
+    Livewire::test(ListAssets::class)
+        ->assertTableBulkActionExists('printQrCodes');
+});
+
+it('hides the print qr codes bulk action from an editor', function () {
+    loginAsEditor();
+    $asset = Asset::factory()->create();
+
+    Livewire::test(ListAssets::class)
+        ->assertTableBulkActionHidden('printQrCodes');
+});
+
 it('assigns an asset to an employee via the assign action', function () {
     $asset = Asset::factory()->available()->create();
     $employee = Employee::factory()->create();
