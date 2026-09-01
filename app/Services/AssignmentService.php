@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Asset;
 use App\Models\Assignment;
 use App\Models\Employee;
+use App\Models\Setting;
+use App\Notifications\AssignmentDocumentNotification;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
 class AssignmentService
@@ -31,7 +33,24 @@ class AssignmentService
 
         $asset->refresh();
 
+        $this->notifyEmployee($assignment);
+
         return $assignment;
+    }
+
+    public function notifyEmployee(Assignment $assignment): void
+    {
+        if (! Setting::get('notify_employee_on_assignment', true)) {
+            return;
+        }
+
+        $assignment->loadMissing('employee', 'assets.category');
+
+        if (! $assignment->employee) {
+            return;
+        }
+
+        $assignment->employee->notify(new AssignmentDocumentNotification($assignment));
     }
 
     public function return(Asset $asset, array $data): void

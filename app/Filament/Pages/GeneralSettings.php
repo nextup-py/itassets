@@ -6,6 +6,7 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -46,6 +47,7 @@ class GeneralSettings extends Page implements HasForms
             'display_locale' => Setting::get('display_locale', 'en_US'),
             'timezone' => Setting::get('timezone', config('app.timezone')),
             'date_format' => Setting::get('date_format', 'd/m/Y'),
+            'notify_employee_on_assignment' => Setting::get('notify_employee_on_assignment', true),
         ]);
     }
 
@@ -108,6 +110,15 @@ class GeneralSettings extends Page implements HasForms
                     ])
                     ->columns(2),
 
+                Section::make('Notificaciones')
+                    ->description('Avisos automáticos que envía el sistema.')
+                    ->schema([
+                        Toggle::make('notify_employee_on_assignment')
+                            ->label('Notificar por email al empleado al crear una asignación')
+                            ->helperText('Envía el documento de asignación en PDF adjunto al correo del empleado.')
+                            ->columnSpanFull(),
+                    ]),
+
                 \Filament\Schemas\Components\Actions::make([
                     Action::make('save')
                         ->label('Guardar cambios')
@@ -128,6 +139,7 @@ class GeneralSettings extends Page implements HasForms
         Setting::set('display_locale', $data['display_locale']);
         Setting::set('timezone', $data['timezone']);
         Setting::set('date_format', $data['date_format']);
+        Setting::set('notify_employee_on_assignment', $data['notify_employee_on_assignment']);
 
         Notification::make()
             ->title('Configuración guardada correctamente')

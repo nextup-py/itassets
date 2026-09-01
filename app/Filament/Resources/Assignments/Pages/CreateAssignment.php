@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Assignments\Pages;
 
 use App\Filament\Resources\Assignments\AssignmentResource;
+use App\Services\AssignmentService;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateAssignment extends CreateRecord
@@ -38,6 +39,8 @@ class CreateAssignment extends CreateRecord
                 'assigned_at'    => $this->record->assigned_at,
             ]);
         }
+
+        app(AssignmentService::class)->notifyEmployee($this->record);
     }
 
     protected function getRedirectUrl(): string

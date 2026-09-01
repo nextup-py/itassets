@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Assets\RelationManagers;
 use App\Filament\Concerns\HasRelationManagerPermissions;
 use App\Filament\Resources\Assignments\AssignmentResource;
 use App\Models\Assignment;
+use App\Services\AssignmentService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -134,6 +135,8 @@ class AssignmentsRelationManager extends RelationManager
                             'assigned_at'    => $data['assigned_at'],
                             'notes'          => $data['notes'] ?? null,
                         ]);
+
+                        app(AssignmentService::class)->notifyEmployee($record);
                     }),
             ])
             ->recordActions([
