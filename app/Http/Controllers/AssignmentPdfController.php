@@ -16,7 +16,7 @@ class AssignmentPdfController extends Controller
         }
 
         $pdf = Pdf::loadView('pdf.assignment', [
-            'assignment' => $assignment->loadMissing('employee', 'assets'),
+            'assignment' => $assignment->loadMissing('employee', 'assets.category'),
         ]);
 
         $employee = $assignment->employee;

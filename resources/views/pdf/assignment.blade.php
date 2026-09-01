@@ -70,6 +70,8 @@
     <table class="asset-table">
         <thead>
             <tr>
+                <th>Código</th>
+                <th>Categoría</th>
                 <th>Marca</th>
                 <th>Modelo</th>
                 <th>N.º Serie</th>
@@ -82,6 +84,8 @@
         <tbody>
             @foreach ($assignment->assets as $asset)
                 <tr>
+                    <td>{{ $asset->asset_tag ?? '—' }}</td>
+                    <td>{{ $asset->category?->name ?? '—' }}</td>
                     <td>{{ $asset->brand ?? '—' }}</td>
                     <td>{{ $asset->model ?? '—' }}</td>
                     <td>{{ $asset->serial_number ?? '—' }}</td>
