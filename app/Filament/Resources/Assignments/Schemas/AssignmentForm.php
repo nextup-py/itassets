@@ -97,7 +97,8 @@ class AssignmentForm
                     ->addActionLabel('Agregar activo')
                     ->defaultItems(1)
                     ->minItems(1)
-                    ->reorderable(false),
+                    ->reorderable(false)
+                    ->columnSpanFull(),
             ])
             ->columns(3);
     }
