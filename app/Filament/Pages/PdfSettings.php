@@ -86,7 +86,7 @@ class PdfSettings extends Page implements HasForms
                     ->label('Cláusulas')
                     ->schema([
                         Textarea::make('clause')
-                            ->label('')
+                            ->hiddenLabel()
                             ->rows(2)
                             ->required()
                             ->columnSpanFull(),
