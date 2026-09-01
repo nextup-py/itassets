@@ -12,8 +12,11 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class PdfSettings extends Page implements HasForms
 {
@@ -52,67 +55,108 @@ class PdfSettings extends Page implements HasForms
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                TextInput::make('company_name')
-                    ->label('Nombre de la empresa')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpan(2),
-
-                FileUpload::make('company_logo')
-                    ->label('Logo de la empresa')
-                    ->image()
-                    ->imageEditor()
-                    ->disk('public')
-                    ->directory('branding')
-                    ->maxSize(2048)
-                    ->imagePreviewHeight('120')
-                    ->helperText('JPG, PNG o WEBP, máx. 2MB.')
-                    ->columnSpanFull(),
-
-                TextInput::make('pdf_title')
-                    ->label('Título del documento')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-
-                Textarea::make('pdf_intro')
-                    ->label('Texto introductorio')
-                    ->helperText('Usá :company, :date, :employee, :document, :position, :legajo como marcadores.')
-                    ->rows(4)
-                    ->columnSpanFull(),
-
-                Repeater::make('pdf_clauses')
-                    ->label('Cláusulas')
+                Section::make('Marca')
+                    ->description('Nombre y logo que se muestran en el encabezado del documento.')
                     ->schema([
-                        Textarea::make('clause')
-                            ->hiddenLabel()
-                            ->rows(2)
+                        TextInput::make('company_name')
+                            ->label('Nombre de la empresa')
                             ->required()
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        FileUpload::make('company_logo')
+                            ->label('Logo de la empresa')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('branding')
+                            ->maxSize(2048)
+                            ->imagePreviewHeight('120')
+                            ->helperText('JPG, PNG o WEBP, máx. 2MB.')
+                            ->columnSpan(1),
+                    ])
+                    ->columns(2),
+
+                Section::make('Contenido del documento')
+                    ->description('Título, texto introductorio, cláusulas y cierre del PDF de asignación.')
+                    ->schema([
+                        TextInput::make('pdf_title')
+                            ->label('Título del documento')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+
+                        Textarea::make('pdf_intro')
+                            ->label('Texto introductorio')
+                            ->helperText('Usá :company, :date, :employee, :document, :position, :legajo como marcadores.')
+                            ->rows(4)
+                            ->columnSpanFull(),
+
+                        Repeater::make('pdf_clauses')
+                            ->label('Cláusulas')
+                            ->schema([
+                                Textarea::make('clause')
+                                    ->hiddenLabel()
+                                    ->rows(2)
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ])
+                            ->addActionLabel('Agregar cláusula')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(fn (?int $index): string => 'Cláusula ' . ($index + 1))
+                            ->columns(1)
+                            ->columnSpanFull(),
+
+                        Textarea::make('pdf_closing')
+                            ->label('Texto de cierre')
+                            ->helperText('Usá :company como marcador.')
+                            ->rows(3)
                             ->columnSpanFull(),
                     ])
-                    ->addActionLabel('Agregar cláusula')
-                    ->reorderable()
-                    ->collapsible()
-                    ->itemLabel(fn (?int $index): string => 'Cláusula ' . ($index + 1))
-                    ->columns(1)
-                    ->columnSpanFull(),
-
-                Textarea::make('pdf_closing')
-                    ->label('Texto de cierre')
-                    ->helperText('Usá :company como marcador.')
-                    ->rows(3)
-                    ->columnSpanFull(),
+                    ->columns(1),
 
                 \Filament\Schemas\Components\Actions::make([
+                    Action::make('preview')
+                        ->label('Vista previa')
+                        ->icon('heroicon-o-eye')
+                        ->color('gray')
+                        ->action(fn () => $this->preview()),
+
                     Action::make('save')
                         ->label('Guardar cambios')
                         ->submit('save'),
                 ])->columnSpanFull(),
             ])
-            ->columns(2)
             ->statePath('data')
             ->live();
+    }
+
+    public function preview(): void
+    {
+        $data = $this->form->getState();
+
+        $overrides = [
+            'company_name' => $data['company_name'] ?? '',
+            'pdf_title' => $data['pdf_title'] ?? '',
+            'pdf_intro' => $data['pdf_intro'] ?? '',
+            'pdf_clauses' => collect($data['pdf_clauses'] ?? [])->pluck('clause')->toArray(),
+            'pdf_closing' => $data['pdf_closing'] ?? '',
+        ];
+
+        // A freshly-picked, not-yet-saved logo arrives as a TemporaryUploadedFile,
+        // not a storage path — preview falls back to the already-saved logo in
+        // that case rather than trying to render an unsaved upload.
+        if (is_string($data['company_logo'] ?? null)) {
+            $overrides['company_logo'] = $data['company_logo'];
+        }
+
+        $token = Str::random(32);
+        Cache::put("pdf_preview.{$token}", $overrides, now()->addMinutes(2));
+
+        $this->js('window.open(' . json_encode(route('assignments.pdf-preview', $token)) . ", '_blank')");
     }
 
     public function save(): void

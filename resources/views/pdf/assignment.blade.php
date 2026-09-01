@@ -27,13 +27,15 @@
 <body>
 
     @php
-        $company = \App\Models\Setting::get('company_name', '');
-        $title   = \App\Models\Setting::get('pdf_title', 'Documento de Asignación de Equipamiento');
-        $intro   = \App\Models\Setting::get('pdf_intro', '');
-        $clauses = \App\Models\Setting::get('pdf_clauses', []);
-        $closing = \App\Models\Setting::get('pdf_closing', '');
+        $overrides ??= [];
 
-        $logo = \App\Models\Setting::get('company_logo');
+        $company = $overrides['company_name'] ?? \App\Models\Setting::get('company_name', '');
+        $title   = $overrides['pdf_title'] ?? \App\Models\Setting::get('pdf_title', 'Documento de Asignación de Equipamiento');
+        $intro   = $overrides['pdf_intro'] ?? \App\Models\Setting::get('pdf_intro', '');
+        $clauses = $overrides['pdf_clauses'] ?? \App\Models\Setting::get('pdf_clauses', []);
+        $closing = $overrides['pdf_closing'] ?? \App\Models\Setting::get('pdf_closing', '');
+
+        $logo = array_key_exists('company_logo', $overrides) ? $overrides['company_logo'] : \App\Models\Setting::get('company_logo');
         $logoDataUri = null;
         if ($logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($logo)) {
             $logoDataUri = 'data:' . \Illuminate\Support\Facades\Storage::disk('public')->mimeType($logo) . ';base64,' . base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($logo));
