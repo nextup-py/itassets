@@ -14,8 +14,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class ViewAsset extends ViewRecord
 {
@@ -27,24 +25,6 @@ class ViewAsset extends ViewRecord
         $maintenanceService = app(MaintenanceService::class);
 
         return [
-            Action::make('downloadQr')
-                ->label('Descargar QR')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->color('gray')
-                ->url(fn () => route('assets.qr-image', $this->record)),
-
-            Action::make('printQrLabel')
-                ->label('Imprimir etiqueta')
-                ->icon('heroicon-o-printer')
-                ->color('gray')
-                ->authorize('export_report')
-                ->url(function (): string {
-                    $token = Str::random(32);
-                    Cache::put("qr_sheet.{$token}", [$this->record->id], now()->addMinutes(5));
-
-                    return route('assets.qr-sheet', $token);
-                }, shouldOpenInNewTab: true),
-
             Action::make('printAssignment')
                 ->label('Imprimir asignación')
                 ->icon('heroicon-o-printer')

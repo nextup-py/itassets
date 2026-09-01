@@ -239,8 +239,8 @@ it('offers a download qr and print label action on the asset view page', functio
     $asset = Asset::factory()->create();
 
     Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
-        ->assertActionVisible('downloadQr')
-        ->assertActionVisible('printQrLabel');
+        ->assertSee('Descargar QR')
+        ->assertSee('Imprimir etiqueta');
 });
 
 it('hides the print qr label action from an editor', function () {
@@ -248,7 +248,7 @@ it('hides the print qr label action from an editor', function () {
     $asset = Asset::factory()->create();
 
     Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
-        ->assertActionHidden('printQrLabel');
+        ->assertDontSee('Imprimir etiqueta');
 });
 
 it('offers a bulk action to print qr codes, gated by export_report', function () {

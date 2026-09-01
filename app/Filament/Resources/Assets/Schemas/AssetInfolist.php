@@ -4,10 +4,13 @@ namespace App\Filament\Resources\Assets\Schemas;
 
 use App\Models\Asset;
 use App\Support\AssetQrCode;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class AssetInfolist
 {
@@ -111,20 +114,44 @@ class AssetInfolist
                 Section::make('Código QR')
                     ->description('Para imprimir y pegar en el activo — al escanearlo, se abre una ficha pública con los datos básicos.')
                     ->icon('heroicon-o-qr-code')
+                    ->headerActions([
+                        Action::make('downloadQr')
+                            ->label('Descargar QR')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('gray')
+                            ->url(fn (Asset $record): string => route('assets.qr-image', $record), shouldOpenInNewTab: true),
+
+                        Action::make('printQrLabel')
+                            ->label('Imprimir etiqueta')
+                            ->icon('heroicon-o-printer')
+                            ->color('gray')
+                            ->authorize('export_report')
+                            ->url(function (Asset $record): string {
+                                $token = Str::random(32);
+                                Cache::put("qr_sheet.{$token}", [$record->id], now()->addMinutes(5));
+
+                                return route('assets.qr-sheet', $token);
+                            }, shouldOpenInNewTab: true),
+                    ])
                     ->schema([
                         ImageEntry::make('qr')
                             ->hiddenLabel()
                             ->state(fn (Asset $record): string => AssetQrCode::dataUri($record))
                             ->height(160)
-                            ->width(160),
+                            ->width(160)
+                            ->alignCenter()
+                            ->columnSpanFull(),
 
                         TextEntry::make('qr_url')
-                            ->label('Enlace público')
+                            ->hiddenLabel()
                             ->state(fn (Asset $record): string => AssetQrCode::url($record))
                             ->copyable()
                             ->copyMessage('Enlace copiado')
                             ->color('gray')
-                            ->size('sm'),
+                            ->size('sm')
+                            ->alignCenter()
+                            ->columnSpanFull()
+                            ->extraAttributes(['class' => 'text-center']),
                     ]),
 
             ]);
