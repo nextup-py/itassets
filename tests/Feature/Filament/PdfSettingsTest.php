@@ -14,6 +14,7 @@ it('saves the pdf text settings', function () {
     Livewire::test(PdfSettings::class)
         ->fillForm([
             'company_name' => 'Acme Corp',
+            'pdf_title' => 'Acta de Entrega de Equipos',
             'pdf_intro' => 'Intro text for :company',
             'pdf_clauses' => [
                 ['clause' => 'First clause'],
@@ -25,6 +26,7 @@ it('saves the pdf text settings', function () {
         ->assertHasNoFormErrors();
 
     expect(Setting::get('company_name'))->toBe('Acme Corp');
+    expect(Setting::get('pdf_title'))->toBe('Acta de Entrega de Equipos');
     expect(Setting::get('pdf_intro'))->toBe('Intro text for :company');
     expect(Setting::get('pdf_clauses'))->toBe(['First clause', 'Second clause']);
     expect(Setting::get('pdf_closing'))->toBe('Closing text');

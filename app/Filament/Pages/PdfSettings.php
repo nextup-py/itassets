@@ -42,6 +42,7 @@ class PdfSettings extends Page implements HasForms
         $this->form->fill([
             'company_name' => Setting::get('company_name', ''),
             'company_logo' => Setting::get('company_logo', null),
+            'pdf_title'    => Setting::get('pdf_title', 'Documento de Asignación de Equipamiento'),
             'pdf_intro'    => Setting::get('pdf_intro', ''),
             'pdf_clauses'  => collect(Setting::get('pdf_clauses', []))->map(fn ($clause) => ['clause' => $clause])->toArray(),
             'pdf_closing'  => Setting::get('pdf_closing', ''),
@@ -67,6 +68,12 @@ class PdfSettings extends Page implements HasForms
                     ->maxSize(2048)
                     ->imagePreviewHeight('120')
                     ->helperText('JPG, PNG o WEBP, máx. 2MB.')
+                    ->columnSpanFull(),
+
+                TextInput::make('pdf_title')
+                    ->label('Título del documento')
+                    ->required()
+                    ->maxLength(255)
                     ->columnSpanFull(),
 
                 Textarea::make('pdf_intro')
@@ -112,6 +119,7 @@ class PdfSettings extends Page implements HasForms
 
         Setting::set('company_name', $data['company_name']);
         Setting::set('company_logo', $data['company_logo']);
+        Setting::set('pdf_title', $data['pdf_title']);
         Setting::set('pdf_intro', $data['pdf_intro']);
         Setting::set('pdf_clauses', collect($data['pdf_clauses'])->pluck('clause')->toArray());
         Setting::set('pdf_closing', $data['pdf_closing']);

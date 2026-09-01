@@ -28,6 +28,7 @@
 
     @php
         $company = \App\Models\Setting::get('company_name', '');
+        $title   = \App\Models\Setting::get('pdf_title', 'Documento de Asignación de Equipamiento');
         $intro   = \App\Models\Setting::get('pdf_intro', '');
         $clauses = \App\Models\Setting::get('pdf_clauses', []);
         $closing = \App\Models\Setting::get('pdf_closing', '');
@@ -43,7 +44,7 @@
         <img src="{{ $logoDataUri }}" style="max-height: 60px; display: block; margin: 0 auto 10px;">
     @endif
 
-    <h1>Documento de Asignación de Equipamiento</h1>
+    <h1>{{ $title }}</h1>
 
     @if ($intro)
         <p>{{ str_replace(
