@@ -122,18 +122,16 @@
                 </div>
             </td>
             <td align="center">
+                <div><strong>{{ $assignment->assigned_by ?? '—' }}</strong></div>
+                <div style="margin-top: 4px; font-size: 11px;">
+                    Responsable de asignación
+                </div>
                 <div style="margin-top: 30px;">
-                    <div class="signature-line">Fecha ___/___/_____</div>
+                    <div class="signature-line">Firma</div>
                 </div>
             </td>
         </tr>
     </table>
-
-    @if ($assignment->assigned_by)
-        <p style="margin-top: 20px; font-size: 10px;">
-            Asignado por: <strong>{{ $assignment->assigned_by }}</strong>
-        </p>
-    @endif
 
     <div class="footer">
         Documento generado el {{ now()->format(current_datetime_format()) }}
