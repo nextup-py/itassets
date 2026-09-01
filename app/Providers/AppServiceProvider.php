@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
+use App\Services\MailConfigService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -34,5 +35,7 @@ class AppServiceProvider extends ServiceProvider
         // policy auto-discovery convention won't find these — must register explicitly.
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Permission::class, PermissionPolicy::class);
+
+        $this->app->make(MailConfigService::class)->apply();
     }
 }
