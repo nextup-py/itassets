@@ -227,11 +227,28 @@ it('edits an asset', function () {
     expect($asset->fresh()->condition)->toBe('poor');
 });
 
-it('shows the qr code image on the asset view page', function () {
+it('shows the qr code image and public link on the asset view page', function () {
     $asset = Asset::factory()->create();
 
     Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
-        ->assertSee('Código QR');
+        ->assertSee('Código QR')
+        ->assertSee(route('assets.public', $asset));
+});
+
+it('offers a download qr and print label action on the asset view page', function () {
+    $asset = Asset::factory()->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->assertActionVisible('downloadQr')
+        ->assertActionVisible('printQrLabel');
+});
+
+it('hides the print qr label action from an editor', function () {
+    loginAsEditor();
+    $asset = Asset::factory()->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->assertActionHidden('printQrLabel');
 });
 
 it('offers a bulk action to print qr codes, gated by export_report', function () {

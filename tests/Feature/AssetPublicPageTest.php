@@ -42,3 +42,13 @@ it('shows a link to log in for the full asset view', function () {
     $response->assertOk();
     $response->assertSee('Iniciar sesión para ver más');
 });
+
+it('serves the qr code as a downloadable png, without requiring login', function () {
+    $asset = Asset::factory()->create(['asset_tag' => 'IT-0050']);
+
+    $response = $this->get(route('assets.qr-image', $asset));
+
+    $response->assertOk();
+    $response->assertHeader('content-type', 'image/png');
+    $response->assertHeader('content-disposition', 'attachment; filename="qr_IT-0050.png"');
+});

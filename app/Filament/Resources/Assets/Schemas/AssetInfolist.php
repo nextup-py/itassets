@@ -113,10 +113,18 @@ class AssetInfolist
                     ->icon('heroicon-o-qr-code')
                     ->schema([
                         ImageEntry::make('qr')
-                            ->label('')
+                            ->hiddenLabel()
                             ->state(fn (Asset $record): string => AssetQrCode::dataUri($record))
                             ->height(160)
                             ->width(160),
+
+                        TextEntry::make('qr_url')
+                            ->label('Enlace público')
+                            ->state(fn (Asset $record): string => AssetQrCode::url($record))
+                            ->copyable()
+                            ->copyMessage('Enlace copiado')
+                            ->color('gray')
+                            ->size('sm'),
                     ]),
 
             ]);
