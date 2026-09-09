@@ -20,7 +20,7 @@ Route::get('/assignments/pdf-preview/{token}', [AssignmentPdfController::class, 
 Route::get('/assets/{asset}/public', [AssetPublicController::class, 'show'])
     ->name('assets.public');
 
-Route::get('/assets/{asset}/qr.png', [AssetPublicController::class, 'qrImage'])
+Route::get('/assets/{asset}/qr-download', [AssetPublicController::class, 'qrImage'])
     ->name('assets.qr-image');
 
 Route::get('/assets/qr-sheet/{token}', [AssetQrSheetController::class, 'show'])
