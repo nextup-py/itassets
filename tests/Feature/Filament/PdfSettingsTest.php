@@ -65,7 +65,7 @@ it('allows editor access', function () {
 });
 
 it('renders the save button inside a real form so the submit actually works', function () {
-    $this->get('/admin/pdf-settings')->assertSee('wire:submit="save"', false);
+    $this->get('/pdf-settings')->assertSee('wire:submit="save"', false);
 });
 
 it('caches the current unsaved form state when previewing, without saving it', function () {

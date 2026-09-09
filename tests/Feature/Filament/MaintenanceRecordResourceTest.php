@@ -16,7 +16,7 @@ beforeEach(function () {
 it('lists maintenance records', function () {
     MaintenanceRecord::factory()->count(3)->create();
 
-    $this->get('/admin/maintenance-records')->assertOk();
+    $this->get('/maintenance-records')->assertOk();
 });
 
 it('creates a maintenance record', function () {
@@ -90,7 +90,7 @@ it('edits a maintenance record', function () {
 });
 
 it('returns 404 for a non-existent maintenance record', function () {
-    $this->get('/admin/maintenance-records/99999')->assertNotFound();
+    $this->get('/maintenance-records/99999')->assertNotFound();
 });
 
 it('sets the related asset to maintenance when a non-completed record is created', function () {

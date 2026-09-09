@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Filament\Resources\MaintenanceRecords\MaintenanceRecordResource;
 use App\Models\MaintenanceRecord;
 use App\Notifications\Concerns\SendsToManagers;
 use Filament\Notifications\Notification as FilamentNotification;
@@ -47,7 +48,7 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             ->line("Estado: {$this->record->status}")
             ->line("Iniciado: {$this->record->started_at?->format(current_date_format())}")
             ->when($this->record->technician, fn ($msg) => $msg->line("Técnico: {$this->record->technician}"))
-            ->action('Ver mantenimiento', url("/admin/maintenance-records/{$this->record->id}"))
+            ->action('Ver mantenimiento', MaintenanceRecordResource::getUrl('view', ['record' => $this->record]))
             ->salutation('ITAssets');
     }
 

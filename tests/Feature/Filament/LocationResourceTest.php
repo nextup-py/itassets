@@ -16,7 +16,7 @@ beforeEach(function () {
 it('lists locations', function () {
     Location::factory()->count(3)->create();
 
-    $this->get('/admin/locations')->assertOk();
+    $this->get('/locations')->assertOk();
 });
 
 it('creates a location', function () {
@@ -69,7 +69,7 @@ it('edits a location', function () {
 });
 
 it('returns 404 for a non-existent location', function () {
-    $this->get('/admin/locations/99999')->assertNotFound();
+    $this->get('/locations/99999')->assertNotFound();
 });
 
 it('denies viewer from creating a location', function () {

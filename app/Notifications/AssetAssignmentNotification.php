@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Filament\Resources\Assets\AssetResource;
 use App\Models\Asset;
 use App\Models\Employee;
 use App\Notifications\Concerns\SendsToManagers;
@@ -45,7 +46,7 @@ class AssetAssignmentNotification extends Notification implements ShouldQueue
                 'returned' => "El activo **{$assetLabel}** fue devuelto por **{$employeeName}**.",
                 default    => "Movimiento registrado para el activo **{$assetLabel}**.",
             })
-            ->action('Ver activo', url("/admin/assets/{$this->asset->id}"))
+            ->action('Ver activo', AssetResource::getUrl('view', ['record' => $this->asset]))
             ->salutation('ITAssets');
     }
 

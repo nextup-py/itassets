@@ -17,7 +17,7 @@ beforeEach(function () {
 it('lists supplies', function () {
     Supply::factory()->count(3)->create();
 
-    $this->get('/admin/supplies')->assertOk();
+    $this->get('/supplies')->assertOk();
 });
 
 it('creates a supply', function () {

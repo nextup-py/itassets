@@ -5,7 +5,7 @@ Este doc es un complemento narrativo al [`CLAUDE.md`](../CLAUDE.md) (que es una 
 ## El viaje de un request
 
 ```
-Usuario → Ruta de Filament (/admin/...) → Filament Resource
+Usuario → Ruta de Filament (/...) → Filament Resource
                                               ├── Schema (form/infolist)
                                               ├── Table
                                               └── Page (List/Create/Edit/View)
@@ -91,7 +91,7 @@ El fix es siempre el mismo wrapper:
 </x-filament::page>
 ```
 
-**Por qué los tests existentes no lo detectaron**: los tests de `GeneralSettingsTest.php`/`PdfSettingsTest.php` usaban `Livewire::test(...)->fillForm([...])->call('save')`, que invoca el método `save()` directamente — sin pasar nunca por el HTML real ni por el click del botón. Por eso se agregó un test a nivel HTTP (`$this->get('/admin/general-settings')->assertSee('wire:submit="save"', false)`) como resguardo permanente: es el único tipo de test que realmente hubiera detectado este bug.
+**Por qué los tests existentes no lo detectaron**: los tests de `GeneralSettingsTest.php`/`PdfSettingsTest.php` usaban `Livewire::test(...)->fillForm([...])->call('save')`, que invoca el método `save()` directamente — sin pasar nunca por el HTML real ni por el click del botón. Por eso se agregó un test a nivel HTTP (`$this->get('/general-settings')->assertSee('wire:submit="save"', false)`) como resguardo permanente: es el único tipo de test que realmente hubiera detectado este bug.
 
 ## Por qué `->limit()` en la query de un widget no alcanza para limitar filas
 

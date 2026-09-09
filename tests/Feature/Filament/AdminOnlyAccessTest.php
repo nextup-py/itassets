@@ -22,21 +22,21 @@ it('hides Users from the navigation for editor and viewer', function () {
 
         Livewire::test(ListUsers::class)->assertForbidden();
 
-        $this->get('/admin/users')->assertForbidden();
+        $this->get('/users')->assertForbidden();
     }
 });
 
 it('allows admin to access Users', function () {
     loginAsAdmin();
 
-    $this->get('/admin/users')->assertOk();
+    $this->get('/users')->assertOk();
 });
 
 it('blocks editor and viewer from the Roles screen', function () {
     foreach (['loginAsEditor', 'loginAsViewer'] as $login) {
         $login();
 
-        $this->get('/admin/roles')->assertForbidden();
+        $this->get('/roles')->assertForbidden();
     }
 });
 
@@ -44,13 +44,13 @@ it('blocks editor and viewer from the Permissions screen', function () {
     foreach (['loginAsEditor', 'loginAsViewer'] as $login) {
         $login();
 
-        $this->get('/admin/permissions')->assertForbidden();
+        $this->get('/permissions')->assertForbidden();
     }
 });
 
 it('allows admin to access Roles and Permissions', function () {
     loginAsAdmin();
 
-    $this->get('/admin/roles')->assertOk();
-    $this->get('/admin/permissions')->assertOk();
+    $this->get('/roles')->assertOk();
+    $this->get('/permissions')->assertOk();
 });

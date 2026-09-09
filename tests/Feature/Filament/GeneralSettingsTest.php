@@ -116,5 +116,5 @@ it('normalizes currency codes to uppercase when saving', function () {
 });
 
 it('renders the save button inside a real form so the submit actually works', function () {
-    $this->get('/admin/general-settings')->assertSee('wire:submit="save"', false);
+    $this->get('/general-settings')->assertSee('wire:submit="save"', false);
 });

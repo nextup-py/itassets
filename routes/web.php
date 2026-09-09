@@ -5,9 +5,11 @@ use App\Http\Controllers\AssetQrSheetController;
 use App\Http\Controllers\AssignmentPdfController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// The panel used to live at /admin; keep old bookmarks/links working by
+// redirecting to the equivalent path now that it's served from /.
+Route::redirect('/admin', '/');
+Route::get('/admin/{path}', fn (string $path) => redirect('/' . $path))
+    ->where('path', '.*');
 
 Route::get('/assignments/{assignment}/pdf', [AssignmentPdfController::class, 'download'])
     ->middleware('auth')

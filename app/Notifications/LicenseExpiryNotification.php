@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Filament\Resources\Licenses\LicenseResource;
 use App\Models\License;
 use App\Notifications\Concerns\SendsToManagers;
 use Filament\Notifications\Notification as FilamentNotification;
@@ -41,7 +42,7 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
             ->line("Fecha de vencimiento: {$this->license->expiry_date?->format(current_date_format())}")
             ->line("Asientos totales: {$this->license->total_seats}")
             ->line("Asientos utilizados: {$this->license->usedSeats()}")
-            ->action('Ver licencia', url("/admin/licenses/{$this->license->id}"))
+            ->action('Ver licencia', LicenseResource::getUrl('view', ['record' => $this->license]))
             ->salutation('ITAssets');
     }
 

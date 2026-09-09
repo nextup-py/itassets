@@ -16,7 +16,7 @@ beforeEach(function () {
 it('lists users', function () {
     User::factory()->count(3)->create();
 
-    $this->get('/admin/users')->assertOk();
+    $this->get('/users')->assertOk();
 });
 
 it('creates a user with a hashed password', function () {
@@ -143,7 +143,7 @@ it('records the last login time when a user logs in', function () {
 });
 
 it('returns 404 for a non-existent user', function () {
-    $this->get('/admin/users/99999')->assertNotFound();
+    $this->get('/users/99999')->assertNotFound();
 });
 
 it('denies viewer from creating a user', function () {

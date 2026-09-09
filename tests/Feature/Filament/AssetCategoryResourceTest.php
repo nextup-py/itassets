@@ -16,7 +16,7 @@ beforeEach(function () {
 it('lists asset categories', function () {
     AssetCategory::factory()->count(3)->create();
 
-    $this->get('/admin/asset-categories')->assertOk();
+    $this->get('/asset-categories')->assertOk();
 });
 
 it('creates an asset category', function () {
@@ -68,7 +68,7 @@ it('edits an asset category', function () {
 });
 
 it('returns 404 for a non-existent asset category', function () {
-    $this->get('/admin/asset-categories/99999')->assertNotFound();
+    $this->get('/asset-categories/99999')->assertNotFound();
 });
 
 it('denies viewer from creating an asset category', function () {

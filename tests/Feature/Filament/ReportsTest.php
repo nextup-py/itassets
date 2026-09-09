@@ -35,12 +35,12 @@ it('still lets everyone see the page and its stats', function () {
     createRolesAndPermissions();
     $this->actingAs(User::factory()->viewer()->create());
 
-    $this->get('/admin/reports')->assertOk();
+    $this->get('/reports')->assertOk();
 });
 
 it('shows the heading in spanish', function () {
     createRolesAndPermissions();
     $this->actingAs(User::factory()->admin()->create());
 
-    $this->get('/admin/reports')->assertSeeText('Reportes');
+    $this->get('/reports')->assertSeeText('Reportes');
 });

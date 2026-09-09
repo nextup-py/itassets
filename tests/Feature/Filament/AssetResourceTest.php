@@ -24,27 +24,27 @@ beforeEach(function () {
 it('lists assets', function () {
     Asset::factory()->count(3)->create();
 
-    $this->get('/admin/assets')->assertOk();
+    $this->get('/assets')->assertOk();
 });
 
 it('can render create page', function () {
-    $this->get('/admin/assets/create')->assertOk();
+    $this->get('/assets/create')->assertOk();
 });
 
 it('can render edit page', function () {
     $asset = Asset::factory()->create();
 
-    $this->get("/admin/assets/{$asset->id}/edit")->assertOk();
+    $this->get("/assets/{$asset->id}/edit")->assertOk();
 });
 
 it('can render view page', function () {
     $asset = Asset::factory()->create();
 
-    $this->get("/admin/assets/{$asset->id}")->assertOk();
+    $this->get("/assets/{$asset->id}")->assertOk();
 });
 
 it('returns 404 for non-existent asset', function () {
-    $this->get('/admin/assets/99999')->assertNotFound();
+    $this->get('/assets/99999')->assertNotFound();
 });
 
 it('has a supplier filter on the assets table', function () {

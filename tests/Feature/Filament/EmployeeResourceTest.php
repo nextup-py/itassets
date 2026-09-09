@@ -27,7 +27,7 @@ beforeEach(function () {
 it('lists employees', function () {
     Employee::factory()->count(3)->create();
 
-    $this->get('/admin/employees')->assertOk();
+    $this->get('/employees')->assertOk();
 });
 
 it('creates an employee', function () {
@@ -184,7 +184,7 @@ it('hides the is_active field on create but shows it on edit, defaulting new emp
 });
 
 it('returns 404 for a non-existent employee', function () {
-    $this->get('/admin/employees/99999')->assertNotFound();
+    $this->get('/employees/99999')->assertNotFound();
 });
 
 it('denies viewer from creating an employee', function () {
@@ -328,7 +328,7 @@ it('lists employees when some have no document_type', function () {
     Employee::factory()->create(['document_type' => null]);
     Employee::factory()->create(['document_type' => 'ci']);
 
-    $this->get('/admin/employees')->assertOk();
+    $this->get('/employees')->assertOk();
 });
 
 it('shows the import and template actions to admins (who have import_employee)', function () {

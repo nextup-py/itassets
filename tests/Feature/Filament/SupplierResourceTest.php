@@ -20,7 +20,7 @@ beforeEach(function () {
 it('lists suppliers', function () {
     Supplier::factory()->count(3)->create();
 
-    $this->get('/admin/suppliers')->assertOk();
+    $this->get('/suppliers')->assertOk();
 });
 
 it('creates a supplier', function () {
@@ -82,7 +82,7 @@ it('edits a supplier', function () {
 });
 
 it('returns 404 for a non-existent supplier', function () {
-    $this->get('/admin/suppliers/99999')->assertNotFound();
+    $this->get('/suppliers/99999')->assertNotFound();
 });
 
 it('denies viewer from creating a supplier', function () {

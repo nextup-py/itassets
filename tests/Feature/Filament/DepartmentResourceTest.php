@@ -15,7 +15,7 @@ beforeEach(function () {
 it('lists departments', function () {
     Department::factory()->count(3)->create();
 
-    $this->get('/admin/departments')->assertOk();
+    $this->get('/departments')->assertOk();
 });
 
 it('creates a department', function () {
@@ -64,7 +64,7 @@ it('edits a department', function () {
 });
 
 it('returns 404 for a non-existent department', function () {
-    $this->get('/admin/departments/99999')->assertNotFound();
+    $this->get('/departments/99999')->assertNotFound();
 });
 
 it('denies viewer from creating a department', function () {

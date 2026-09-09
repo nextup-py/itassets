@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Filament\Resources\Assets\AssetResource;
 use App\Models\Asset;
 use App\Notifications\Concerns\SendsToManagers;
 use Filament\Notifications\Notification as FilamentNotification;
@@ -40,7 +41,7 @@ class WarrantyExpiryNotification extends Notification implements ShouldQueue
             )
             ->line("Fecha de vencimiento: {$this->asset->warranty_expiry_date?->format(current_date_format())}")
             ->when($this->asset->supplier, fn ($msg) => $msg->line("Proveedor: {$this->asset->supplier->name}"))
-            ->action('Ver activo', url("/admin/assets/{$this->asset->id}"))
+            ->action('Ver activo', AssetResource::getUrl('view', ['record' => $this->asset]))
             ->salutation('ITAssets');
     }
 
