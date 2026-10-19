@@ -6,6 +6,7 @@ use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
 use App\Filament\Resources\Locations\Schemas\LocationForm;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Models\Asset;
+use App\Models\AssetCategory;
 use App\Support\Currencies;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -13,10 +14,18 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class AssetForm
 {
+    private static function isMobileCategory(Get $get): bool
+    {
+        $categoryId = $get('asset_category_id');
+
+        return $categoryId && (bool) AssetCategory::find($categoryId)?->is_mobile;
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -46,6 +55,7 @@ class AssetForm
                             ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
+                            ->live()
                             ->createOptionForm(fn (Schema $schema) => AssetCategoryForm::configure($schema))
                             ->columnSpan(1),
 
@@ -92,6 +102,48 @@ class AssetForm
                             ->rows(3)
                             ->maxLength(1000)
                             ->columnSpanFull(),
+                    ])
+                    ->columns(3),
+
+                // ── Dispositivo móvil ────────────────────────────────────────
+                Section::make('Dispositivo móvil')
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->description('Solo para categorías marcadas como "Dispositivo móvil".')
+                    ->visible(fn (Get $get): bool => self::isMobileCategory($get))
+                    ->schema([
+                        TextInput::make('imei')
+                            ->label('IMEI')
+                            ->maxLength(20)
+                            ->unique(Asset::class, 'imei', ignoreRecord: true)
+                            ->columnSpan(1),
+
+                        TextInput::make('imei2')
+                            ->label('IMEI 2 (dual SIM)')
+                            ->maxLength(20)
+                            ->unique(Asset::class, 'imei2', ignoreRecord: true)
+                            ->columnSpan(1),
+
+                        TextInput::make('phone_number')
+                            ->label('Número de línea')
+                            ->maxLength(30)
+                            ->columnSpan(1),
+
+                        TextInput::make('carrier')
+                            ->label('Operador')
+                            ->maxLength(100)
+                            ->columnSpan(1),
+
+                        Select::make('plan_type')
+                            ->label('Tipo de plan')
+                            ->options(Asset::PLAN_TYPES)
+                            ->columnSpan(1),
+
+                        TextInput::make('monthly_plan_cost')
+                            ->label('Costo mensual del plan')
+                            ->numeric()
+                            ->prefix('$')
+                            ->minValue(0)
+                            ->columnSpan(1),
                     ])
                     ->columns(3),
 

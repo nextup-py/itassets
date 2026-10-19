@@ -2,7 +2,6 @@
 
 use App\Filament\Resources\AssetCategories\Pages\CreateAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
-use App\Filament\Resources\AssetCategories\Pages\ListAssetCategories;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\RelationManagers\AssetsRelationManager;
 use App\Models\Asset;
@@ -129,4 +128,25 @@ it('shows the asset count on the category view page', function () {
 
     Livewire::test(ViewAssetCategory::class, ['record' => $category->getRouteKey()])
         ->assertSee('2');
+});
+
+it('creates an asset category marked as a mobile device category', function () {
+    Livewire::test(CreateAssetCategory::class)
+        ->fillForm([
+            'name' => 'Celulares',
+            'is_mobile' => true,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(AssetCategory::where('name', 'Celulares')->first()->is_mobile)->toBeTrue();
+});
+
+it('defaults is_mobile to false when not set', function () {
+    Livewire::test(CreateAssetCategory::class)
+        ->fillForm(['name' => 'Monitores'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(AssetCategory::where('name', 'Monitores')->first()->is_mobile)->toBeFalse();
 });
