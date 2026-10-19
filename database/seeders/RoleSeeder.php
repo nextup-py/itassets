@@ -22,7 +22,7 @@ class RoleSeeder extends Seeder
     public const RESOURCES = [
         'asset', 'assignment', 'employee', 'license',
         'maintenance_record', 'asset_category', 'supplier', 'location',
-        'user', 'department', 'supply', 'supply_adjustment',
+        'user', 'department', 'supply', 'supply_adjustment', 'service_contract',
     ];
 
     public const ACTIONS = ['view_any', 'view', 'create', 'update', 'delete'];
