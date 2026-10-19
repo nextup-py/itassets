@@ -39,6 +39,11 @@ class Supplier extends Model
         return $this->hasMany(MaintenanceRecord::class);
     }
 
+    public function serviceContracts(): HasMany
+    {
+        return $this->hasMany(ServiceContract::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

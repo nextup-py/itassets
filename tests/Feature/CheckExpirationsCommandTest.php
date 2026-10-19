@@ -3,8 +3,8 @@
 use App\Models\Asset;
 use App\Models\License;
 use App\Models\MaintenanceRecord;
+use App\Models\ServiceContract;
 use App\Models\User;
-use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
     loginAsAdmin();
@@ -41,6 +41,30 @@ it('creates notifications for expiring licenses', function () {
 
     $admin = User::first();
     expect($admin->notifications()->count())->toBeGreaterThanOrEqual(1);
+});
+
+it('creates notifications for expiring service contracts', function () {
+    ServiceContract::factory()->create([
+        'expiry_date' => now()->addDays(30),
+    ]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    $admin = User::first();
+    expect($admin->notifications()->count())->toBeGreaterThanOrEqual(1);
+});
+
+it('does not duplicate service contract notifications when the command runs twice in the same day', function () {
+    ServiceContract::factory()->create(['expiry_date' => now()->addDays(30)]);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+    $admin = User::first();
+    $countAfterFirstRun = $admin->notifications()->count();
+    expect($countAfterFirstRun)->toBeGreaterThanOrEqual(1);
+
+    $this->artisan('notifications:check')->assertSuccessful();
+
+    expect($admin->notifications()->count())->toBe($countAfterFirstRun);
 });
 
 it('creates notifications for prolonged maintenance', function () {

@@ -5,32 +5,38 @@ namespace App\Console\Commands;
 use App\Models\Asset;
 use App\Models\License;
 use App\Models\MaintenanceRecord;
+use App\Models\ServiceContract;
 use App\Models\User;
+use App\Notifications\ContractExpiryNotification;
 use App\Notifications\LicenseExpiryNotification;
 use App\Notifications\MaintenanceAlertNotification;
 use App\Notifications\WarrantyExpiryNotification;
 use Illuminate\Console\Command;
+use Spatie\Permission\PermissionRegistrar;
 
 class CheckExpirations extends Command
 {
     protected $signature = 'notifications:check';
+
     protected $description = 'Check warranties, licenses and maintenance records for expirations and alerts';
 
     private const COOLDOWN_DAYS = 7;
 
     public function handle(): void
     {
-        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $admins = User::managers()->get();
 
         if ($admins->isEmpty()) {
             $this->warn('No users with Admin/Editor role found.');
+
             return;
         }
 
         $this->checkWarranties($admins);
         $this->checkLicenses($admins);
+        $this->checkContracts($admins);
         $this->checkMaintenance($admins);
 
         $this->info('Notifications check completed.');
@@ -76,6 +82,27 @@ class CheckExpirations extends Command
         }
 
         $this->info("Checked {$licenses->count()} license expirations.");
+    }
+
+    protected function checkContracts(iterable $admins): void
+    {
+        $contracts = ServiceContract::whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<=', now()->addDays(60))
+            ->get();
+
+        foreach ($contracts as $contract) {
+            $daysRemaining = now()->diffInDays($contract->expiry_date, false);
+
+            foreach ($admins as $admin) {
+                if ($this->recentlyNotified($admin, ContractExpiryNotification::class, 'contract_id', $contract->id)) {
+                    continue;
+                }
+
+                (new ContractExpiryNotification($contract, (int) $daysRemaining))->sendToManager($admin);
+            }
+        }
+
+        $this->info("Checked {$contracts->count()} contract expirations.");
     }
 
     protected function checkMaintenance(iterable $admins): void

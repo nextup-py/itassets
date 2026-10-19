@@ -150,6 +150,11 @@ class Asset extends Model
         return $this->hasMany(MaintenanceRecord::class);
     }
 
+    public function serviceContracts(): BelongsToMany
+    {
+        return $this->belongsToMany(ServiceContract::class, 'service_contract_asset')->withTimestamps();
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
