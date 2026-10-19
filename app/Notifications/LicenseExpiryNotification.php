@@ -40,7 +40,7 @@ class LicenseExpiryNotification extends Notification implements ShouldQueue
                 : "La licencia **{$this->license->product_name}** vencerá en {$this->daysRemaining} días."
             )
             ->line("Fecha de vencimiento: {$this->license->expiry_date?->format(current_date_format())}")
-            ->line("Asientos totales: {$this->license->total_seats}")
+            ->line('Asientos totales: ' . ($this->license->hasSeatLimit() ? $this->license->total_seats : 'Sin límite'))
             ->line("Asientos utilizados: {$this->license->usedSeats()}")
             ->action('Ver licencia', LicenseResource::getUrl('view', ['record' => $this->license]))
             ->salutation('ITAssets');

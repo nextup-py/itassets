@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\Licenses\Pages\CreateLicense;
+use App\Filament\Resources\Licenses\Pages\EditLicense;
 use App\Filament\Resources\Licenses\Pages\ListLicenses;
 use App\Models\Asset;
 use App\Models\Employee;
@@ -62,7 +63,7 @@ it('rejects lowering total_seats below currently used seats', function () {
 
     expect($license->usedSeats())->toBe(3);
 
-    Livewire::test(\App\Filament\Resources\Licenses\Pages\EditLicense::class, ['record' => $license->id])
+    Livewire::test(EditLicense::class, ['record' => $license->id])
         ->fillForm(['total_seats' => 2])
         ->call('save')
         ->assertHasFormErrors(['total_seats']);
@@ -72,7 +73,7 @@ it('allows lowering total_seats to a value still covering used seats', function 
     $license = License::factory()->create(['total_seats' => 5, 'license_type' => 'perpetual', 'expiry_date' => null]);
     LicenseAssignment::factory()->count(3)->create(['license_id' => $license->id]);
 
-    Livewire::test(\App\Filament\Resources\Licenses\Pages\EditLicense::class, ['record' => $license->id])
+    Livewire::test(EditLicense::class, ['record' => $license->id])
         ->fillForm(['total_seats' => 3])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -179,4 +180,59 @@ it('does not require an expiry date for perpetual licenses', function () {
         ->assertHasNoFormErrors();
 
     expect(License::where('product_name', 'Windows Server 2022')->first()->expiry_date)->toBeNull();
+});
+
+it('shows the subscription fields only for the subscription license type', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm(['license_type' => 'subscription'])
+        ->assertFormFieldIsVisible('billing_cycle')
+        ->assertFormFieldIsVisible('auto_renew');
+
+    Livewire::test(CreateLicense::class)
+        ->fillForm(['license_type' => 'perpetual'])
+        ->assertFormFieldIsHidden('billing_cycle')
+        ->assertFormFieldIsHidden('auto_renew');
+});
+
+it('does not require total_seats for a subscription license', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Notion Team',
+            'license_type' => 'subscription',
+            'total_seats' => '',
+            'expiry_date' => now()->addMonth()->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(License::where('product_name', 'Notion Team')->first()->total_seats)->toBeNull();
+});
+
+it('requires total_seats for a non-subscription license', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Windows Server 2022',
+            'license_type' => 'perpetual',
+            'total_seats' => '',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['total_seats' => 'required']);
+});
+
+it('creates a subscription license with billing cycle and auto-renew', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm([
+            'product_name' => 'Slack Enterprise',
+            'license_type' => 'subscription',
+            'total_seats' => 15,
+            'billing_cycle' => 'monthly',
+            'auto_renew' => true,
+            'expiry_date' => now()->addMonth()->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $license = License::where('product_name', 'Slack Enterprise')->first();
+    expect($license->billing_cycle)->toBe('monthly')
+        ->and($license->auto_renew)->toBeTrue();
 });

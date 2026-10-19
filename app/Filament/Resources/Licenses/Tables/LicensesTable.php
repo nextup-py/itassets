@@ -32,11 +32,19 @@ class LicensesTable
                     ->formatStateUsing(fn (string $state): string => License::TYPES[$state] ?? $state)
                     ->sortable(),
 
+                TextColumn::make('billing_cycle')
+                    ->label('Facturación')
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('—')
+                    ->formatStateUsing(fn (?string $state): ?string => $state ? License::BILLING_CYCLES[$state] ?? $state : null)
+                    ->toggleable(),
+
                 TextColumn::make('seats')
                     ->label('Puestos (usados / total)')
-                    ->state(fn (License $record): string => $record->usedSeats() . ' / ' . $record->total_seats)
+                    ->state(fn (License $record): string => $record->getSeatsLabel())
                     ->badge()
-                    ->color(fn (License $record): string => $record->availableSeats() === 0 ? 'danger' : 'success'),
+                    ->color(fn (License $record): string => $record->hasAvailableSeats() ? 'success' : 'danger'),
 
                 TextColumn::make('expiry_date')
                     ->label('Vence')

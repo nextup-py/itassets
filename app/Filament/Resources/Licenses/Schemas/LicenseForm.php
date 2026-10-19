@@ -9,6 +9,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -37,18 +38,20 @@ class LicenseForm
 
                         TextInput::make('total_seats')
                             ->label('Total de puestos')
-                            ->required()
                             ->numeric()
                             ->minValue(1)
                             ->default(1)
+                            ->required(fn (Get $get): bool => $get('license_type') !== 'subscription')
                             ->rule(function (?License $record) {
                                 return function (string $attribute, $value, \Closure $fail) use ($record) {
-                                    if ($record && $value < $record->usedSeats()) {
+                                    if ($record && ! is_null($value) && $value < $record->usedSeats()) {
                                         $fail("No se puede bajar de {$record->usedSeats()} puestos: hay {$record->usedSeats()} asignaciones activas.");
                                     }
                                 };
                             })
-                            ->helperText('No puede ser menor a la cantidad de asignaciones activas.')
+                            ->helperText(fn (Get $get): string => $get('license_type') === 'subscription'
+                                ? 'Dejar en blanco si esta suscripción no tiene límite de puestos (ej. una herramienta de uso compartido sin asignación individual).'
+                                : 'No puede ser menor a la cantidad de asignaciones activas.')
                             ->columnSpan(1),
 
                         TextInput::make('license_key')
@@ -58,6 +61,22 @@ class LicenseForm
                             ->revealable()
                             ->helperText('Se oculta por seguridad; use el ícono para revelarla.')
                             ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Suscripción')
+                    ->description('Solo para licencias de tipo "Suscripción".')
+                    ->visible(fn (Get $get): bool => $get('license_type') === 'subscription')
+                    ->schema([
+                        Select::make('billing_cycle')
+                            ->label('Periodicidad de facturación')
+                            ->options(License::BILLING_CYCLES)
+                            ->columnSpan(1),
+
+                        Toggle::make('auto_renew')
+                            ->label('Renovación automática')
+                            ->helperText('Se renueva sola al vencer, sin intervención manual.')
+                            ->columnSpan(1),
                     ])
                     ->columns(2),
 
