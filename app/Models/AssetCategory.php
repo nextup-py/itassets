@@ -17,12 +17,14 @@ class AssetCategory extends Model
         'name',
         'description',
         'is_mobile',
+        'is_network_equipment',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        'is_mobile' => 'boolean',
+        'is_mobile'            => 'boolean',
+        'is_network_equipment' => 'boolean',
     ];
 
     public function assets(): HasMany

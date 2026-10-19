@@ -104,6 +104,35 @@ class AssetInfolist
                     ])
                     ->columns(3),
 
+                // ── Equipo de red ─────────────────────────────────────────────
+                Section::make('Equipo de red')
+                    ->icon('heroicon-o-signal')
+                    ->visible(fn (Asset $record): bool => $record->isNetworkEquipment())
+                    ->schema([
+                        TextEntry::make('ip_address')
+                            ->label('Dirección IP')
+                            ->placeholder('—')
+                            ->copyable(),
+
+                        TextEntry::make('hostname')
+                            ->label('Hostname')
+                            ->placeholder('—'),
+
+                        TextEntry::make('mac_address')
+                            ->label('Dirección MAC')
+                            ->placeholder('—')
+                            ->copyable(),
+
+                        TextEntry::make('vlan')
+                            ->label('VLAN')
+                            ->placeholder('—'),
+
+                        TextEntry::make('device_role')
+                            ->label('Rol del dispositivo')
+                            ->formatStateUsing(fn (?string $state): string => $state ? (Asset::DEVICE_ROLES[$state] ?? $state) : '—'),
+                    ])
+                    ->columns(3),
+
                 // ── Adquisición ───────────────────────────────────────────────
                 Section::make('Adquisición')
                     ->icon('heroicon-o-shopping-cart')

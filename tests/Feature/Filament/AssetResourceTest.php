@@ -447,3 +447,72 @@ it('shows the mobile device section on the view page only for mobile categories'
     Livewire::test(ViewAsset::class, ['record' => $regularAsset->getRouteKey()])
         ->assertDontSee('Dispositivo móvil');
 });
+
+it('shows the network equipment fields only when the selected category is marked as network equipment', function () {
+    $networkCategory = AssetCategory::factory()->networkEquipment()->create();
+    $regularCategory = AssetCategory::factory()->create(['is_network_equipment' => false]);
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm(['asset_category_id' => $networkCategory->id])
+        ->assertFormFieldIsVisible('ip_address');
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm(['asset_category_id' => $regularCategory->id])
+        ->assertFormFieldIsHidden('ip_address');
+});
+
+it('creates a network equipment asset with its device fields', function () {
+    $category = AssetCategory::factory()->networkEquipment()->create();
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Switch core',
+            'asset_category_id' => $category->id,
+            'status' => 'stock',
+            'ip_address' => '192.168.1.1',
+            'hostname' => 'sw-core-01',
+            'mac_address' => 'AA:BB:CC:DD:EE:FF',
+            'vlan' => 'VLAN10',
+            'device_role' => 'switch',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $asset = Asset::where('name', 'Switch core')->first();
+    expect($asset->ip_address)->toBe('192.168.1.1')
+        ->and($asset->hostname)->toBe('sw-core-01')
+        ->and($asset->mac_address)->toBe('AA:BB:CC:DD:EE:FF')
+        ->and($asset->vlan)->toBe('VLAN10')
+        ->and($asset->device_role)->toBe('switch');
+});
+
+it('rejects a duplicate mac address', function () {
+    $category = AssetCategory::factory()->networkEquipment()->create();
+    Asset::factory()->create(['asset_category_id' => $category->id, 'mac_address' => 'AA:BB:CC:DD:EE:FF']);
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Otro switch',
+            'asset_category_id' => $category->id,
+            'mac_address' => 'AA:BB:CC:DD:EE:FF',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['mac_address' => 'unique']);
+});
+
+it('shows the network equipment section on the view page only for network equipment categories', function () {
+    $networkAsset = Asset::factory()->create([
+        'asset_category_id' => AssetCategory::factory()->networkEquipment()->create()->id,
+        'mac_address' => '11:22:33:44:55:66',
+    ]);
+    $regularAsset = Asset::factory()->create([
+        'asset_category_id' => AssetCategory::factory()->create(['is_network_equipment' => false])->id,
+    ]);
+
+    Livewire::test(ViewAsset::class, ['record' => $networkAsset->getRouteKey()])
+        ->assertSee('Equipo de red')
+        ->assertSee('11:22:33:44:55:66');
+
+    Livewire::test(ViewAsset::class, ['record' => $regularAsset->getRouteKey()])
+        ->assertDontSee('Equipo de red');
+});

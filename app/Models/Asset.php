@@ -28,6 +28,11 @@ class Asset extends Model
         'carrier',
         'plan_type',
         'monthly_plan_cost',
+        'ip_address',
+        'hostname',
+        'mac_address',
+        'vlan',
+        'device_role',
         'status',
         'condition',
         'photo',
@@ -53,6 +58,13 @@ class Asset extends Model
     public const PLAN_TYPES = [
         'prepaid'  => 'Prepago',
         'postpaid' => 'Postpago',
+    ];
+
+    public const DEVICE_ROLES = [
+        'switch'       => 'Switch',
+        'router'       => 'Router',
+        'access_point' => 'Access Point',
+        'firewall'     => 'Firewall',
     ];
 
     public const STATUSES = [
@@ -112,6 +124,11 @@ class Asset extends Model
     public function isMobileDevice(): bool
     {
         return (bool) $this->category?->is_mobile;
+    }
+
+    public function isNetworkEquipment(): bool
+    {
+        return (bool) $this->category?->is_network_equipment;
     }
 
     public function supplier(): BelongsTo

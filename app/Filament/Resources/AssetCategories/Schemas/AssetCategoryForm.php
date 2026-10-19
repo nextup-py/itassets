@@ -26,6 +26,11 @@ class AssetCategoryForm
                     ->helperText('Los activos de esta categoría muestran campos de IMEI, línea y operador.')
                     ->columnSpan(1),
 
+                Toggle::make('is_network_equipment')
+                    ->label('Equipo de red')
+                    ->helperText('Los activos de esta categoría muestran campos de IP, MAC, VLAN y rol.')
+                    ->columnSpan(1),
+
                 Textarea::make('description')
                     ->label('Descripción')
                     ->rows(3)

@@ -77,6 +77,20 @@ class AssetsTable
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                TextColumn::make('ip_address')
+                    ->label('IP')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('mac_address')
+                    ->label('MAC')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
