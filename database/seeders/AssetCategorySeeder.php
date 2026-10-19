@@ -23,12 +23,14 @@ class AssetCategorySeeder extends Seeder
                 'description' => 'Accesorios y periféricos: teclados, ratones, monitores, headsets, etc.',
             ],
             [
-                'name'        => 'Infraestructura',
-                'description' => 'Equipos de red y telecomunicaciones: switches, routers, access points, UPS.',
+                'name'                 => 'Infraestructura',
+                'description'          => 'Equipos de red y telecomunicaciones: switches, routers, access points, UPS.',
+                'is_network_equipment' => true,
             ],
             [
                 'name'        => 'Dispositivos Móviles',
                 'description' => 'Smartphones y tablets corporativos.',
+                'is_mobile'   => true,
             ],
         ];
 

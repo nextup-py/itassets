@@ -185,6 +185,11 @@ class AssetSeeder extends Seeder
                 'warranty_expiry_date' => '2028-06-15',
                 'warranty_supplier'    => 'Cisco Systems',
                 'notes'                => 'Switch core del Data Center.',
+                'ip_address'           => '10.0.0.1',
+                'hostname'             => 'sw-core-dc',
+                'mac_address'          => '00:1A:2B:3C:4D:5E',
+                'vlan'                 => 'VLAN1-MGMT',
+                'device_role'          => 'switch',
             ],
             [
                 'asset_tag'            => 'IT-0011',
@@ -220,6 +225,11 @@ class AssetSeeder extends Seeder
                 'warranty_expiry_date' => '2028-03-15',
                 'warranty_supplier'    => 'Samsung Electronics',
                 'notes'                => 'Smartphone corporativo para gerencia.',
+                'imei'                 => '354123456789012',
+                'phone_number'         => '0981123456',
+                'carrier'              => 'Tigo',
+                'plan_type'            => 'postpaid',
+                'monthly_plan_cost'    => 150000,
             ],
             [
                 'asset_tag'            => 'IT-0013',
@@ -237,6 +247,7 @@ class AssetSeeder extends Seeder
                 'warranty_expiry_date' => '2028-04-01',
                 'warranty_supplier'    => 'Samsung Electronics',
                 'notes'                => 'Tablet para presentaciones comerciales.',
+                'imei'                 => '354987654321098',
             ],
         ];
 
@@ -257,6 +268,16 @@ class AssetSeeder extends Seeder
                 'warranty_expiry_date' => $data['warranty_expiry_date'] ?? null,
                 'warranty_supplier_id' => isset($data['warranty_supplier']) ? $supplierId($data['warranty_supplier']) : null,
                 'notes'                => $data['notes'],
+                'imei'                 => $data['imei'] ?? null,
+                'phone_number'         => $data['phone_number'] ?? null,
+                'carrier'              => $data['carrier'] ?? null,
+                'plan_type'            => $data['plan_type'] ?? null,
+                'monthly_plan_cost'    => $data['monthly_plan_cost'] ?? null,
+                'ip_address'           => $data['ip_address'] ?? null,
+                'hostname'             => $data['hostname'] ?? null,
+                'mac_address'          => $data['mac_address'] ?? null,
+                'vlan'                 => $data['vlan'] ?? null,
+                'device_role'          => $data['device_role'] ?? null,
             ]);
         }
     }
