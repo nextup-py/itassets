@@ -22,6 +22,11 @@ class AssetCategoriesTable
                     ->boolean()
                     ->sortable(),
 
+                IconColumn::make('is_network_equipment')
+                    ->label('Red')
+                    ->boolean()
+                    ->sortable(),
+
                 TextColumn::make('description')
                     ->label('Descripción')
                     ->limit(60)

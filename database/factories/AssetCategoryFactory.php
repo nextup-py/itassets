@@ -31,4 +31,9 @@ class AssetCategoryFactory extends Factory
     {
         return $this->state(['name' => 'Dispositivos móviles', 'is_mobile' => true]);
     }
+
+    public function networkEquipment(): static
+    {
+        return $this->state(['name' => 'Equipos de red', 'is_network_equipment' => true]);
+    }
 }

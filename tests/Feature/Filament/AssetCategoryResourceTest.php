@@ -150,3 +150,24 @@ it('defaults is_mobile to false when not set', function () {
 
     expect(AssetCategory::where('name', 'Monitores')->first()->is_mobile)->toBeFalse();
 });
+
+it('creates an asset category marked as a network equipment category', function () {
+    Livewire::test(CreateAssetCategory::class)
+        ->fillForm([
+            'name' => 'Switches',
+            'is_network_equipment' => true,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(AssetCategory::where('name', 'Switches')->first()->is_network_equipment)->toBeTrue();
+});
+
+it('defaults is_network_equipment to false when not set', function () {
+    Livewire::test(CreateAssetCategory::class)
+        ->fillForm(['name' => 'Impresoras'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(AssetCategory::where('name', 'Impresoras')->first()->is_network_equipment)->toBeFalse();
+});

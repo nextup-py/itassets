@@ -26,6 +26,13 @@ class AssetForm
         return $categoryId && (bool) AssetCategory::find($categoryId)?->is_mobile;
     }
 
+    private static function isNetworkEquipmentCategory(Get $get): bool
+    {
+        $categoryId = $get('asset_category_id');
+
+        return $categoryId && (bool) AssetCategory::find($categoryId)?->is_network_equipment;
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -143,6 +150,40 @@ class AssetForm
                             ->numeric()
                             ->prefix('$')
                             ->minValue(0)
+                            ->columnSpan(1),
+                    ])
+                    ->columns(3),
+
+                // ── Equipo de red ────────────────────────────────────────────
+                Section::make('Equipo de red')
+                    ->icon('heroicon-o-signal')
+                    ->description('Solo para categorías marcadas como "Equipo de red".')
+                    ->visible(fn (Get $get): bool => self::isNetworkEquipmentCategory($get))
+                    ->schema([
+                        TextInput::make('ip_address')
+                            ->label('Dirección IP')
+                            ->maxLength(45)
+                            ->columnSpan(1),
+
+                        TextInput::make('hostname')
+                            ->label('Hostname')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('mac_address')
+                            ->label('Dirección MAC')
+                            ->maxLength(17)
+                            ->unique(Asset::class, 'mac_address', ignoreRecord: true)
+                            ->columnSpan(1),
+
+                        TextInput::make('vlan')
+                            ->label('VLAN')
+                            ->maxLength(50)
+                            ->columnSpan(1),
+
+                        Select::make('device_role')
+                            ->label('Rol del dispositivo')
+                            ->options(Asset::DEVICE_ROLES)
                             ->columnSpan(1),
                     ])
                     ->columns(3),
