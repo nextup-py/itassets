@@ -19,6 +19,8 @@ class License extends Model
         'license_type',
         'license_key',
         'total_seats',
+        'billing_cycle',
+        'auto_renew',
         'purchase_date',
         'expiry_date',
         'purchase_price',
@@ -30,10 +32,11 @@ class License extends Model
     ];
 
     protected $casts = [
-        'purchase_date' => 'date',
-        'expiry_date'   => 'date',
+        'purchase_date'  => 'date',
+        'expiry_date'    => 'date',
         'purchase_price' => 'decimal:2',
-        'total_seats'   => 'integer',
+        'total_seats'    => 'integer',
+        'auto_renew'     => 'boolean',
     ];
 
     public const TYPES = [
@@ -43,6 +46,16 @@ class License extends Model
         'per_user'     => 'Por usuario / sede',
         'concurrent'   => 'Concurrente',
     ];
+
+    public const BILLING_CYCLES = [
+        'monthly' => 'Mensual',
+        'annual'  => 'Anual',
+    ];
+
+    public function isSubscription(): bool
+    {
+        return $this->license_type === 'subscription';
+    }
 
     // -------------------------------------------------------------------------
     // Seats
@@ -55,14 +68,33 @@ class License extends Model
         return $this->activeAssignments()->count();
     }
 
-    public function availableSeats(): int
+    // Subscriptions can have no seat cap at all (e.g. a flat-fee SaaS tool
+    // nobody is individually assigned to) — total_seats is nullable precisely
+    // for that case, so null means "unlimited", not "zero".
+    public function hasSeatLimit(): bool
     {
+        return ! is_null($this->total_seats);
+    }
+
+    public function availableSeats(): ?int
+    {
+        if (! $this->hasSeatLimit()) {
+            return null;
+        }
+
         return max(0, $this->total_seats - $this->usedSeats());
     }
 
     public function hasAvailableSeats(): bool
     {
-        return $this->availableSeats() > 0;
+        return ! $this->hasSeatLimit() || $this->availableSeats() > 0;
+    }
+
+    public function getSeatsLabel(): string
+    {
+        return $this->hasSeatLimit()
+            ? $this->usedSeats() . ' / ' . $this->total_seats
+            : $this->usedSeats() . ' (sin límite)';
     }
 
     // -------------------------------------------------------------------------

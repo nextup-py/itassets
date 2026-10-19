@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Licenses\Schemas;
 
 use App\Models\License;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -28,9 +29,9 @@ class LicenseInfolist
 
                         TextEntry::make('seats')
                             ->label('Puestos (usados / total)')
-                            ->state(fn (License $record): string => $record->usedSeats() . ' / ' . $record->total_seats)
+                            ->state(fn (License $record): string => $record->getSeatsLabel())
                             ->badge()
-                            ->color(fn (License $record): string => $record->availableSeats() === 0 ? 'danger' : 'success'),
+                            ->color(fn (License $record): string => $record->hasAvailableSeats() ? 'success' : 'danger'),
 
                         TextEntry::make('expiry_date')
                             ->label('Vencimiento')
@@ -46,6 +47,21 @@ class LicenseInfolist
                             ->columnSpanFull(),
                     ])
                     ->columns(3),
+
+                Section::make('Suscripción')
+                    ->icon('heroicon-o-arrow-path')
+                    ->visible(fn (License $record): bool => $record->isSubscription())
+                    ->schema([
+                        TextEntry::make('billing_cycle')
+                            ->label('Facturación')
+                            ->placeholder('—')
+                            ->formatStateUsing(fn (?string $state): ?string => $state ? License::BILLING_CYCLES[$state] ?? $state : null),
+
+                        IconEntry::make('auto_renew')
+                            ->label('Renovación automática')
+                            ->boolean(),
+                    ])
+                    ->columns(2),
 
                 Section::make('Adquisición')
                     ->icon('heroicon-o-shopping-cart')
