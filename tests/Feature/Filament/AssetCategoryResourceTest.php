@@ -2,7 +2,6 @@
 
 use App\Filament\Resources\AssetCategories\Pages\CreateAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
-use App\Filament\Resources\AssetCategories\Pages\ListAssetCategories;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\RelationManagers\AssetsRelationManager;
 use App\Models\Asset;

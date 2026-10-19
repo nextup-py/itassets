@@ -9,6 +9,7 @@ use App\Models\AssetCategory;
 use App\Models\Assignment;
 use App\Models\Employee;
 use App\Models\MaintenanceRecord;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\AssignmentService;
 use Illuminate\Http\UploadedFile;
@@ -154,7 +155,7 @@ it('creates an asset with its own currency', function () {
 
 it('defaults the currency field to blank, not the installation\'s base currency', function () {
     $category = AssetCategory::factory()->create();
-    \App\Models\Setting::set('base_currency', 'USD');
+    Setting::set('base_currency', 'USD');
 
     Livewire::test(CreateAsset::class)
         ->fillForm([
