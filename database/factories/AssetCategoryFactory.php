@@ -26,4 +26,9 @@ class AssetCategoryFactory extends Factory
     {
         return $this->state(['name' => 'Software / Licencias']);
     }
+
+    public function mobile(): static
+    {
+        return $this->state(['name' => 'Dispositivos móviles', 'is_mobile' => true]);
+    }
 }

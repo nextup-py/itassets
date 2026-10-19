@@ -70,6 +70,13 @@ class AssetsTable
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                TextColumn::make('imei')
+                    ->label('IMEI')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()

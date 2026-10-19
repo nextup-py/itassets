@@ -378,3 +378,71 @@ it('creates a new category inline via createOptionForm on the asset form', funct
 
     expect(AssetCategory::where('name', 'Nueva Categoría Inline')->exists())->toBeTrue();
 });
+
+it('shows the mobile device fields only when the selected category is marked as mobile', function () {
+    $mobileCategory = AssetCategory::factory()->mobile()->create();
+    $regularCategory = AssetCategory::factory()->create(['is_mobile' => false]);
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm(['asset_category_id' => $mobileCategory->id])
+        ->assertFormFieldIsVisible('imei');
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm(['asset_category_id' => $regularCategory->id])
+        ->assertFormFieldIsHidden('imei');
+});
+
+it('creates a mobile asset with its device fields', function () {
+    $category = AssetCategory::factory()->mobile()->create();
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'iPhone 15',
+            'asset_category_id' => $category->id,
+            'status' => 'stock',
+            'imei' => '123456789012345',
+            'phone_number' => '0981123456',
+            'carrier' => 'Tigo',
+            'plan_type' => 'postpaid',
+            'monthly_plan_cost' => 150000,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $asset = Asset::where('name', 'iPhone 15')->first();
+    expect($asset->imei)->toBe('123456789012345')
+        ->and($asset->phone_number)->toBe('0981123456')
+        ->and($asset->carrier)->toBe('Tigo')
+        ->and($asset->plan_type)->toBe('postpaid');
+});
+
+it('rejects a duplicate imei', function () {
+    $category = AssetCategory::factory()->mobile()->create();
+    Asset::factory()->create(['asset_category_id' => $category->id, 'imei' => '111111111111111']);
+
+    Livewire::test(CreateAsset::class)
+        ->fillForm([
+            'name' => 'Otro celular',
+            'asset_category_id' => $category->id,
+            'imei' => '111111111111111',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['imei' => 'unique']);
+});
+
+it('shows the mobile device section on the view page only for mobile categories', function () {
+    $mobileAsset = Asset::factory()->create([
+        'asset_category_id' => AssetCategory::factory()->mobile()->create()->id,
+        'imei' => '222222222222222',
+    ]);
+    $regularAsset = Asset::factory()->create([
+        'asset_category_id' => AssetCategory::factory()->create(['is_mobile' => false])->id,
+    ]);
+
+    Livewire::test(ViewAsset::class, ['record' => $mobileAsset->getRouteKey()])
+        ->assertSee('Dispositivo móvil')
+        ->assertSee('222222222222222');
+
+    Livewire::test(ViewAsset::class, ['record' => $regularAsset->getRouteKey()])
+        ->assertDontSee('Dispositivo móvil');
+});

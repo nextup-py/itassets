@@ -22,6 +22,12 @@ class Asset extends Model
         'brand',
         'model',
         'serial_number',
+        'imei',
+        'imei2',
+        'phone_number',
+        'carrier',
+        'plan_type',
+        'monthly_plan_cost',
         'status',
         'condition',
         'photo',
@@ -41,6 +47,12 @@ class Asset extends Model
         'purchase_date'        => 'date',
         'warranty_expiry_date' => 'date',
         'purchase_price'       => 'decimal:2',
+        'monthly_plan_cost'    => 'decimal:2',
+    ];
+
+    public const PLAN_TYPES = [
+        'prepaid'  => 'Prepago',
+        'postpaid' => 'Postpago',
     ];
 
     public const STATUSES = [
@@ -95,6 +107,11 @@ class Asset extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(AssetCategory::class, 'asset_category_id');
+    }
+
+    public function isMobileDevice(): bool
+    {
+        return (bool) $this->category?->is_mobile;
     }
 
     public function supplier(): BelongsTo

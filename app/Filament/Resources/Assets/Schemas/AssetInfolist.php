@@ -71,6 +71,39 @@ class AssetInfolist
                     ])
                     ->columns(3),
 
+                // ── Dispositivo móvil ─────────────────────────────────────────
+                Section::make('Dispositivo móvil')
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->visible(fn (Asset $record): bool => $record->isMobileDevice())
+                    ->schema([
+                        TextEntry::make('imei')
+                            ->label('IMEI')
+                            ->placeholder('—')
+                            ->copyable(),
+
+                        TextEntry::make('imei2')
+                            ->label('IMEI 2 (dual SIM)')
+                            ->placeholder('—')
+                            ->copyable(),
+
+                        TextEntry::make('phone_number')
+                            ->label('Número de línea')
+                            ->placeholder('—'),
+
+                        TextEntry::make('carrier')
+                            ->label('Operador')
+                            ->placeholder('—'),
+
+                        TextEntry::make('plan_type')
+                            ->label('Tipo de plan')
+                            ->formatStateUsing(fn (?string $state): string => $state ? (Asset::PLAN_TYPES[$state] ?? $state) : '—'),
+
+                        TextEntry::make('monthly_plan_cost')
+                            ->label('Costo mensual')
+                            ->formatStateUsing(fn ($state, Asset $record) => is_null($state) ? '—' : \format_currency($state, $record->currency)),
+                    ])
+                    ->columns(3),
+
                 // ── Adquisición ───────────────────────────────────────────────
                 Section::make('Adquisición')
                     ->icon('heroicon-o-shopping-cart')

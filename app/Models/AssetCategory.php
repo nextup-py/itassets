@@ -16,8 +16,13 @@ class AssetCategory extends Model
     protected $fillable = [
         'name',
         'description',
+        'is_mobile',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'is_mobile' => 'boolean',
     ];
 
     public function assets(): HasMany
