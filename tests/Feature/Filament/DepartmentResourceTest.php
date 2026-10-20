@@ -2,7 +2,6 @@
 
 use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Departments\Pages\EditDepartment;
-use App\Filament\Resources\Departments\Pages\ListDepartments;
 use App\Filament\Resources\Departments\Pages\ViewDepartment;
 use App\Models\Department;
 use App\Models\Employee;
@@ -114,4 +113,26 @@ it('shows the employee count on the department view page', function () {
 
     Livewire::test(ViewDepartment::class, ['record' => $department->getRouteKey()])
         ->assertSee('2');
+});
+
+it('sets a contact employee for a department', function () {
+    $employee = Employee::factory()->create(['name' => 'Ana Contacto']);
+
+    Livewire::test(CreateDepartment::class)
+        ->fillForm([
+            'name' => 'Infraestructura',
+            'contact_employee_id' => $employee->id,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Department::where('name', 'Infraestructura')->first()->contact_employee_id)->toBe($employee->id);
+});
+
+it('shows the contact employee on the department view page', function () {
+    $employee = Employee::factory()->create(['name' => 'Ana Contacto']);
+    $department = Department::factory()->create(['contact_employee_id' => $employee->id]);
+
+    Livewire::test(ViewDepartment::class, ['record' => $department->getRouteKey()])
+        ->assertSee('Ana Contacto');
 });

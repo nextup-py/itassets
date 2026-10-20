@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Assignments\Schemas;
 
+use App\Filament\Resources\Departments\Schemas\DepartmentForm;
 use App\Models\Asset;
 use App\Models\Assignment;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -18,9 +21,21 @@ class AssignmentForm
     {
         return $schema
             ->components([
+                Radio::make('recipient_type')
+                    ->label('Asignar a')
+                    ->options([
+                        'employee'   => 'Empleado',
+                        'department' => 'Departamento / Área',
+                    ])
+                    ->default(fn (?Assignment $record): string => $record?->department_id ? 'department' : 'employee')
+                    ->live()
+                    ->inline()
+                    ->columnSpanFull(),
+
                 Select::make('employee_id')
                     ->label('Empleado')
-                    ->required()
+                    ->required(fn (Get $get): bool => $get('recipient_type') === 'employee')
+                    ->visible(fn (Get $get): bool => $get('recipient_type') === 'employee')
                     ->relationship(
                         name: 'employee',
                         titleAttribute: 'name',
@@ -34,6 +49,20 @@ class AssignmentForm
                     ->helperText(fn (?Assignment $record): string => filled($record?->returned_at)
                         ? 'No se puede modificar: la asignación ya fue devuelta.'
                         : 'Solo se muestran empleados activos.')
+                    ->columnSpan(1),
+
+                Select::make('department_id')
+                    ->label('Departamento / Área')
+                    ->required(fn (Get $get): bool => $get('recipient_type') === 'department')
+                    ->visible(fn (Get $get): bool => $get('recipient_type') === 'department')
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm(fn (Schema $schema) => DepartmentForm::configure($schema))
+                    ->disabled(fn (?Assignment $record): bool => filled($record?->returned_at))
+                    ->helperText(fn (?Assignment $record): ?string => filled($record?->returned_at)
+                        ? 'No se puede modificar: la asignación ya fue devuelta.'
+                        : null)
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')

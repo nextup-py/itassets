@@ -36,7 +36,7 @@ class AssignmentAsset extends Pivot
                     (new AssetAssignmentNotification(
                         $pivot->asset,
                         'assigned',
-                        $pivot->assignment?->employee,
+                        $pivot->assignment?->recipientEmployee(),
                     ))->sendToManager($manager);
                 }
             }

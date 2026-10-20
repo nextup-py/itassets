@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Assignments\Pages;
 
 use App\Filament\Resources\Assignments\AssignmentResource;
 use App\Models\Asset;
+use App\Models\Assignment;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -35,7 +36,7 @@ class EditAssignment extends EditRecord
     {
         $this->assetsToSync = $data['assets'] ?? [];
         unset($data['assets']);
-        return $data;
+        return Assignment::normalizeRecipientData($data);
     }
 
     protected function afterSave(): void

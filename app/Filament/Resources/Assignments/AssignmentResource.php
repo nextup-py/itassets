@@ -40,7 +40,7 @@ class AssignmentResource extends Resource
             return parent::getRecordTitle($record);
         }
 
-        return $record->employee?->name . ' - ' . $record->assigned_at?->format(current_date_format());
+        return $record->getRecipientLabel() . ' - ' . $record->assigned_at?->format(current_date_format());
     }
 
     protected static ?string $modelLabel = 'Asignación';

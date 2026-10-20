@@ -6,6 +6,7 @@ use App\Filament\Resources\Assignments\Pages\ListAssignments;
 use App\Filament\Resources\Assignments\Pages\ViewAssignment;
 use App\Models\Asset;
 use App\Models\Assignment;
+use App\Models\Department;
 use App\Models\Employee;
 use Livewire\Livewire;
 
@@ -55,7 +56,7 @@ it('does not offer assets already assigned to another assignment when creating',
     Livewire::test(CreateAssignment::class)
         ->assertFormFieldExists('assets')
         ->fillForm([
-            'employee_id' => \App\Models\Employee::factory()->create()->id,
+            'employee_id' => Employee::factory()->create()->id,
             'assigned_at' => now()->toDateString(),
             'assets' => [
                 ['asset_id' => $assignedElsewhere->id],
@@ -91,8 +92,60 @@ it('has an employee filter on the assignments table', function () {
     Livewire::test(ListAssignments::class)->assertTableFilterExists('employee_id');
 });
 
+it('has a department filter on the assignments table', function () {
+    Livewire::test(ListAssignments::class)->assertTableFilterExists('department_id');
+});
+
+it('creates an assignment to a department instead of an employee', function () {
+    $department = Department::factory()->create();
+    $asset = Asset::factory()->available()->create();
+
+    Livewire::test(CreateAssignment::class)
+        ->fillForm([
+            'recipient_type' => 'department',
+            'department_id'  => $department->id,
+            'assigned_at'    => now()->toDateString(),
+            'assets' => [
+                ['asset_id' => $asset->id],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $assignment = Assignment::where('department_id', $department->id)->first();
+    expect($assignment)->not->toBeNull();
+    expect($assignment->employee_id)->toBeNull();
+});
+
+it('shows the department-only recipient fields when switching recipient_type to department', function () {
+    Livewire::test(CreateAssignment::class)
+        ->fillForm(['recipient_type' => 'department'])
+        ->assertFormFieldIsVisible('department_id')
+        ->assertFormFieldIsHidden('employee_id');
+});
+
+it('switches an edited assignment from employee to department', function () {
+    $employee = Employee::factory()->create();
+    $department = Department::factory()->create();
+    $assignment = Assignment::factory()->create(['employee_id' => $employee->id]);
+    $asset = Asset::factory()->available()->create();
+    $assignment->assets()->attach($asset->id, ['assigned_at' => $assignment->assigned_at]);
+
+    Livewire::test(EditAssignment::class, ['record' => $assignment->getRouteKey()])
+        ->fillForm([
+            'recipient_type' => 'department',
+            'department_id'  => $department->id,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $assignment->refresh();
+    expect($assignment->department_id)->toBe($department->id);
+    expect($assignment->employee_id)->toBeNull();
+});
+
 it('shows the employee department name, not a raw object, in the department column', function () {
-    $department = \App\Models\Department::factory()->create(['name' => 'Soporte Técnico']);
+    $department = Department::factory()->create(['name' => 'Soporte Técnico']);
     $employee = Employee::factory()->create(['department_id' => $department->id]);
     Assignment::factory()->create(['employee_id' => $employee->id]);
 
@@ -141,4 +194,12 @@ it('shows employee name and date, not a raw id, as the assignment page title', f
 
     Livewire::test(ViewAssignment::class, ['record' => $assignment->getRouteKey()])
         ->assertSee('María García - 15/01/2026');
+});
+
+it('shows department name and date as the assignment page title for a department assignment', function () {
+    $department = Department::factory()->create(['name' => 'Soporte']);
+    $assignment = Assignment::factory()->toDepartment()->create(['department_id' => $department->id, 'assigned_at' => '2026-01-15']);
+
+    Livewire::test(ViewAssignment::class, ['record' => $assignment->getRouteKey()])
+        ->assertSee('Soporte - 15/01/2026');
 });

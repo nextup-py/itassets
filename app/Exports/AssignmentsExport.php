@@ -16,7 +16,7 @@ class AssignmentsExport implements FromQuery, WithHeadings, WithMapping
     public function query()
     {
         return Assignment::query()
-            ->with(['employee', 'assets'])
+            ->with(['employee.department', 'department', 'assets'])
             ->when($this->status === 'active', fn ($q) => $q->active())
             ->when($this->status === 'returned', fn ($q) => $q->returned())
             ->orderBy('assigned_at', 'desc');
@@ -25,7 +25,7 @@ class AssignmentsExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'ID', 'Empleado', 'Departamento', 'Activos',
+            'ID', 'Asignado a', 'Departamento', 'Activos',
             'Asignado por', 'Asignado el', 'Devuelto el', 'Notas',
         ];
     }
@@ -34,8 +34,8 @@ class AssignmentsExport implements FromQuery, WithHeadings, WithMapping
     {
         return [
             $assignment->id,
-            $assignment->employee?->name ?? '—',
-            $assignment->employee?->department?->name ?? '—',
+            $assignment->getRecipientLabel(),
+            $assignment->department?->name ?? $assignment->employee?->department?->name ?? '—',
             $assignment->assets->map(fn ($a) => "[{$a->asset_tag}] {$a->name}")->implode(', '),
             $assignment->assigned_by ?? '—',
             $assignment->assigned_at?->format(current_date_format()) ?? '—',

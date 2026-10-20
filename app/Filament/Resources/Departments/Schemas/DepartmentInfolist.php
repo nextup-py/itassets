@@ -23,6 +23,10 @@ class DepartmentInfolist
                             ->label('Empleados')
                             ->state(fn ($record) => $record->employees()->count())
                             ->badge(),
+
+                        TextEntry::make('contactEmployee.name')
+                            ->label('Responsable de contacto')
+                            ->placeholder('—'),
                     ])
                     ->columns(2),
 

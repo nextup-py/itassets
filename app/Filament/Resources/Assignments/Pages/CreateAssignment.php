@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Assignments\Pages;
 
 use App\Filament\Resources\Assignments\AssignmentResource;
+use App\Models\Assignment;
 use App\Services\AssignmentService;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -26,6 +27,7 @@ class CreateAssignment extends CreateRecord
     {
         $this->assetsToAttach = $data['assets'] ?? [];
         unset($data['assets']);
+        $data = Assignment::normalizeRecipientData($data);
         $data['assigned_by'] = auth()->user()?->name;
         return $data;
     }

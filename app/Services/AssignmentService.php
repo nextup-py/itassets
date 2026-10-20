@@ -17,11 +17,14 @@ class AssignmentService
 
     public function assign(Asset $asset, array $data): Assignment
     {
+        $data = Assignment::normalizeRecipientData($data);
+
         $assignment = Assignment::create([
-            'employee_id' => $data['employee_id'],
-            'assigned_by' => $this->auth->user()?->name,
-            'assigned_at' => $data['assigned_at'],
-            'notes'       => $data['notes'] ?? null,
+            'employee_id'   => $data['employee_id'],
+            'department_id' => $data['department_id'],
+            'assigned_by'   => $this->auth->user()?->name,
+            'assigned_at'   => $data['assigned_at'],
+            'notes'         => $data['notes'] ?? null,
         ]);
 
         $assignment->assets()->attach($asset->id, [
@@ -44,13 +47,15 @@ class AssignmentService
             return;
         }
 
-        $assignment->loadMissing('employee', 'assets.category');
+        $assignment->loadMissing('employee', 'department.contactEmployee', 'assets.category');
 
-        if (! $assignment->employee) {
+        $recipient = $assignment->recipientEmployee();
+
+        if (! $recipient) {
             return;
         }
 
-        $assignment->employee->notify(new AssignmentDocumentNotification($assignment));
+        $recipient->notify(new AssignmentDocumentNotification($assignment));
     }
 
     public function return(Asset $asset, array $data): void

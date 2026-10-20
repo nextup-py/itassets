@@ -2,8 +2,13 @@
 
 use App\Models\Asset;
 use App\Models\Assignment;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Notifications\AssetAssignmentNotification;
+use App\Notifications\AssignmentDocumentNotification;
 use App\Services\AssignmentService;
+use Filament\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
     $this->admin = loginAsAdmin();
@@ -23,6 +28,38 @@ it('assigns an asset to an employee', function () {
     expect($assignment->employee_id)->toBe($employee->id);
     expect($assignment->assigned_by)->toBe($this->admin->name);
     expect($assignment->assigned_at->format('Y-m-d'))->toBe('2026-07-01');
+});
+
+it('assigns an asset to a department', function () {
+    $asset = Asset::factory()->available()->create();
+    $department = Department::factory()->create();
+
+    $assignment = $this->service->assign($asset, [
+        'recipient_type' => 'department',
+        'department_id'  => $department->id,
+        'assigned_at'    => '2026-07-01',
+    ]);
+
+    expect($assignment->department_id)->toBe($department->id);
+    expect($assignment->employee_id)->toBeNull();
+});
+
+it('notifies the department contact employee when assigned to a department without a direct employee', function () {
+    Notification::fake();
+
+    $contact = Employee::factory()->create();
+    $department = Department::factory()->create(['contact_employee_id' => $contact->id]);
+    $asset = Asset::factory()->available()->create();
+
+    $assignment = $this->service->assign($asset, [
+        'recipient_type' => 'department',
+        'department_id'  => $department->id,
+        'assigned_at'    => '2026-07-01',
+    ]);
+
+    Notification::assertSentTo($contact, AssignmentDocumentNotification::class, function ($notification) use ($assignment) {
+        return $notification->assignment->id === $assignment->id;
+    });
 });
 
 it('attaches asset to assignment on assign', function () {
@@ -137,7 +174,7 @@ it('notifies managers when an asset is assigned', function () {
     ]);
 
     $notification = $this->admin->notifications()
-        ->where('type', \App\Notifications\AssetAssignmentNotification::class)
+        ->where('type', AssetAssignmentNotification::class)
         ->where('data->alert_type', 'assigned')
         ->first();
 
@@ -145,7 +182,7 @@ it('notifies managers when an asset is assigned', function () {
     expect($notification->data['asset_id'])->toBe($asset->id);
 
     $filamentNotification = $this->admin->notifications()
-        ->where('type', \Filament\Notifications\DatabaseNotification::class)
+        ->where('type', DatabaseNotification::class)
         ->where('data->format', 'filament')
         ->first();
 
@@ -164,7 +201,7 @@ it('notifies managers when an asset is returned', function () {
     $this->service->return($asset, ['returned_at' => '2026-07-01']);
 
     $notification = $this->admin->notifications()
-        ->where('type', \App\Notifications\AssetAssignmentNotification::class)
+        ->where('type', AssetAssignmentNotification::class)
         ->where('data->alert_type', 'returned')
         ->first();
 
@@ -172,7 +209,7 @@ it('notifies managers when an asset is returned', function () {
     expect($notification->data['asset_id'])->toBe($asset->id);
 
     $filamentNotification = $this->admin->notifications()
-        ->where('type', \Filament\Notifications\DatabaseNotification::class)
+        ->where('type', DatabaseNotification::class)
         ->where('data->format', 'filament')
         ->where('data->title', 'like', 'Activo devuelto%')
         ->first();
