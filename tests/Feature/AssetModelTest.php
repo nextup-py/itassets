@@ -2,6 +2,7 @@
 
 use App\Models\Asset;
 use App\Models\AssetCategory;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 beforeEach(function () {
     loginAsAdmin();
@@ -24,6 +25,29 @@ it('uses provided asset_tag', function () {
     $asset = Asset::factory()->create(['asset_tag' => 'CUSTOM-001']);
 
     expect($asset->asset_tag)->toBe('CUSTOM-001');
+});
+
+it('retries asset_tag generation when a concurrent insert takes the computed tag first', function () {
+    Asset::factory()->create(['asset_tag' => 'IT-0001']);
+
+    // Simulates another request inserting IT-0002 between this asset's tag
+    // computation and its own insert, forcing a real unique-constraint hit.
+    $listener = Asset::creating(function (Asset $asset) {
+        if ($asset->asset_tag === 'IT-0002') {
+            Asset::withoutEvents(fn () => Asset::factory()->create(['asset_tag' => 'IT-0002']));
+        }
+    });
+
+    $asset = Asset::factory()->create(['asset_tag' => null]);
+
+    expect($asset->asset_tag)->toBe('IT-0003');
+});
+
+it('does not retry when an explicit asset_tag collides', function () {
+    Asset::factory()->create(['asset_tag' => 'CUSTOM-001']);
+
+    expect(fn () => Asset::factory()->create(['asset_tag' => 'CUSTOM-001']))
+        ->toThrow(UniqueConstraintViolationException::class);
 });
 
 it('has available scope', function () {

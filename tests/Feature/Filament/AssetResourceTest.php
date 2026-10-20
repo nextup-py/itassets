@@ -63,6 +63,15 @@ it('hides the export action from editors (who lack export_report)', function () 
     Livewire::test(ListAssets::class)->assertActionHidden('exportAssets');
 });
 
+it('filters the export action by a relationship-backed category select', function () {
+    $category = AssetCategory::factory()->create();
+    Asset::factory()->create(['asset_category_id' => $category->id]);
+
+    Livewire::test(ListAssets::class)
+        ->callAction('exportAssets', data: ['category_id' => $category->id])
+        ->assertHasNoActionErrors();
+});
+
 it('shows the asset lifecycle actions to admins (who have update_asset)', function () {
     $available = Asset::factory()->available()->create();
     Livewire::test(ViewAsset::class, ['record' => $available->getRouteKey()])
