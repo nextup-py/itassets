@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -102,18 +103,48 @@ class Asset extends Model
         'poor' => 'Deteriorado',
     ];
 
+    public const ASSET_TAG_GENERATION_ATTEMPTS = 3;
+
     protected static function booted(): void
     {
         static::creating(function (Asset $asset) {
             if (empty($asset->asset_tag)) {
-                $lastNumber = static::query()
-                    ->where('asset_tag', 'like', 'IT-%')
-                    ->selectRaw("MAX(CAST(SUBSTRING(asset_tag, 4) AS UNSIGNED)) as max_num")
-                    ->value('max_num') ?? 0;
-
-                $asset->asset_tag = 'IT-' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+                $asset->asset_tag = static::nextAssetTag();
             }
         });
+    }
+
+    protected static function nextAssetTag(): string
+    {
+        $lastNumber = static::query()
+            ->where('asset_tag', 'like', 'IT-%')
+            ->selectRaw("MAX(CAST(SUBSTRING(asset_tag, 4) AS UNSIGNED)) as max_num")
+            ->value('max_num') ?? 0;
+
+        return 'IT-' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function save(array $options = [])
+    {
+        // Only auto-generated tags are safe to retry: an explicit asset_tag
+        // colliding is a genuine validation error, not a race to recover from.
+        if (! empty($this->asset_tag) || $this->exists) {
+            return parent::save($options);
+        }
+
+        for ($attempt = 1; $attempt <= self::ASSET_TAG_GENERATION_ATTEMPTS; $attempt++) {
+            try {
+                return parent::save($options);
+            } catch (UniqueConstraintViolationException $e) {
+                $isAssetTagCollision = in_array('asset_tag', $e->columns, true);
+
+                if (! $isAssetTagCollision || $attempt === self::ASSET_TAG_GENERATION_ATTEMPTS) {
+                    throw $e;
+                }
+
+                $this->asset_tag = null;
+            }
+        }
     }
 
     public function category(): BelongsTo

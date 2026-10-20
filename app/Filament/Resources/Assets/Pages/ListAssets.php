@@ -7,7 +7,6 @@ use App\Exports\AssetTemplateExport;
 use App\Filament\Resources\Assets\AssetResource;
 use App\Imports\AssetImport;
 use App\Models\Asset;
-use App\Models\AssetCategory;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
@@ -15,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Storage;
+use Livewire\TemporaryUploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListAssets extends ListRecords
@@ -56,7 +56,7 @@ class ListAssets extends ListRecords
                     $file = $data['file'];
 
                     try {
-                        $path = $file instanceof \Livewire\TemporaryUploadedFile
+                        $path = $file instanceof TemporaryUploadedFile
                             ? $file->getRealPath()
                             : Storage::disk('local')->path($file);
 
@@ -100,8 +100,10 @@ class ListAssets extends ListRecords
                         ->default(''),
                     Select::make('category_id')
                         ->label('Filtrar por categoría')
-                        ->options(['' => 'Todas las categorías', ...AssetCategory::pluck('name', 'id')->toArray()])
-                        ->default(''),
+                        ->relationship('category', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('Todas las categorías'),
                 ])
                 ->action(function (array $data): void {
                     $export = new AssetsExport(
