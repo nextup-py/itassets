@@ -48,6 +48,30 @@ it('returns 404 for non-existent asset', function () {
     $this->get('/assets/99999')->assertNotFound();
 });
 
+it('denies viewer from creating an asset', function () {
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(CreateAsset::class)->assertForbidden();
+});
+
+it('denies viewer from editing an asset', function () {
+    $asset = Asset::factory()->create();
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(EditAsset::class, ['record' => $asset->getRouteKey()])->assertForbidden();
+});
+
+it('hides the delete action from editor on the edit page', function () {
+    $asset = Asset::factory()->create();
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(EditAsset::class, ['record' => $asset->getRouteKey()])
+        ->assertActionHidden('delete');
+});
+
 it('has a supplier filter on the assets table', function () {
     Livewire::test(ListAssets::class)->assertTableFilterExists('supplier_id');
 });
