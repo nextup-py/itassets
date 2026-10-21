@@ -7,6 +7,7 @@ use App\Filament\Resources\Assets\Pages\ViewAsset;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Assignment;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\MaintenanceRecord;
 use App\Models\Setting;
@@ -313,6 +314,22 @@ it('assigns an asset to an employee via the assign action', function () {
 
     expect($asset->fresh()->status)->toBe('assigned');
     expect(Assignment::where('employee_id', $employee->id)->exists())->toBeTrue();
+});
+
+it('assigns an asset to a department via the assign action', function () {
+    $asset = Asset::factory()->available()->create();
+    $department = Department::factory()->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->callAction('assign', data: [
+            'recipient_type' => 'department',
+            'department_id'  => $department->id,
+            'assigned_at'    => now()->toDateString(),
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($asset->fresh()->status)->toBe('assigned');
+    expect(Assignment::where('department_id', $department->id)->exists())->toBeTrue();
 });
 
 it('returns an assigned asset via the return action', function () {

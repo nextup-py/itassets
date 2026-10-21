@@ -22,11 +22,11 @@ class AssignmentPdfController extends Controller
         }
 
         $pdf = Pdf::loadView('pdf.assignment', [
-            'assignment' => $assignment->loadMissing('employee', 'assets.category'),
+            'assignment' => $assignment->loadMissing('employee', 'department.contactEmployee', 'assets.category'),
         ]);
 
-        $employee = $assignment->employee;
-        $filename = 'asignacion_' . ($employee?->legajo ?? $employee?->id ?? 'sin_empleado') . '_' . $assignment->id . '.pdf';
+        $recipient = $assignment->recipientEmployee();
+        $filename = 'asignacion_' . ($recipient?->legajo ?? $recipient?->id ?? 'sin_destinatario') . '_' . $assignment->id . '.pdf';
 
         return $pdf->stream($filename);
     }

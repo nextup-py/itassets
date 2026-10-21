@@ -3,6 +3,7 @@
 use App\Exports\AssignmentsExport;
 use App\Models\Asset;
 use App\Models\Assignment;
+use App\Models\Department;
 use App\Models\Employee;
 
 beforeEach(function () {
@@ -14,7 +15,7 @@ it('exports assignments with headings', function () {
     $headings = $export->headings();
 
     expect($headings)->toBe([
-        'ID', 'Empleado', 'Departamento', 'Activos',
+        'ID', 'Asignado a', 'Departamento', 'Activos',
         'Asignado por', 'Asignado el', 'Devuelto el', 'Notas',
     ]);
 });
@@ -64,4 +65,18 @@ it('maps assignment data correctly', function () {
     expect($mapped[5])->toBe('15/01/2026');
     expect($mapped[6])->toBe('Activo');
     expect($mapped[7])->toBe('Nota de prueba');
+});
+
+it('maps a department-only assignment correctly', function () {
+    $department = Department::factory()->create(['name' => 'Soporte']);
+    $asset = Asset::factory()->create(['asset_tag' => 'IT-0043', 'name' => 'Switch Test']);
+
+    $assignment = Assignment::factory()->toDepartment()->create(['department_id' => $department->id]);
+    $assignment->assets()->attach($asset->id, ['assigned_at' => $assignment->assigned_at]);
+
+    $export = new AssignmentsExport;
+    $mapped = $export->map($assignment->fresh(['employee', 'department', 'assets']));
+
+    expect($mapped[1])->toBe('Soporte');
+    expect($mapped[2])->toBe('Soporte');
 });

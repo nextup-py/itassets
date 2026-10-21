@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Assets\RelationManagers;
 
 use App\Filament\Concerns\HasRelationManagerPermissions;
 use App\Filament\Resources\Assignments\AssignmentResource;
+use App\Filament\Resources\Departments\Schemas\DepartmentForm;
 use App\Models\Assignment;
 use App\Services\AssignmentService;
 use Filament\Actions\Action;
@@ -11,10 +12,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -38,9 +41,21 @@ class AssignmentsRelationManager extends RelationManager
     {
         return $schema
             ->components([
+                Radio::make('recipient_type')
+                    ->label('Asignar a')
+                    ->options([
+                        'employee'   => 'Empleado',
+                        'department' => 'Departamento / Área',
+                    ])
+                    ->default('employee')
+                    ->live()
+                    ->inline()
+                    ->columnSpanFull(),
+
                 Select::make('employee_id')
                     ->label('Empleado')
-                    ->required()
+                    ->required(fn (Get $get): bool => $get('recipient_type') === 'employee')
+                    ->visible(fn (Get $get): bool => $get('recipient_type') === 'employee')
                     ->relationship(
                         name: 'employee',
                         titleAttribute: 'name',
@@ -51,6 +66,16 @@ class AssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->helperText('Solo se muestran empleados activos.')
+                    ->columnSpan(1),
+
+                Select::make('department_id')
+                    ->label('Departamento / Área')
+                    ->required(fn (Get $get): bool => $get('recipient_type') === 'department')
+                    ->visible(fn (Get $get): bool => $get('recipient_type') === 'department')
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm(fn (Schema $schema) => DepartmentForm::configure($schema))
                     ->columnSpan(1),
 
                 DatePicker::make('assigned_at')
@@ -89,14 +114,16 @@ class AssignmentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('employee.name')
-                    ->label('Empleado')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('recipient')
+                    ->label('Asignado a')
+                    ->getStateUsing(fn (Assignment $record): string => $record->getRecipientLabel())
+                    ->badge()
+                    ->color(fn (Assignment $record): string => $record->department_id ? 'warning' : 'primary'),
 
                 TextColumn::make('employee.department.name')
-                    ->label('Departamento')
-                    ->placeholder('—'),
+                    ->label('Departamento (empleado)')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('assigned_at')
                     ->label('Asignado el')
@@ -125,6 +152,7 @@ class AssignmentsRelationManager extends RelationManager
                 CreateAction::make()
                     ->label('Nueva asignación')
                     ->mutateFormDataUsing(function (array $data): array {
+                        $data = Assignment::normalizeRecipientData($data);
                         $data['assigned_by'] = auth()->user()?->name;
                         return $data;
                     })

@@ -28,6 +28,9 @@
     @php
         $overrides ??= [];
 
+        $recipient = $assignment->recipientEmployee();
+        $recipientLabel = $assignment->getRecipientLabel();
+
         $company = $overrides['company_name'] ?? \App\Models\Setting::get('company_name', '');
         $title   = $overrides['pdf_title'] ?? \App\Models\Setting::get('pdf_title', 'Documento de Asignación de Equipamiento');
         $intro   = $overrides['pdf_intro'] ?? \App\Models\Setting::get('pdf_intro', '');
@@ -50,11 +53,11 @@
     @if ($intro)
         <p>{{ str_replace(
             [':company', ':date', ':employee', ':document', ':position', ':legajo'],
-            [$company, $assignment->assigned_at->format(current_date_format()), optional($assignment->employee)->name ?? '—', optional($assignment->employee)->document_number ?? '—', optional($assignment->employee)->position ?? '—', optional($assignment->employee)->legajo ?? '—'],
+            [$company, $assignment->assigned_at->format(current_date_format()), $recipientLabel, optional($recipient)->document_number ?? '—', optional($recipient)->position ?? '—', optional($recipient)->legajo ?? '—'],
             $intro
         ) }}</p>
     @else
-        <p>Documento de asignación de equipamiento a <strong>{{ optional($assignment->employee)->name ?? '—' }}</strong>.</p>
+        <p>Documento de asignación de equipamiento a <strong>{{ $recipientLabel }}</strong>.</p>
     @endif
 
     @if (count($clauses))
@@ -114,9 +117,9 @@
     <table class="signature" width="100%">
         <tr>
             <td align="center">
-                <div><strong>{{ optional($assignment->employee)->name ?? '—' }}</strong></div>
+                <div><strong>{{ $recipientLabel }}</strong></div>
                 <div style="margin-top: 4px; font-size: 11px;">
-                    Documento: {{ optional($assignment->employee)->document_number ?? '—' }}
+                    Documento: {{ optional($recipient)->document_number ?? '—' }}
                 </div>
                 <div style="margin-top: 30px;">
                     <div class="signature-line">Firma</div>

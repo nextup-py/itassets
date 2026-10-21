@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Assignments\Schemas;
 
+use App\Models\Assignment;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -16,8 +17,9 @@ class AssignmentInfolist
                 Section::make('Asignación')
                     ->icon('heroicon-o-arrows-right-left')
                     ->schema([
-                        TextEntry::make('employee.name')
-                            ->label('Empleado'),
+                        TextEntry::make('recipient')
+                            ->label(fn (Assignment $record): string => $record->department_id ? 'Departamento / Área' : 'Empleado')
+                            ->state(fn (Assignment $record): string => $record->getRecipientLabel()),
 
                         TextEntry::make('assigned_by')
                             ->label('Asignado por')

@@ -3,17 +3,20 @@
 namespace App\Filament\Resources\Assets\Pages;
 
 use App\Filament\Resources\Assets\AssetResource;
+use App\Models\Department;
 use App\Models\MaintenanceRecord;
 use App\Services\AssignmentService;
 use App\Services\MaintenanceService;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Utilities\Get;
 
 class ViewAsset extends ViewRecord
 {
@@ -39,10 +42,28 @@ class ViewAsset extends ViewRecord
                 ->authorize('update_asset')
                 ->visible(fn () => ! in_array($this->record->status, ['assigned', 'maintenance', 'retired', 'lost']))
                 ->form([
+                    Radio::make('recipient_type')
+                        ->label('Asignar a')
+                        ->options([
+                            'employee'   => 'Empleado',
+                            'department' => 'Departamento / Área',
+                        ])
+                        ->default('employee')
+                        ->live()
+                        ->inline(),
+
                     Select::make('employee_id')
                         ->label('Empleado')
-                        ->required()
+                        ->required(fn (Get $get): bool => $get('recipient_type') === 'employee')
+                        ->visible(fn (Get $get): bool => $get('recipient_type') === 'employee')
                         ->options(fn () => $assignmentService->getActiveEmployees())
+                        ->searchable(),
+
+                    Select::make('department_id')
+                        ->label('Departamento / Área')
+                        ->required(fn (Get $get): bool => $get('recipient_type') === 'department')
+                        ->visible(fn (Get $get): bool => $get('recipient_type') === 'department')
+                        ->options(fn () => Department::orderBy('name')->pluck('name', 'id'))
                         ->searchable(),
 
                     DatePicker::make('assigned_at')

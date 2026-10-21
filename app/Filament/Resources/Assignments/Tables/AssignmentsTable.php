@@ -17,13 +17,14 @@ class AssignmentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('employee.name')
-                    ->label('Empleado')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('recipient')
+                    ->label('Asignado a')
+                    ->getStateUsing(fn (Assignment $record): string => $record->getRecipientLabel())
+                    ->badge()
+                    ->color(fn (Assignment $record): string => $record->department_id ? 'warning' : 'primary'),
 
                 TextColumn::make('employee.department.name')
-                    ->label('Departamento')
+                    ->label('Departamento (empleado)')
                     ->placeholder('—')
                     ->searchable()
                     ->toggleable(),
@@ -62,6 +63,12 @@ class AssignmentsTable
                 SelectFilter::make('employee_id')
                     ->label('Empleado')
                     ->relationship('employee', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('department_id')
+                    ->label('Departamento / Área')
+                    ->relationship('department', 'name')
                     ->searchable()
                     ->preload(),
             ])

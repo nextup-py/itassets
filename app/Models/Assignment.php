@@ -18,6 +18,7 @@ class Assignment extends Model
 
     protected $fillable = [
         'employee_id',
+        'department_id',
         'assigned_by',
         'assigned_at',
         'returned_at',
@@ -33,6 +34,16 @@ class Assignment extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (Assignment $assignment) {
+            if (empty($assignment->employee_id) && empty($assignment->department_id)) {
+                throw new \InvalidArgumentException('Una asignación debe tener un empleado o un departamento.');
+            }
+
+            if (! empty($assignment->employee_id) && ! empty($assignment->department_id)) {
+                throw new \InvalidArgumentException('Una asignación no puede tener empleado y departamento a la vez.');
+            }
+        });
+
         static::updated(function (Assignment $assignment) {
             if ($assignment->wasChanged('returned_at') && ! is_null($assignment->returned_at)) {
                 $managers = User::managers()->get();
@@ -41,11 +52,40 @@ class Assignment extends Model
                     $asset->update(['status' => 'available']);
 
                     foreach ($managers as $manager) {
-                        (new AssetAssignmentNotification($asset, 'returned', $assignment->employee))->sendToManager($manager);
+                        (new AssetAssignmentNotification($asset, 'returned', $assignment->recipientEmployee()))->sendToManager($manager);
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Normalizes raw form data so exactly one of employee_id/department_id
+     * survives, and strips the UI-only recipient_type radio.
+     */
+    public static function normalizeRecipientData(array $data): array
+    {
+        $type = $data['recipient_type'] ?? (empty($data['department_id']) ? 'employee' : 'department');
+
+        if ($type === 'department') {
+            $data['employee_id'] = null;
+        } else {
+            $data['department_id'] = null;
+        }
+
+        unset($data['recipient_type']);
+
+        return $data;
+    }
+
+    public function recipientEmployee(): ?Employee
+    {
+        return $this->employee ?? $this->department?->contactEmployee;
+    }
+
+    public function getRecipientLabel(): string
+    {
+        return $this->employee?->name ?? $this->department?->name ?? '—';
     }
 
     public function scopeActive(Builder $query): void
@@ -74,6 +114,11 @@ class Assignment extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function getActivitylogOptions(): LogOptions

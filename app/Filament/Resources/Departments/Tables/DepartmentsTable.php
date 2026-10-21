@@ -21,6 +21,11 @@ class DepartmentsTable
                     ->counts('employees')
                     ->sortable(),
 
+                TextColumn::make('contactEmployee.name')
+                    ->label('Contacto')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->date(current_date_format())
