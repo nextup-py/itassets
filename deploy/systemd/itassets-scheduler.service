@@ -1,0 +1,16 @@
+# Runs `php artisan schedule:run` once. Fired every minute by
+# itassets-scheduler.timer — this replaces the usual crontab entry so the
+# schedule (notifications:check, backup:run, backup:clean, backup:monitor —
+# see routes/console.php) keeps firing without anyone having to remember to
+# install a cron line on each server.
+
+[Unit]
+Description=ITAssets scheduler tick (schedule:run)
+After=network.target mysql.service
+
+[Service]
+Type=oneshot
+# Same path/user as itassets-queue.service — edit for your environment.
+WorkingDirectory=/REPLACE/WITH/APP/PATH
+User=REPLACE_WITH_APP_USER
+ExecStart=/usr/bin/php artisan schedule:run

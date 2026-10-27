@@ -1,0 +1,23 @@
+# Fires itassets-scheduler.service every minute, starting right after boot —
+# no crontab needed. Persistent=true catches up a missed run if the machine
+# was off (e.g. a local PC that gets shut down overnight).
+#
+# Install (as root):
+#   sudo cp itassets-scheduler.service itassets-scheduler.timer /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now itassets-scheduler.timer
+#
+# Check it:
+#   systemctl list-timers itassets-scheduler.timer
+#   journalctl -u itassets-scheduler.service -f
+
+[Unit]
+Description=Run ITAssets scheduler every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
