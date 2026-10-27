@@ -110,6 +110,16 @@ class MaintenanceRecord extends Model
             }
         });
 
+        static::deleting(function (MaintenanceRecord $record) {
+            // maintenance_record_supply's FK is cascadeOnDelete(), which deletes those
+            // pivot rows at the DB level without ever firing MaintenanceRecordSupply's
+            // own `deleted` hook (the one that restores Supply::quantity_available) —
+            // so supplies() is detached here first (using() means detach() deletes each
+            // pivot row individually and does fire that event) before the parent row
+            // (and its now-empty cascade) goes.
+            $record->supplies()->detach();
+        });
+
         static::deleted(function (MaintenanceRecord $record) {
             if ($record->status !== 'completed' && $record->asset && $record->asset->status === 'maintenance') {
                 $stillActive = static::where('asset_id', $record->asset_id)

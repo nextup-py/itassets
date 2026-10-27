@@ -302,6 +302,28 @@ it('ignores a changed status when editing an already-completed maintenance recor
     expect($record->fresh()->status)->toBe('completed');
 });
 
+it('ignores a changed type or supplier when editing an already-completed maintenance record', function () {
+    $originalSupplier = \App\Models\Supplier::factory()->create();
+    $otherSupplier = \App\Models\Supplier::factory()->create();
+    $record = MaintenanceRecord::factory()->completed()->create([
+        'type' => 'repair',
+        'supplier_id' => $originalSupplier->id,
+        'started_at' => now()->subDays(5),
+        'completed_at' => now()->subDay(),
+    ]);
+
+    Livewire::test(EditMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->fillForm([
+            'type' => 'warranty',
+            'supplier_id' => $otherSupplier->id,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($record->fresh()->type)->toBe('repair')
+        ->and($record->fresh()->supplier_id)->toBe($originalSupplier->id);
+});
+
 it('requires technician or supplier_id when creating a maintenance record', function () {
     $asset = Asset::factory()->available()->create();
 
@@ -324,4 +346,15 @@ it('shows asset tag and type, not just the type, as the maintenance record page 
 
     Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
         ->assertSee($record->asset->asset_tag . ' - ' . $record->getTypeLabel());
+});
+
+it('shows how many supplies were used on the maintenance record infolist', function () {
+    $record = MaintenanceRecord::factory()->create();
+    $supply = \App\Models\Supply::factory()->create(['quantity_available' => 10]);
+    $record->supplies()->attach($supply->id, ['quantity_used' => 2]);
+
+    Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->assertSee('Insumos utilizados');
+
+    expect($record->supplies()->count())->toBe(1);
 });

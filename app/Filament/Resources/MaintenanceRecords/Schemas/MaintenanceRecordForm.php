@@ -38,6 +38,7 @@ class MaintenanceRecordForm
                             ->label('Tipo')
                             ->required()
                             ->options(MaintenanceRecord::TYPES)
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
                             ->columnSpan(1),
 
                         Select::make('status')
@@ -96,6 +97,7 @@ class MaintenanceRecordForm
                             ->preload()
                             ->live()
                             ->required(fn (Get $get): bool => blank($get('technician')))
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
                             ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
                     ])
