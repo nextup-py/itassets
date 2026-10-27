@@ -40,7 +40,7 @@ class MaintenanceAlertNotification extends Notification implements ShouldQueue
             ->subject($subject)
             ->greeting('Hola, ' . $notifiable->name)
             ->line(match ($this->alertType) {
-                'prolonged' => "El mantenimiento del activo **{$assetName}** ({$assetTag}) lleva más de 7 días en curso.",
+                'prolonged' => "El mantenimiento del activo **{$assetName}** ({$assetTag}) lleva más de " . MaintenanceRecord::PROLONGED_DAYS . ' días en curso.',
                 'started'   => "Se inició un mantenimiento para el activo **{$assetName}** ({$assetTag}).",
                 default     => "Alerta de mantenimiento para el activo **{$assetName}** ({$assetTag}).",
             })

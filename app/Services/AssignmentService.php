@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Setting;
 use App\Notifications\AssignmentDocumentNotification;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use RuntimeException;
 
 class AssignmentService
 {
@@ -17,6 +18,10 @@ class AssignmentService
 
     public function assign(Asset $asset, array $data): Assignment
     {
+        if ($asset->activeAssignment()) {
+            throw new RuntimeException("El activo \"{$asset->asset_tag}\" ya tiene una asignación activa.");
+        }
+
         $data = Assignment::normalizeRecipientData($data);
 
         $assignment = Assignment::create([

@@ -359,6 +359,7 @@ it('sends an asset to maintenance via the sendToMaintenance action', function ()
         ->callAction('sendToMaintenance', data: [
             'type' => 'repair',
             'description' => 'Pantalla rota',
+            'technician' => 'John Tech',
             'started_at' => now()->toDateString(),
         ])
         ->assertHasNoActionErrors();
@@ -380,6 +381,46 @@ it('closes maintenance via the closeMaintenance action, setting the chosen asset
 
     expect($asset->fresh()->status)->toBe('retired');
 });
+
+it('closes the chosen maintenance record when more than one is active, leaving the other open', function () {
+    $asset = Asset::factory()->maintenance()->create();
+    $toClose = MaintenanceRecord::factory()->inProgress()->for($asset)->create();
+    $toKeepOpen = MaintenanceRecord::factory()->inProgress()->for($asset)->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->callAction('closeMaintenance', data: [
+            'maintenance_record_id' => $toClose->id,
+            'new_asset_status' => 'available',
+            'completed_at' => now()->toDateString(),
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($toClose->fresh()->status)->toBe('completed')
+        ->and($toKeepOpen->fresh()->status)->toBe('in_progress');
+});
+
+it('hides sendToMaintenance for an asset that is currently assigned', function () {
+    $asset = Asset::factory()->assigned()->create();
+
+    Livewire::test(ViewAsset::class, ['record' => $asset->getRouteKey()])
+        ->assertActionHidden('sendToMaintenance');
+});
+
+it('refuses to assign an asset that already has an active assignment', function () {
+    $asset = Asset::factory()->available()->create();
+    $employee = Employee::factory()->create();
+    $otherEmployee = Employee::factory()->create();
+
+    app(AssignmentService::class)->assign($asset, [
+        'employee_id' => $employee->id,
+        'assigned_at' => now()->toDateString(),
+    ]);
+
+    app(AssignmentService::class)->assign($asset, [
+        'employee_id' => $otherEmployee->id,
+        'assigned_at' => now()->toDateString(),
+    ]);
+})->throws(RuntimeException::class);
 
 it('shows the import and template actions to admins (who have import_asset)', function () {
     Livewire::test(ListAssets::class)

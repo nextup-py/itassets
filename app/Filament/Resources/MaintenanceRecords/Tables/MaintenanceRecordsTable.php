@@ -87,9 +87,9 @@ class MaintenanceRecordsTable
                     ->preload(),
 
                 Filter::make('prolonged')
-                    ->label('Prolongado (>7 días)')
+                    ->label('Prolongado (>' . MaintenanceRecord::PROLONGED_DAYS . ' días)')
                     ->query(fn (Builder $query) => $query->whereIn('status', ['in_progress', 'pending'])
-                        ->whereDate('started_at', '<=', now()->subDays(7)))
+                        ->whereDate('started_at', '<=', now()->subDays(MaintenanceRecord::PROLONGED_DAYS)))
                     ->toggle(),
             ])
             ->recordActions([

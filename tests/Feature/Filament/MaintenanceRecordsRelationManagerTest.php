@@ -35,6 +35,7 @@ it('applies the chosen new_asset_status when creating an already-completed recor
             'status' => 'completed',
             'new_asset_status' => 'retired',
             'description' => 'Falla de teclado',
+            'technician' => 'John Tech',
             'started_at' => now()->subDay()->toDateString(),
             'completed_at' => now()->toDateString(),
         ])

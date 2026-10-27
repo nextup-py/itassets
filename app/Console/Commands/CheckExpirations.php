@@ -108,7 +108,7 @@ class CheckExpirations extends Command
     protected function checkMaintenance(iterable $admins): void
     {
         $prolonged = MaintenanceRecord::whereIn('status', ['in_progress', 'pending'])
-            ->whereDate('started_at', '<=', now()->subDays(7))
+            ->whereDate('started_at', '<=', now()->subDays(MaintenanceRecord::PROLONGED_DAYS))
             ->get();
 
         foreach ($prolonged as $record) {

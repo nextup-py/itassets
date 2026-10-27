@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Assets\Pages;
 use App\Filament\Resources\Assets\AssetResource;
 use App\Models\Department;
 use App\Models\MaintenanceRecord;
+use App\Models\Supplier;
 use App\Services\AssignmentService;
 use App\Services\MaintenanceService;
 use Filament\Actions\Action;
@@ -17,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Utilities\Get;
+use RuntimeException;
 
 class ViewAsset extends ViewRecord
 {
@@ -85,7 +87,13 @@ class ViewAsset extends ViewRecord
                         ->rows(2),
                 ])
                 ->action(function (array $data) use ($assignmentService): void {
-                    $assignmentService->assign($this->record, $data);
+                    try {
+                        $assignmentService->assign($this->record, $data);
+                    } catch (RuntimeException $e) {
+                        Notification::make()->danger()->title($e->getMessage())->send();
+
+                        return;
+                    }
 
                     Notification::make()
                         ->title('Activo asignado correctamente')
@@ -124,7 +132,7 @@ class ViewAsset extends ViewRecord
                 ->icon('heroicon-o-wrench-screwdriver')
                 ->color('warning')
                 ->authorize('update_asset')
-                ->visible(fn () => ! in_array($this->record->status, ['maintenance', 'retired', 'lost']))
+                ->visible(fn () => ! in_array($this->record->status, ['assigned', 'maintenance', 'retired', 'lost']))
                 ->form([
                     Select::make('type')
                         ->label('Tipo de mantenimiento')
@@ -138,12 +146,22 @@ class ViewAsset extends ViewRecord
 
                     TextInput::make('technician')
                         ->label('Técnico responsable')
+                        ->live(onBlur: true)
+                        ->required(fn (Get $get): bool => blank($get('supplier_id')))
+                        ->helperText('Debe indicar un técnico y/o un proveedor de servicio.')
                         ->maxLength(150),
 
                     Select::make('supplier_id')
                         ->label('Proveedor de servicio')
-                        ->options(fn () => $maintenanceService->getSuppliers())
-                        ->searchable(),
+                        ->live()
+                        ->required(fn (Get $get): bool => blank($get('technician')))
+                        ->searchable()
+                        ->getSearchResultsUsing(fn (string $search): array => Supplier::query()
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => Supplier::find($value)?->name),
 
                     DatePicker::make('started_at')
                         ->label('Fecha de inicio')
@@ -166,27 +184,45 @@ class ViewAsset extends ViewRecord
                 ->color('success')
                 ->authorize('update_asset')
                 ->visible(fn () => $this->record->status === 'maintenance')
-                ->form([
-                    Select::make('new_asset_status')
-                        ->label('Nuevo estado del activo')
-                        ->required()
-                        ->options([
-                            'available' => 'Disponible',
-                            'retired'   => 'Dado de baja',
-                            'lost'      => 'Perdido / Robado',
-                        ])
-                        ->default('available'),
+                ->form(function (): array {
+                    $active = $this->record->maintenanceRecords()
+                        ->where('status', '!=', 'completed')
+                        ->orderByDesc('started_at')
+                        ->get();
 
-                    DatePicker::make('completed_at')
-                        ->label('Fecha de término')
-                        ->required()
-                        ->default(now())
-                        ->displayFormat(current_date_format()),
+                    return [
+                        Select::make('maintenance_record_id')
+                            ->label('Mantenimiento a cerrar')
+                            ->options($active->mapWithKeys(fn (MaintenanceRecord $record): array => [
+                                $record->id => $record->getTypeLabel() . ' — ' . $record->description
+                                    . ' (desde ' . $record->started_at?->format(current_date_format()) . ')',
+                            ]))
+                            ->default($active->first()?->id)
+                            ->visible($active->count() > 1)
+                            ->required($active->count() > 1)
+                            ->helperText('Este activo tiene más de un mantenimiento abierto; elegí cuál estás cerrando.'),
 
-                    Textarea::make('resolution')
-                        ->label('Resolución / Diagnóstico final')
-                        ->rows(3),
-                ])
+                        Select::make('new_asset_status')
+                            ->label('Nuevo estado del activo')
+                            ->required()
+                            ->options([
+                                'available' => 'Disponible',
+                                'retired'   => 'Dado de baja',
+                                'lost'      => 'Perdido / Robado',
+                            ])
+                            ->default('available'),
+
+                        DatePicker::make('completed_at')
+                            ->label('Fecha de término')
+                            ->required()
+                            ->default(now())
+                            ->displayFormat(current_date_format()),
+
+                        Textarea::make('resolution')
+                            ->label('Resolución / Diagnóstico final')
+                            ->rows(3),
+                    ];
+                })
                 ->action(function (array $data) use ($maintenanceService): void {
                     $maintenanceService->close($this->record, $data);
 

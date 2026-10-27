@@ -28,6 +28,7 @@ it('creates a maintenance record', function () {
             'type' => 'repair',
             'status' => 'pending',
             'description' => 'Falla de teclado',
+            'technician' => 'John Tech',
             'started_at' => now()->toDateString(),
         ])
         ->call('create')
@@ -46,6 +47,7 @@ it('applies the chosen new_asset_status when creating a record already marked as
             'status' => 'completed',
             'new_asset_status' => 'retired',
             'description' => 'Falla de teclado',
+            'technician' => 'John Tech',
             'started_at' => now()->subDay()->toDateString(),
             'completed_at' => now()->toDateString(),
         ])
@@ -102,6 +104,7 @@ it('sets the related asset to maintenance when a non-completed record is created
             'type' => 'repair',
             'status' => 'in_progress',
             'description' => 'Falla de teclado',
+            'technician' => 'John Tech',
             'started_at' => now()->toDateString(),
         ])
         ->call('create')
@@ -270,6 +273,50 @@ it('ignores changes to cost, technician and dates on an already-completed mainte
 
     expect($record->fresh()->cost)->toEqual(100)
         ->and($record->fresh()->technician)->toBe('Juan Pérez');
+});
+
+it('ignores a changed asset_id when editing an existing maintenance record', function () {
+    $originalAsset = Asset::factory()->create();
+    $otherAsset = Asset::factory()->create();
+    $record = MaintenanceRecord::factory()->inProgress()->for($originalAsset)->create();
+
+    Livewire::test(EditMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->fillForm(['asset_id' => $otherAsset->id])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($record->fresh()->asset_id)->toBe($originalAsset->id);
+});
+
+it('ignores a changed status when editing an already-completed maintenance record', function () {
+    $record = MaintenanceRecord::factory()->completed()->create([
+        'started_at' => now()->subDays(5),
+        'completed_at' => now()->subDay(),
+    ]);
+
+    Livewire::test(EditMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->fillForm(['status' => 'in_progress'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($record->fresh()->status)->toBe('completed');
+});
+
+it('requires technician or supplier_id when creating a maintenance record', function () {
+    $asset = Asset::factory()->available()->create();
+
+    Livewire::test(CreateMaintenanceRecord::class)
+        ->fillForm([
+            'asset_id' => $asset->id,
+            'type' => 'repair',
+            'status' => 'pending',
+            'description' => 'Falla de teclado',
+            'technician' => null,
+            'supplier_id' => null,
+            'started_at' => now()->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['technician', 'supplier_id']);
 });
 
 it('shows asset tag and type, not just the type, as the maintenance record page title', function () {
