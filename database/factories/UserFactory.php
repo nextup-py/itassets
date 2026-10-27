@@ -48,6 +48,12 @@ class UserFactory extends Factory
     {
         return $this->afterCreating(function (User $user) {
             $user->assignRole('Admin');
+
+            // Admins are the only role required to have 2FA set up (see
+            // AdminPanelProvider::multiFactorAuthentication). A real admin account
+            // would already have this configured — tests exercising unrelated
+            // features shouldn't have to walk through the setup screen first.
+            $user->saveAppAuthenticationSecret('TESTINGTESTINGTESTINGTESTINGTEST');
         });
     }
 
