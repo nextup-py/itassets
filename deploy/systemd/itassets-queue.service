@@ -1,0 +1,32 @@
+# Keeps the Laravel queue worker running unattended: starts on boot and
+# restarts itself if it ever exits (crash, OOM, `--max-time` cycling).
+#
+# Install (as root), after editing the two placeholders below:
+#   sudo cp itassets-queue.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now itassets-queue.service
+#
+# Check it:
+#   systemctl status itassets-queue.service
+#   journalctl -u itassets-queue.service -f
+
+[Unit]
+Description=ITAssets queue worker
+After=network.target mysql.service
+
+[Service]
+# Edit these two for your environment:
+#   CloudPanel site:  /home/CLOUDPANEL_SITE_USER/htdocs/DOMAIN
+#   Local server/VM:  /var/www/itassets  (or wherever the repo is checked out)
+WorkingDirectory=/REPLACE/WITH/APP/PATH
+User=REPLACE_WITH_APP_USER
+
+# --max-time recycles the worker every hour so a long-running PHP process
+# can't slowly leak memory for weeks with nobody watching; Restart=always
+# below brings it straight back up.
+ExecStart=/usr/bin/php artisan queue:work --tries=3 --max-time=3600 --sleep=3
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
