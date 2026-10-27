@@ -18,4 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // Required by sentry-laravel on Laravel 11+ — the package no longer hooks into
+        // the exception handler on its own; without this, uncaught exceptions (including
+        // failed queue jobs, which report through the same handler) never reach Sentry.
+        Sentry\Laravel\Integration::handles($exceptions);
     })->create();

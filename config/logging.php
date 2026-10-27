@@ -73,6 +73,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Routes warning+ log entries to Sentry as structured logs (separate from exception
+        // capture, which bootstrap/app.php wires directly via Sentry\Laravel\Integration).
+        // A no-op with no SENTRY_LARAVEL_DSN set (dev, CI, and any server that hasn't
+        // configured Sentry yet), so it's safe to leave in LOG_STACK unconditionally.
+        'sentry_logs' => [
+            'driver' => 'sentry_logs',
+            'level' => env('SENTRY_LOG_LEVEL', 'warning'),
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
