@@ -7,7 +7,9 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\Http\Middleware\EnsureAdminHasMultiFactorAuthentication;
 use App\Models\Setting;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
@@ -37,6 +39,11 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->profile()
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable(),
+            ])
+            ->requiresMultiFactorAuthentication()
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureAdminHasMultiFactorAuthentication::class)
             ->databaseNotifications()
             ->spa()
             ->sidebarCollapsibleOnDesktop()
