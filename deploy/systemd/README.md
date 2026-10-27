@@ -51,12 +51,28 @@ Si falla el backup, o no hay un backup sano reciente, se envía un mail a
 mismo mailer configurado en Sistema → Correo — sin que nadie tenga que mirar
 un dashboard.
 
-**Importante**: esto cubre backups *locales al servidor*. Si el disco del VPS
-o de la PC local se rompe, se pierde el backup también. Para backup
-*fuera del servidor* (recomendado), agregar un disco S3-compatible
-(Hostinger/Backblaze/etc.) en `config/filesystems.php` y sumarlo a
-`destination.disks` en `config/backup.php` — requiere credenciales que no
-están configuradas todavía.
+**Backup offsite (Backblaze B2)**: además del disco `local`, el backup también
+copia a Backblaze B2 (`config/filesystems.php`'s disco `backblaze`, S3-compatible)
+apenas `B2_KEY_ID` esté seteado en el `.env` — si está en blanco, ese destino
+se omite por completo (sin romper nada) y solo queda el backup local. Variables
+necesarias, todas documentadas en `.env.example`: `B2_KEY_ID`,
+`B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT`. Generá una
+Application Key en la consola de Backblaze **restringida solo a ese bucket**
+(no una key maestra de toda la cuenta). Si el bucket es compartido con otros
+proyectos, los backups de ITAssets quedan bajo el prefijo `itassets/` dentro de
+él (`'root' => 'itassets'` en el disco), sin pisar nada ajeno.
+
+**Gotcha de Backblaze**: si el bucket tiene el *File Lifecycle* en "Keep all
+versions" (el default), un borrado vía API no elimina el archivo — lo oculta y
+conserva la versión anterior para siempre, así que la rotación de
+`backup:clean` nunca libera espacio real ahí, aunque sí lo haga en el disco
+`local`. Para que el espacio en B2 realmente se recupere con el tiempo, configurar
+una *Lifecycle Rule* en el bucket (consola de Backblaze → el bucket → *Lifecycle
+Settings*) que purgue versiones viejas después de cierta cantidad de días —
+esto es un ajuste del lado de Backblaze, no de la app.
+
+Sin backup offsite configurado, esto cubre solo backups *locales al servidor*:
+si el disco del VPS o de la PC local se rompe, se pierde el backup también.
 
 ## 4. Logs
 
