@@ -50,8 +50,13 @@ class MaintenanceRecordInfolist
                         TextEntry::make('supplier.name')
                             ->label('Proveedor de servicio')
                             ->placeholder('—'),
+
+                        TextEntry::make('supplies_count')
+                            ->label('Insumos utilizados')
+                            ->state(fn (MaintenanceRecord $record): int => $record->supplies()->count())
+                            ->badge(),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Costo y fechas')
                     ->icon('heroicon-o-calendar')

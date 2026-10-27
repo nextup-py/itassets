@@ -48,6 +48,7 @@ class SuppliesRelationManager extends RelationManager
                 AttachAction::make()
                     ->label('Utilizar insumo')
                     ->authorize('update_supply')
+                    ->visible(fn (): bool => $this->getOwnerRecord()->status !== 'completed')
                     ->recordSelectOptionsQuery(fn (Builder $query) => $query->where('quantity_available', '>', 0))
                     ->schema(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
@@ -62,12 +63,14 @@ class SuppliesRelationManager extends RelationManager
             ->recordActions([
                 DetachAction::make()
                     ->label('Quitar')
-                    ->authorize('update_supply'),
+                    ->authorize('update_supply')
+                    ->visible(fn (): bool => $this->getOwnerRecord()->status !== 'completed'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DetachBulkAction::make()
-                        ->authorize('update_supply'),
+                        ->authorize('update_supply')
+                        ->visible(fn (): bool => $this->getOwnerRecord()->status !== 'completed'),
                 ]),
             ]);
     }

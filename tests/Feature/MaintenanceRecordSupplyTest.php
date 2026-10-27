@@ -29,3 +29,16 @@ it('refuses to consume more supply stock than is available', function () {
 
     $record->supplies()->attach($supply->id, ['quantity_used' => 5]);
 })->throws(RuntimeException::class);
+
+it('restores supply stock when the maintenance record itself is deleted', function () {
+    $supply = Supply::factory()->create(['quantity_available' => 10]);
+    $record = MaintenanceRecord::factory()->for(Asset::factory())->create();
+
+    $record->supplies()->attach($supply->id, ['quantity_used' => 3]);
+    expect($supply->fresh()->quantity_available)->toBe(7);
+
+    $record->delete();
+
+    expect($supply->fresh()->quantity_available)->toBe(10);
+    expect(\DB::table('maintenance_record_supply')->where('maintenance_record_id', $record->id)->count())->toBe(0);
+});
