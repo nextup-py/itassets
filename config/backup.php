@@ -239,7 +239,10 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('ADMIN_EMAIL')),
+            // Always resolves to a non-null string — the package validates this eagerly
+            // at boot (NotificationMailConfig), so a null value (e.g. ADMIN_EMAIL unset
+            // in CI) breaks `artisan package:discover` for every command, not just backups.
+            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('ADMIN_EMAIL', 'admin@example.com')),
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
