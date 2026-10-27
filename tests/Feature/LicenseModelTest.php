@@ -3,6 +3,8 @@
 use App\Models\Employee;
 use App\Models\License;
 use App\Models\LicenseAssignment;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
     loginAsAdmin();
@@ -76,4 +78,37 @@ it('shows "sin límite" in the seats label when total_seats is null', function (
     $license = License::factory()->subscription()->create(['total_seats' => null]);
 
     expect($license->getSeatsLabel())->toBe('0 (sin límite)');
+});
+
+it('blocks creating a license assignment once the seat limit is reached', function () {
+    $license = License::factory()->create(['total_seats' => 2]);
+    LicenseAssignment::factory()->count(2)->create(['license_id' => $license->id]);
+
+    expect(fn () => LicenseAssignment::create([
+        'license_id' => $license->id,
+        'employee_id' => Employee::factory()->create()->id,
+        'assigned_at' => now(),
+    ]))->toThrow(ValidationException::class);
+});
+
+it('rejects a license assignment with neither an asset nor an employee', function () {
+    $license = License::factory()->create(['total_seats' => 5]);
+
+    expect(fn () => LicenseAssignment::create([
+        'license_id' => $license->id,
+        'assigned_at' => now(),
+    ]))->toThrow(ValidationException::class);
+});
+
+it('wraps new license assignment creation in a transaction holding a lock on the license row', function () {
+    $license = License::factory()->create(['total_seats' => 5]);
+    $sawTransaction = false;
+
+    LicenseAssignment::creating(function () use (&$sawTransaction) {
+        $sawTransaction = DB::transactionLevel() > 0;
+    });
+
+    LicenseAssignment::factory()->create(['license_id' => $license->id]);
+
+    expect($sawTransaction)->toBeTrue();
 });

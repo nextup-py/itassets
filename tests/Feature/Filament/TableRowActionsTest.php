@@ -117,6 +117,22 @@ it('hides renew for a license not close to expiry', function () {
         ->assertTableActionHidden('renew', $license);
 });
 
+it('shows renew for a license expired within the last 60 days', function () {
+    loginAsAdmin();
+    $license = License::factory()->create(['expiry_date' => now()->subDays(30)]);
+
+    Livewire::test(ListLicenses::class)
+        ->assertTableActionVisible('renew', $license);
+});
+
+it('hides renew for a license expired more than 60 days ago', function () {
+    loginAsAdmin();
+    $license = License::factory()->create(['expiry_date' => now()->subDays(90)]);
+
+    Livewire::test(ListLicenses::class)
+        ->assertTableActionHidden('renew', $license);
+});
+
 it('hides the renew action from viewers', function () {
     loginAsViewer();
     $license = License::factory()->create(['expiry_date' => now()->addDays(10)]);

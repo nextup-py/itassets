@@ -112,7 +112,7 @@ class LicensesTable
                     ->color('warning')
                     ->authorize('update_license')
                     ->visible(fn (License $record): bool => $record->expiry_date
-                        && $record->expiry_date->diffInDays(now(), false) >= -60)
+                        && abs($record->expiry_date->diffInDays(now(), false)) <= 60)
                     ->form([
                         DatePicker::make('expiry_date')
                             ->label('Nueva fecha de vencimiento')

@@ -6,6 +6,7 @@ use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -36,6 +37,12 @@ class LicenseAssignment extends Model
     protected static function booted(): void
     {
         static::creating(function (LicenseAssignment $assignment) {
+            if (blank($assignment->asset_id) && blank($assignment->employee_id)) {
+                throw ValidationException::withMessages([
+                    'asset_id' => 'Debe asignarse a un Activo o a un Empleado.',
+                ]);
+            }
+
             $license = License::find($assignment->license_id);
 
             if ($license && ! $license->hasAvailableSeats()) {
@@ -56,6 +63,24 @@ class LicenseAssignment extends Model
                     'asset_id' => 'Ya existe una asignación activa de esta licencia para el mismo activo o empleado.',
                 ]);
             }
+        });
+    }
+
+    /**
+     * Wraps new-record creation in a transaction holding a row lock on the
+     * parent License, so two concurrent assignments near the seat limit
+     * can't both pass the hasAvailableSeats() check before either commits.
+     */
+    public function save(array $options = [])
+    {
+        if ($this->exists || blank($this->license_id)) {
+            return parent::save($options);
+        }
+
+        return DB::transaction(function () use ($options) {
+            License::whereKey($this->license_id)->lockForUpdate()->first();
+
+            return parent::save($options);
         });
     }
 
