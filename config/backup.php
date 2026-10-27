@@ -239,10 +239,13 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            // Always resolves to a non-null string — the package validates this eagerly
-            // at boot (NotificationMailConfig), so a null value (e.g. ADMIN_EMAIL unset
-            // in CI) breaks `artisan package:discover` for every command, not just backups.
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('ADMIN_EMAIL', 'admin@example.com')),
+            // Always resolves to a non-empty string — the package validates this eagerly
+            // at boot (NotificationMailConfig), so a null/empty value (e.g. unset or blank
+            // in .env) breaks every artisan command, not just backups. `?:` (not env()'s
+            // own default, which only kicks in when the var is absent, not when it's set
+            // to an empty string) is required because BACKUP_NOTIFICATION_EMAIL is shipped
+            // blank in .env.example.
+            'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: (env('ADMIN_EMAIL') ?: 'admin@example.com'),
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
