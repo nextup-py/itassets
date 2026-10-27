@@ -47,6 +47,7 @@ it('closes a maintenance record', function () {
     $record = $this->service->start($asset, [
         'type'        => 'repair',
         'description' => 'Fix keyboard',
+        'technician'  => 'John Tech',
         'started_at'  => '2026-06-01',
     ]);
 
@@ -63,20 +64,13 @@ it('closes a maintenance record', function () {
     expect($asset->fresh()->status)->toBe('available');
 });
 
-it('returns suppliers list', function () {
-    Supplier::factory()->count(3)->create();
-
-    $suppliers = $this->service->getSuppliers();
-
-    expect($suppliers)->toHaveCount(3);
-});
-
 it('notifies managers when a new maintenance record is started', function () {
     $asset = Asset::factory()->available()->create();
 
     $record = $this->service->start($asset, [
         'type'        => 'repair',
         'description' => 'Broken screen',
+        'technician'  => 'John Tech',
         'started_at'  => '2026-07-01',
     ]);
 

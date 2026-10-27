@@ -28,6 +28,10 @@ class MaintenanceRecordForm
                             ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->asset_tag}] {$record->name}")
                             ->searchable()
                             ->preload()
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record !== null)
+                            ->helperText(fn (?MaintenanceRecord $record): ?string => $record !== null
+                                ? 'El activo de un mantenimiento no se puede cambiar una vez creado.'
+                                : null)
                             ->columnSpan(2),
 
                         Select::make('type')
@@ -42,7 +46,10 @@ class MaintenanceRecordForm
                             ->options(MaintenanceRecord::STATUSES)
                             ->default('pending')
                             ->live()
-                            ->helperText('Al marcar como Completado, deberá indicar el nuevo estado del activo.')
+                            ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
+                            ->helperText(fn (?MaintenanceRecord $record): ?string => $record?->status === 'completed'
+                                ? 'No se puede modificar: el mantenimiento ya fue completado.'
+                                : 'Al marcar como Completado, deberá indicar el nuevo estado del activo.')
                             ->columnSpan(1),
 
                         Select::make('new_asset_status')
@@ -53,8 +60,10 @@ class MaintenanceRecordForm
                                 'lost' => 'Perdido / Robado',
                             ])
                             ->default('available')
-                            ->visible(fn (Get $get): bool => $get('status') === 'completed')
-                            ->required(fn (Get $get): bool => $get('status') === 'completed')
+                            ->visible(fn (Get $get, ?MaintenanceRecord $record): bool => $get('status') === 'completed'
+                                && $record?->status !== 'completed')
+                            ->required(fn (Get $get, ?MaintenanceRecord $record): bool => $get('status') === 'completed'
+                                && $record?->status !== 'completed')
                             ->helperText('Este será el nuevo estado del activo al completar el mantenimiento.')
                             ->columnSpan(1),
 
@@ -72,10 +81,12 @@ class MaintenanceRecordForm
                         TextInput::make('technician')
                             ->label('Técnico responsable')
                             ->maxLength(150)
+                            ->live(onBlur: true)
+                            ->required(fn (Get $get): bool => blank($get('supplier_id')))
                             ->disabled(fn (?MaintenanceRecord $record): bool => $record?->status === 'completed')
                             ->helperText(fn (?MaintenanceRecord $record): ?string => $record?->status === 'completed'
                                 ? 'No se puede modificar: el mantenimiento ya fue completado.'
-                                : null)
+                                : 'Debe indicar un técnico y/o un proveedor de servicio.')
                             ->columnSpan(1),
 
                         Select::make('supplier_id')
@@ -83,6 +94,8 @@ class MaintenanceRecordForm
                             ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
+                            ->live()
+                            ->required(fn (Get $get): bool => blank($get('technician')))
                             ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                             ->columnSpan(1),
                     ])

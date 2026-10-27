@@ -76,6 +76,9 @@ class MaintenanceRecordsRelationManager extends RelationManager
                 TextInput::make('technician')
                     ->label('Técnico')
                     ->maxLength(150)
+                    ->live(onBlur: true)
+                    ->required(fn (Get $get): bool => blank($get('supplier_id')))
+                    ->helperText('Debe indicar un técnico y/o un proveedor de servicio.')
                     ->columnSpan(1),
 
                 Select::make('supplier_id')
@@ -83,6 +86,8 @@ class MaintenanceRecordsRelationManager extends RelationManager
                     ->relationship('supplier', 'name')
                     ->searchable()
                     ->preload()
+                    ->live()
+                    ->required(fn (Get $get): bool => blank($get('technician')))
                     ->createOptionForm(fn (Schema $schema) => SupplierForm::configure($schema))
                     ->columnSpan(1),
 

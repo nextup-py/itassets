@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\MaintenanceRecord;
-use App\Models\Supplier;
 
 class MaintenanceService
 {
@@ -27,10 +26,11 @@ class MaintenanceService
 
     public function close(Asset $asset, array $data): void
     {
-        $active = $asset->maintenanceRecords()
-            ->where('status', '!=', 'completed')
-            ->latest('started_at')
-            ->first();
+        $query = $asset->maintenanceRecords()->where('status', '!=', 'completed');
+
+        $active = isset($data['maintenance_record_id'])
+            ? $query->whereKey($data['maintenance_record_id'])->first()
+            : $query->latest('started_at')->first();
 
         if ($active) {
             $active->update([
@@ -42,11 +42,6 @@ class MaintenanceService
 
         $asset->update(['status' => $data['new_asset_status']]);
         $asset->refresh();
-    }
-
-    public function getSuppliers(): array
-    {
-        return Supplier::pluck('name', 'id')->toArray();
     }
 
     public function syncAssetStatus(MaintenanceRecord $record, ?string $newAssetStatus): void

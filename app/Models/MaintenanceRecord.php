@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -65,6 +66,8 @@ class MaintenanceRecord extends Model
         'other' => 'gray',
     ];
 
+    public const PROLONGED_DAYS = 7;
+
     public function getStatusLabel(): string
     {
         return self::STATUSES[$this->status] ?? $this->status;
@@ -81,17 +84,29 @@ class MaintenanceRecord extends Model
     }
 
     // -------------------------------------------------------------------------
-    // Al crear un registro de mantenimiento → activo pasa a "En mantenimiento"
+    // Al pasar a "En proceso" → activo pasa a "En mantenimiento". "Pendiente"
+    // no tiene ningún efecto sobre el activo: representa trabajo programado
+    // que todavía no arrancó.
     // -------------------------------------------------------------------------
     protected static function booted(): void
     {
-        static::created(function (MaintenanceRecord $record) {
-            if ($record->status !== 'completed' && $record->asset) {
-                $record->asset->update(['status' => 'maintenance']);
+        static::saving(function (MaintenanceRecord $record) {
+            if (blank($record->technician) && blank($record->supplier_id)) {
+                throw ValidationException::withMessages([
+                    'technician' => 'Debe indicar un técnico responsable y/o un proveedor de servicio.',
+                ]);
+            }
+        });
 
-                foreach (User::managers()->get() as $manager) {
-                    (new MaintenanceAlertNotification($record, 'started'))->sendToManager($manager);
-                }
+        static::created(function (MaintenanceRecord $record) {
+            if ($record->status === 'in_progress') {
+                static::markStarted($record);
+            }
+        });
+
+        static::updated(function (MaintenanceRecord $record) {
+            if ($record->wasChanged('status') && $record->status === 'in_progress') {
+                static::markStarted($record);
             }
         });
 
@@ -106,6 +121,19 @@ class MaintenanceRecord extends Model
                 }
             }
         });
+    }
+
+    private static function markStarted(MaintenanceRecord $record): void
+    {
+        if (! $record->asset) {
+            return;
+        }
+
+        $record->asset->update(['status' => 'maintenance']);
+
+        foreach (User::managers()->get() as $manager) {
+            (new MaintenanceAlertNotification($record, 'started'))->sendToManager($manager);
+        }
     }
 
     // -------------------------------------------------------------------------
