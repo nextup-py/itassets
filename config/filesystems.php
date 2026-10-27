@@ -60,6 +60,22 @@ return [
             'report' => false,
         ],
 
+        // Offsite backup destination (Backblaze B2, S3-compatible). Own env var names
+        // (not AWS_*) since this is a distinct credential from any future AWS usage, and
+        // its own 'root' prefix because the bucket is shared with other projects/backups.
+        'backblaze' => [
+            'driver' => 's3',
+            'key' => env('B2_KEY_ID'),
+            'secret' => env('B2_APPLICATION_KEY'),
+            'region' => env('B2_REGION'),
+            'bucket' => env('B2_BUCKET'),
+            'endpoint' => env('B2_ENDPOINT'),
+            'root' => 'itassets',
+            'use_path_style_endpoint' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

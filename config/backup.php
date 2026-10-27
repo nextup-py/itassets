@@ -165,15 +165,27 @@ return [
 
             /*
              * The disk names on which the backups will be stored.
+             *
+             * 'backblaze' (offsite, config/filesystems.php) is only added once its
+             * credentials are actually configured — on a server that hasn't set up
+             * Backblaze yet (or in dev/CI), resolving that disk would throw at the S3
+             * client construction step, not just fail to write, so it has to be left
+             * out of the list entirely rather than just failing per the entry below.
              */
-            'disks' => [
+            'disks' => array_filter([
                 'local',
-            ],
+                env('B2_KEY_ID') ? 'backblaze' : null,
+            ]),
 
             /*
              * Determines whether to allow backups to continue when some targets fail instead of failing completely.
+             *
+             * true: if the offsite (Backblaze) copy fails — a network blip, bad
+             * credentials — the local backup still completes instead of the whole
+             * backup job failing outright (BackupHasFailedNotification still fires for
+             * the failed disk).
              */
-            'continue_on_failure' => false,
+            'continue_on_failure' => true,
         ],
 
         /*
@@ -306,7 +318,10 @@ return [
     'monitor_backups' => [
         [
             'name' => env('APP_NAME', 'laravel-backup'),
-            'disks' => ['local'],
+            'disks' => array_filter([
+                'local',
+                env('B2_KEY_ID') ? 'backblaze' : null,
+            ]),
             'health_checks' => [
                 MaximumAgeInDays::class => 1,
                 MaximumStorageInMegabytes::class => 5000,
