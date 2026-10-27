@@ -121,15 +121,7 @@ class AssignmentsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Asignar licencia')
-                    ->mutateFormDataUsing(function (array $data): array {
-                        if (blank($data['asset_id'] ?? null) && blank($data['employee_id'] ?? null)) {
-                            throw \Illuminate\Validation\ValidationException::withMessages([
-                                'asset_id' => 'Debe seleccionar al menos un Activo o un Empleado.',
-                            ]);
-                        }
-                        return $data;
-                    }),
+                    ->label('Asignar licencia'),
             ])
             ->recordActions([
                 EditAction::make(),

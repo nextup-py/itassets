@@ -7,11 +7,42 @@ use App\Models\Asset;
 use App\Models\Employee;
 use App\Models\License;
 use App\Models\LicenseAssignment;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 beforeEach(function () {
     loginAsAdmin();
+});
+
+it('denies viewer from creating a license', function () {
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(CreateLicense::class)->assertForbidden();
+});
+
+it('denies viewer from editing a license', function () {
+    $license = License::factory()->create();
+    $viewer = User::factory()->viewer()->create();
+    $this->actingAs($viewer);
+
+    Livewire::test(EditLicense::class, ['record' => $license->getRouteKey()])->assertForbidden();
+});
+
+it('hides the delete action from editor on the edit page', function () {
+    $license = License::factory()->create();
+    $editor = User::factory()->editor()->create();
+    $this->actingAs($editor);
+
+    Livewire::test(EditLicense::class, ['record' => $license->getRouteKey()])
+        ->assertActionHidden('delete');
+});
+
+it('leaves total_seats blank by default for a subscription license', function () {
+    Livewire::test(CreateLicense::class)
+        ->fillForm(['license_type' => 'subscription'])
+        ->assertFormSet(['total_seats' => null]);
 });
 
 it('creates a license with its own currency', function () {

@@ -40,7 +40,6 @@ class LicenseForm
                             ->label('Total de puestos')
                             ->numeric()
                             ->minValue(1)
-                            ->default(1)
                             ->required(fn (Get $get): bool => $get('license_type') !== 'subscription')
                             ->rule(function (?License $record) {
                                 return function (string $attribute, $value, \Closure $fail) use ($record) {
