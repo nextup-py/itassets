@@ -136,15 +136,28 @@ class Asset extends Model
             try {
                 return parent::save($options);
             } catch (UniqueConstraintViolationException $e) {
-                $isAssetTagCollision = in_array('asset_tag', $e->columns, true);
-
-                if (! $isAssetTagCollision || $attempt === self::ASSET_TAG_GENERATION_ATTEMPTS) {
+                if (! static::isAssetTagCollision($e) || $attempt === self::ASSET_TAG_GENERATION_ATTEMPTS) {
                     throw $e;
                 }
 
                 $this->asset_tag = null;
             }
         }
+    }
+
+    public const ASSET_TAG_UNIQUE_INDEX = 'assets_asset_tag_unique';
+
+    /**
+     * Laravel's MySQL driver never populates $e->columns — MySQL's own error message
+     * names only the unique index, not the column(s) behind it, so MySqlConnection's
+     * parser always returns an empty columns array (see parseUniqueConstraintViolation
+     * in MySqlConnection vs. SQLiteConnection). Checking $e->columns alone works against
+     * the test suite's SQLite connection but never matches on production's real MySQL
+     * connection, silently disabling this entire retry path there. Check $e->index too.
+     */
+    public static function isAssetTagCollision(UniqueConstraintViolationException $e): bool
+    {
+        return in_array('asset_tag', $e->columns, true) || $e->index === self::ASSET_TAG_UNIQUE_INDEX;
     }
 
     public function category(): BelongsTo

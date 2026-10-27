@@ -43,6 +43,31 @@ it('retries asset_tag generation when a concurrent insert takes the computed tag
     expect($asset->asset_tag)->toBe('IT-0003');
 });
 
+it('recognizes an asset_tag collision reported the MySQL way (index, no columns)', function () {
+    // The test suite runs on SQLite, which populates $e->columns — but production runs
+    // MySQL, whose driver never does (see Asset::isAssetTagCollision's docblock). Without
+    // this test, a SQLite-only run of the real retry-in-save() test above can't catch a
+    // regression that breaks the retry specifically on MySQL.
+    $exception = new UniqueConstraintViolationException('mysql', 'insert ...', [], new Exception());
+    $exception->setColumns([])->setIndex(Asset::ASSET_TAG_UNIQUE_INDEX);
+
+    expect(Asset::isAssetTagCollision($exception))->toBeTrue();
+});
+
+it('recognizes an asset_tag collision reported the SQLite way (columns, no index)', function () {
+    $exception = new UniqueConstraintViolationException('sqlite', 'insert ...', [], new Exception());
+    $exception->setColumns(['asset_tag'])->setIndex(null);
+
+    expect(Asset::isAssetTagCollision($exception))->toBeTrue();
+});
+
+it('does not treat an unrelated unique collision as an asset_tag collision', function () {
+    $exception = new UniqueConstraintViolationException('mysql', 'insert ...', [], new Exception());
+    $exception->setColumns([])->setIndex('assets_serial_number_unique');
+
+    expect(Asset::isAssetTagCollision($exception))->toBeFalse();
+});
+
 it('does not retry when an explicit asset_tag collides', function () {
     Asset::factory()->create(['asset_tag' => 'CUSTOM-001']);
 
