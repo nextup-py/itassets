@@ -17,7 +17,14 @@ class Setting extends Model
     {
         $setting = static::where('key', $key)->first();
 
-        if (! $setting) {
+        // `value` is a nullable column (database/migrations/*_create_settings_table.php),
+        // so a row can exist with a literal NULL value — not just be absent entirely. A row
+        // like that must fall back to $default exactly like a missing row does, or every
+        // caller passing a sane default (most of them) silently gets null back forever once
+        // one bad write happens, with no error until something downstream chokes on it (this
+        // is what broke `FilamentTimezone::set()`/the scheduler's `->timezone()` closures in
+        // production: a stale NULL 'timezone' row fed `Carbon::setTimezone(null)`).
+        if (! $setting || $setting->value === null) {
             return $default;
         }
 
