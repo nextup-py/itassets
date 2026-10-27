@@ -17,17 +17,20 @@ class ViewMaintenanceRecord extends ViewRecord
     {
         return [
             Action::make('complete')
-                ->label('Marcar completado')
+                ->label('Completar (disponible)')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->authorize('update_maintenance_record')
                 ->visible(fn (MaintenanceRecord $record): bool => $record->status !== 'completed')
                 ->requiresConfirmation()
+                ->modalDescription('El activo quedará disponible. Si el resultado es baja o pérdida, completá el mantenimiento desde la acción "Editar".')
                 ->action(function (MaintenanceRecord $record): void {
                     $record->update([
                         'status' => 'completed',
                         'completed_at' => $record->completed_at ?? now(),
                     ]);
+
+                    $record->asset?->update(['status' => 'available']);
 
                     Notification::make()->success()->title('Mantenimiento marcado como completado')->send();
                 }),

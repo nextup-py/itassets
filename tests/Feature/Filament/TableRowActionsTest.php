@@ -145,14 +145,16 @@ it('hides the renew action from viewers', function () {
 
 it('marks a maintenance record as completed from the table row action', function () {
     loginAsAdmin();
-    $record = MaintenanceRecord::factory()->inProgress()->create();
+    $asset = Asset::factory()->maintenance()->create();
+    $record = MaintenanceRecord::factory()->inProgress()->for($asset)->create();
 
     Livewire::test(ListMaintenanceRecords::class)
         ->callTableAction('complete', $record)
         ->assertNotified();
 
     expect($record->refresh()->status)->toBe('completed')
-        ->and($record->completed_at)->not->toBeNull();
+        ->and($record->completed_at)->not->toBeNull()
+        ->and($asset->refresh()->status)->toBe('available');
 });
 
 it('hides complete on an already-completed maintenance record', function () {

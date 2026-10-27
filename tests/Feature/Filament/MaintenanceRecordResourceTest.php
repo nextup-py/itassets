@@ -206,14 +206,42 @@ it('filters prolonged maintenance records (more than 7 days old, still open)', f
 });
 
 it('marks a maintenance record as completed from the view page header action', function () {
-    $record = MaintenanceRecord::factory()->inProgress()->create();
+    $asset = Asset::factory()->maintenance()->create();
+    $record = MaintenanceRecord::factory()->inProgress()->for($asset)->create();
 
     Livewire::test(ViewMaintenanceRecord::class, ['record' => $record->getRouteKey()])
         ->callAction('complete')
         ->assertNotified();
 
     expect($record->refresh()->status)->toBe('completed')
-        ->and($record->completed_at)->not->toBeNull();
+        ->and($record->completed_at)->not->toBeNull()
+        ->and($asset->refresh()->status)->toBe('available');
+});
+
+it('does not leave a spurious "available" audit entry when completing with a different resulting status', function () {
+    $asset = Asset::factory()->maintenance()->create();
+    $record = MaintenanceRecord::factory()->inProgress()->for($asset)->create();
+
+    Livewire::test(EditMaintenanceRecord::class, ['record' => $record->getRouteKey()])
+        ->fillForm([
+            'status' => 'completed',
+            'new_asset_status' => 'retired',
+            'completed_at' => now()->toDateString(),
+            'resolution' => 'Equipo dado de baja',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($asset->fresh()->status)->toBe('retired');
+
+    $statusChanges = \Spatie\Activitylog\Models\Activity::forSubject($asset)
+        ->get()
+        ->pluck('properties.attributes.status')
+        ->filter()
+        ->values();
+
+    expect($statusChanges)->toContain('retired')
+        ->and($statusChanges)->not->toContain('available');
 });
 
 it('hides the complete header action on an already-completed maintenance record', function () {

@@ -95,12 +95,6 @@ class MaintenanceRecord extends Model
             }
         });
 
-        static::updated(function (MaintenanceRecord $record) {
-            if ($record->wasChanged('status') && $record->status === 'completed' && $record->asset) {
-                $record->asset->update(['status' => 'available']);
-            }
-        });
-
         static::deleted(function (MaintenanceRecord $record) {
             if ($record->status !== 'completed' && $record->asset && $record->asset->status === 'maintenance') {
                 $stillActive = static::where('asset_id', $record->asset_id)
