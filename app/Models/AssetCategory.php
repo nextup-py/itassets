@@ -32,6 +32,11 @@ class AssetCategory extends Model
         return $this->hasMany(Asset::class);
     }
 
+    public function supplies(): HasMany
+    {
+        return $this->hasMany(Supply::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

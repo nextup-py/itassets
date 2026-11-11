@@ -31,6 +31,16 @@ class LocationInfolist
                         TextEntry::make('room')
                             ->label('Sala / Área')
                             ->placeholder('—'),
+
+                        TextEntry::make('assets_count')
+                            ->label('Activos')
+                            ->state(fn ($record) => $record->assets()->count())
+                            ->badge(),
+
+                        TextEntry::make('supplies_count')
+                            ->label('Insumos')
+                            ->state(fn ($record) => $record->supplies()->count())
+                            ->badge(),
                     ])
                     ->columns(3),
 

@@ -4,8 +4,10 @@ use App\Filament\Resources\AssetCategories\Pages\CreateAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\RelationManagers\AssetsRelationManager;
+use App\Filament\Resources\AssetCategories\RelationManagers\SuppliesRelationManager;
 use App\Models\Asset;
 use App\Models\AssetCategory;
+use App\Models\Supply;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -128,6 +130,25 @@ it('shows the asset count on the category view page', function () {
 
     Livewire::test(ViewAssetCategory::class, ['record' => $category->getRouteKey()])
         ->assertSee('2');
+});
+
+it('shows the supplies belonging to the category in the Insumos tab', function () {
+    $category = AssetCategory::factory()->create();
+    $supply = Supply::factory()->create(['asset_category_id' => $category->id]);
+    Supply::factory()->create();
+
+    Livewire::test(SuppliesRelationManager::class, [
+        'ownerRecord' => $category,
+        'pageClass' => ViewAssetCategory::class,
+    ])->assertCanSeeTableRecords([$supply]);
+});
+
+it('shows the supply count on the category view page', function () {
+    $category = AssetCategory::factory()->create();
+    Supply::factory()->count(3)->create(['asset_category_id' => $category->id]);
+
+    Livewire::test(ViewAssetCategory::class, ['record' => $category->getRouteKey()])
+        ->assertSee('3');
 });
 
 it('creates an asset category marked as a mobile device category', function () {

@@ -5,8 +5,10 @@ use App\Filament\Resources\Locations\Pages\EditLocation;
 use App\Filament\Resources\Locations\Pages\ListLocations;
 use App\Filament\Resources\Locations\Pages\ViewLocation;
 use App\Filament\Resources\Locations\RelationManagers\AssetsRelationManager;
+use App\Filament\Resources\Locations\RelationManagers\SuppliesRelationManager;
 use App\Models\Asset;
 use App\Models\Location;
+use App\Models\Supply;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -134,4 +136,25 @@ it('has no create/edit/delete actions on the Activos tab (read-only)', function 
         ->assertTableActionDoesNotExist('create')
         ->assertTableActionDoesNotExist('edit')
         ->assertTableActionDoesNotExist('delete');
+});
+
+it('shows the supplies belonging to the location in the Insumos tab', function () {
+    $location = Location::factory()->create();
+    $supply = Supply::factory()->create(['location_id' => $location->id]);
+    Supply::factory()->create();
+
+    Livewire::test(SuppliesRelationManager::class, [
+        'ownerRecord' => $location,
+        'pageClass' => ViewLocation::class,
+    ])->assertCanSeeTableRecords([$supply]);
+});
+
+it('shows the asset and supply counts on the location view page', function () {
+    $location = Location::factory()->create();
+    Asset::factory()->count(2)->create(['location_id' => $location->id]);
+    Supply::factory()->count(3)->create(['location_id' => $location->id]);
+
+    Livewire::test(ViewLocation::class, ['record' => $location->getRouteKey()])
+        ->assertSee('2')
+        ->assertSee('3');
 });

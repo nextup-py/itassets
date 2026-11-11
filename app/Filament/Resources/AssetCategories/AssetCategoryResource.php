@@ -8,6 +8,7 @@ use App\Filament\Resources\AssetCategories\Pages\EditAssetCategory;
 use App\Filament\Resources\AssetCategories\Pages\ListAssetCategories;
 use App\Filament\Resources\AssetCategories\Pages\ViewAssetCategory;
 use App\Filament\Resources\AssetCategories\RelationManagers\AssetsRelationManager;
+use App\Filament\Resources\AssetCategories\RelationManagers\SuppliesRelationManager;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryInfolist;
 use App\Filament\Resources\AssetCategories\Tables\AssetCategoriesTable;
@@ -62,6 +63,7 @@ class AssetCategoryResource extends Resource
     {
         return [
             AssetsRelationManager::class,
+            SuppliesRelationManager::class,
             ActivityRelationManager::class,
         ];
     }

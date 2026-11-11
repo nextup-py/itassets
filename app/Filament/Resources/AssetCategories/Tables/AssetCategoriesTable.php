@@ -37,6 +37,12 @@ class AssetCategoriesTable
                     ->counts('assets')
                     ->sortable(),
 
+                TextColumn::make('supplies_count')
+                    ->label('Insumos')
+                    ->counts('supplies')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->date(current_date_format())
