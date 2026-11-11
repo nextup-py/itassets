@@ -16,6 +16,7 @@ class SupplyAdjustment extends Model
     protected $fillable = [
         'supply_id',
         'quantity',
+        'target',
         'reason',
         'notes',
         'created_by',
@@ -33,9 +34,28 @@ class SupplyAdjustment extends Model
         'other' => 'Otro',
     ];
 
+    // Reasons for the 'damaged' target only (disposing of units already sitting
+    // in quantity_damaged) — distinct from REASONS above, which explain how a
+    // unit left quantity_available in the first place.
+    public const DISPOSAL_REASONS = [
+        'disposed' => 'Descartado',
+        'returned_to_supplier' => 'Devuelto al proveedor',
+        'other' => 'Otro',
+    ];
+
+    public const TARGETS = [
+        'available' => 'Stock disponible',
+        'damaged' => 'Insumos dañados',
+    ];
+
     public function getReasonLabel(): string
     {
-        return self::REASONS[$this->reason] ?? $this->reason;
+        return self::REASONS[$this->reason] ?? self::DISPOSAL_REASONS[$this->reason] ?? $this->reason;
+    }
+
+    public function getTargetLabel(): string
+    {
+        return self::TARGETS[$this->target] ?? $this->target;
     }
 
     public function supply(): BelongsTo

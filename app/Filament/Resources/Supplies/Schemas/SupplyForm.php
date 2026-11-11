@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Supplies\Schemas;
 use App\Filament\Resources\AssetCategories\Schemas\AssetCategoryForm;
 use App\Filament\Resources\Locations\Schemas\LocationForm;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
+use App\Models\Supply;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,6 +42,10 @@ class SupplyForm
                             ->numeric()
                             ->minValue(0)
                             ->default(0)
+                            ->disabled(fn (?Supply $record): bool => $record !== null)
+                            ->helperText(fn (?Supply $record): ?string => $record !== null
+                                ? 'No se puede editar directamente: usá "Registrar movimiento" o "Baja manual" para que quede en el historial.'
+                                : null)
                             ->columnSpan(1),
 
                         Select::make('supplier_id')

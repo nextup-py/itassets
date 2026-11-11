@@ -70,23 +70,38 @@ class ViewSupply extends ViewRecord
 
                     Select::make('employee_id')
                         ->label('Empleado')
-                        ->options(Employee::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
                         ->searchable()
                         ->required()
+                        ->getSearchResultsUsing(fn (string $search): array => Employee::where('is_active', true)
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => Employee::find($value)?->name)
                         ->visible(fn (Get $get) => $get('recipient_type') === 'employee'),
 
                     Select::make('department_id')
                         ->label('Área')
-                        ->options(Department::pluck('name', 'id'))
                         ->searchable()
                         ->required()
+                        ->getSearchResultsUsing(fn (string $search): array => Department::where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => Department::find($value)?->name)
                         ->visible(fn (Get $get) => $get('recipient_type') === 'department'),
 
                     Select::make('received_supply_id')
                         ->label('Insumo recibido (dañado / para revisar)')
                         ->helperText('En blanco = el mismo insumo, en su lote de dañados.')
-                        ->options(fn () => Supply::query()->where('id', '!=', $this->record->id)->pluck('name', 'id'))
                         ->searchable()
+                        ->getSearchResultsUsing(fn (string $search): array => Supply::query()
+                            ->where('id', '!=', $this->record->id)
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray())
+                        ->getOptionLabelUsing(fn ($value): ?string => Supply::find($value)?->name)
                         ->visible(fn (Get $get) => $get('type') === 'reemplazo'),
 
                     DatePicker::make('performed_at')
@@ -140,7 +155,7 @@ class ViewSupply extends ViewRecord
                 ])
                 ->action(function (array $data) use ($adjustmentService): void {
                     try {
-                        $adjustmentService->register($this->record, $data);
+                        $adjustmentService->register($this->record, ['target' => 'available', ...$data]);
                     } catch (RuntimeException $e) {
                         Notification::make()->danger()->title('No se pudo registrar la baja')->body($e->getMessage())->send();
 
@@ -150,6 +165,45 @@ class ViewSupply extends ViewRecord
                     $this->record->refresh();
 
                     Notification::make()->success()->title('Baja registrada correctamente')->send();
+                }),
+
+            Action::make('disposeDamaged')
+                ->label('Disponer de dañados')
+                ->icon('heroicon-o-trash')
+                ->color('gray')
+                ->authorize('update_supply')
+                ->visible(fn () => $this->record->quantity_damaged > 0)
+                ->requiresConfirmation()
+                ->form([
+                    TextInput::make('quantity')
+                        ->label('Cantidad a disponer')
+                        ->required()
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(fn () => $this->record->quantity_damaged)
+                        ->default(1),
+
+                    Select::make('reason')
+                        ->label('Motivo')
+                        ->options(SupplyAdjustment::DISPOSAL_REASONS)
+                        ->required(),
+
+                    Textarea::make('notes')
+                        ->label('Notas')
+                        ->rows(2),
+                ])
+                ->action(function (array $data) use ($adjustmentService): void {
+                    try {
+                        $adjustmentService->register($this->record, ['target' => 'damaged', ...$data]);
+                    } catch (RuntimeException $e) {
+                        Notification::make()->danger()->title('No se pudo registrar la disposición')->body($e->getMessage())->send();
+
+                        return;
+                    }
+
+                    $this->record->refresh();
+
+                    Notification::make()->success()->title('Disposición registrada correctamente')->send();
                 }),
 
             EditAction::make(),

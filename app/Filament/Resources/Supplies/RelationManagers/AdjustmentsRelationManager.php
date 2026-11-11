@@ -22,6 +22,12 @@ class AdjustmentsRelationManager extends RelationManager
                 TextColumn::make('quantity')
                     ->label('Cantidad'),
 
+                TextColumn::make('target')
+                    ->label('Sobre')
+                    ->badge()
+                    ->formatStateUsing(fn (SupplyAdjustment $record): string => $record->getTargetLabel())
+                    ->color(fn (string $state): string => $state === 'damaged' ? 'warning' : 'gray'),
+
                 TextColumn::make('reason')
                     ->label('Motivo')
                     ->badge()

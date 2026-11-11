@@ -3,7 +3,9 @@
 use App\Filament\Resources\Supplies\Pages\CreateSupply;
 use App\Filament\Resources\Supplies\Pages\EditSupply;
 use App\Filament\Resources\Supplies\Pages\ListSupplies;
+use App\Filament\Resources\Supplies\Pages\ViewSupply;
 use App\Models\AssetCategory;
+use App\Models\Employee;
 use App\Models\Supply;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -56,6 +58,17 @@ it('edits a supply', function () {
     expect($supply->fresh()->name)->toBe('Updated name');
 });
 
+it('ignores a changed quantity_available when editing an existing supply', function () {
+    $supply = Supply::factory()->create(['quantity_available' => 5]);
+
+    Livewire::test(EditSupply::class, ['record' => $supply->getRouteKey()])
+        ->fillForm(['quantity_available' => 999])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($supply->fresh()->quantity_available)->toBe(5);
+});
+
 it('denies viewer from creating a supply', function () {
     loginAsViewer();
 
@@ -86,6 +99,45 @@ it('hides the export action from editors (who lack export_report)', function () 
     $this->actingAs($editor);
 
     Livewire::test(ListSupplies::class)->assertActionHidden('exportSupplies');
+});
+
+it('registers a movement to an employee from the view page', function () {
+    $supply = Supply::factory()->create(['quantity_available' => 10]);
+    $employee = Employee::factory()->create(['is_active' => true]);
+
+    Livewire::test(ViewSupply::class, ['record' => $supply->getRouteKey()])
+        ->callAction('registerMovement', data: [
+            'type' => 'entrega',
+            'quantity' => 2,
+            'recipient_type' => 'employee',
+            'employee_id' => $employee->id,
+            'performed_at' => now()->toDateString(),
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($supply->fresh()->quantity_available)->toBe(8);
+});
+
+it('disposes of damaged stock from the view page', function () {
+    $supply = Supply::factory()->create(['quantity_available' => 10, 'quantity_damaged' => 3]);
+
+    Livewire::test(ViewSupply::class, ['record' => $supply->getRouteKey()])
+        ->callAction('disposeDamaged', data: [
+            'quantity' => 2,
+            'reason' => 'disposed',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($supply->fresh())
+        ->quantity_available->toBe(10)
+        ->quantity_damaged->toBe(1);
+});
+
+it('hides disposeDamaged when there is no damaged stock', function () {
+    $supply = Supply::factory()->create(['quantity_damaged' => 0]);
+
+    Livewire::test(ViewSupply::class, ['record' => $supply->getRouteKey()])
+        ->assertActionHidden('disposeDamaged');
 });
 
 it('imports supplies from a real uploaded file through the importSupplies action', function () {
