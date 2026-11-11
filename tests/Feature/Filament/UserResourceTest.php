@@ -134,6 +134,26 @@ it('allows deactivating a user who is not the last active admin', function () {
     expect($otherAdmin->fresh()->is_active)->toBeFalse();
 });
 
+it('lets an admin reset another locked-out admin\'s 2FA', function () {
+    $lockedOutAdmin = User::factory()->admin()->create();
+    $lockedOutAdmin->saveAppAuthenticationRecoveryCodes(['one-time-code']);
+
+    Livewire::test(EditUser::class, ['record' => $lockedOutAdmin->getRouteKey()])
+        ->callAction('resetTwoFactor')
+        ->assertNotified();
+
+    $lockedOutAdmin->refresh();
+    expect($lockedOutAdmin->getAppAuthenticationSecret())->toBeNull()
+        ->and($lockedOutAdmin->getAppAuthenticationRecoveryCodes())->toBeNull();
+});
+
+it('hides resetTwoFactor when the user has no 2FA secret set', function () {
+    $target = User::factory()->viewer()->create();
+
+    Livewire::test(EditUser::class, ['record' => $target->getRouteKey()])
+        ->assertActionHidden('resetTwoFactor');
+});
+
 it('records the last login time when a user logs in', function () {
     $user = User::factory()->viewer()->create(['last_login_at' => null]);
 

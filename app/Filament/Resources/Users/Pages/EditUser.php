@@ -58,6 +58,30 @@ class EditUser extends EditRecord
 
                     $record->update(['is_active' => false]);
                 }),
+
+            // Recovery codes exist specifically because there's no support staff to
+            // fall back on if an Admin loses their authenticator device (see
+            // AdminPanelProvider) -- but nothing covered losing the recovery codes
+            // too. Without this, that's an unrecoverable lockout short of editing
+            // the database directly on the server.
+            Action::make('resetTwoFactor')
+                ->label('Restablecer 2FA')
+                ->icon('heroicon-o-shield-exclamation')
+                ->color('warning')
+                ->authorize('update_user')
+                ->requiresConfirmation()
+                ->modalDescription('El usuario deberá configurar la autenticación de dos factores nuevamente en su próximo inicio de sesión.')
+                ->visible(fn (User $record): bool => $record->getAppAuthenticationSecret() !== null)
+                ->action(function (User $record): void {
+                    $record->saveAppAuthenticationSecret(null);
+                    $record->saveAppAuthenticationRecoveryCodes(null);
+
+                    Notification::make()
+                        ->success()
+                        ->title('2FA restablecido')
+                        ->body('El usuario deberá configurarlo nuevamente en su próximo inicio de sesión.')
+                        ->send();
+                }),
         ];
     }
 
