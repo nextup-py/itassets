@@ -59,6 +59,16 @@ class SupplierInfolist
                             ->label('Mantenimientos realizados')
                             ->state(fn ($record) => $record->maintenanceRecords()->count())
                             ->badge(),
+
+                        TextEntry::make('service_contracts_count')
+                            ->label('Contratos de servicio')
+                            ->state(fn ($record) => $record->serviceContracts()->count())
+                            ->badge(),
+
+                        TextEntry::make('supplies_count')
+                            ->label('Insumos provistos')
+                            ->state(fn ($record) => $record->supplies()->count())
+                            ->badge(),
                     ])
                     ->columns(3),
 
