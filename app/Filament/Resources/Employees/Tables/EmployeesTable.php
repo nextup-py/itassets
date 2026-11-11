@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Tables;
 
+use App\Models\Department;
 use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -97,12 +98,22 @@ class EmployeesTable
                     ->authorize('update_employee')
                     ->requiresConfirmation()
                     ->action(function (Employee $record): void {
+                        $wasContactForDepartments = Department::where('contact_employee_id', $record->id)->pluck('name');
+
                         $record->update(['is_active' => ! $record->is_active]);
 
                         Notification::make()
                             ->success()
                             ->title($record->is_active ? 'Empleado activado' : 'Empleado desactivado')
                             ->send();
+
+                        if (! $record->is_active && $wasContactForDepartments->isNotEmpty()) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Era contacto de departamento')
+                                ->body('Este empleado es el contacto de: ' . $wasContactForDepartments->implode(', ') . '. Ya no recibirá los documentos de asignación de esos departamentos; asigná otro contacto si corresponde.')
+                                ->send();
+                        }
                     }),
             ])
             ->defaultSort('name');

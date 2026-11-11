@@ -25,6 +25,23 @@ class EditDepartment extends EditRecord
                             ->send();
 
                         $action->halt();
+
+                        return;
+                    }
+
+                    // Assignment.department_id and SupplyMovement.department_id
+                    // are both restrictOnDelete() too (same as employees.department_id
+                    // above) — without this check, a department with no employees
+                    // but existing department-level assignments/movements would
+                    // reach the DB and throw a raw, unhandled QueryException.
+                    if ($record->assignments()->exists() || $record->supplyMovements()->exists()) {
+                        Notification::make()
+                            ->danger()
+                            ->title('No se puede eliminar')
+                            ->body('Este departamento tiene asignaciones de activos o movimientos de insumos asociados.')
+                            ->send();
+
+                        $action->halt();
                     }
                 }),
         ];

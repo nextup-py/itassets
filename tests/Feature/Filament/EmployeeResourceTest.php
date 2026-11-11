@@ -397,3 +397,30 @@ it('hides the newAssignment action from viewers (who lack create_assignment)', f
     Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
         ->assertActionHidden('newAssignment');
 });
+
+it('hides the newAssignment action for an inactive employee', function () {
+    $employee = Employee::factory()->create(['is_active' => false]);
+
+    Livewire::test(ViewEmployee::class, ['record' => $employee->getRouteKey()])
+        ->assertActionHidden('newAssignment');
+});
+
+it('warns when deactivating an employee who is a department contact', function () {
+    $employee = Employee::factory()->create();
+    Department::factory()->create(['name' => 'Infraestructura', 'contact_employee_id' => $employee->id]);
+
+    Livewire::test(ListEmployees::class)
+        ->callTableAction('toggleActive', $employee)
+        ->assertNotified();
+
+    expect($employee->fresh()->is_active)->toBeFalse();
+});
+
+it('does not warn when deactivating an employee who is not a department contact', function () {
+    $employee = Employee::factory()->create();
+
+    Livewire::test(ListEmployees::class)
+        ->callTableAction('toggleActive', $employee);
+
+    expect($employee->fresh()->is_active)->toBeFalse();
+});

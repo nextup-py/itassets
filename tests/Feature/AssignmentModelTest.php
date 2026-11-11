@@ -115,3 +115,44 @@ it('marks assets as available when returned', function () {
     $assignment->update(['returned_at' => now()]);
     expect($asset->fresh()->status)->toBe('available');
 });
+
+it('restores asset status when the assignment itself is deleted, not just returned', function () {
+    $asset = Asset::factory()->available()->create();
+    $assignment = Assignment::factory()->create();
+
+    $assignment->assets()->attach($asset->id, [
+        'assigned_at' => now(),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    expect($asset->fresh()->status)->toBe('assigned');
+
+    $assignment->delete();
+
+    expect($asset->fresh()->status)->toBe('available');
+});
+
+it('rejects a new assignment to an inactive employee', function () {
+    $employee = Employee::factory()->create(['is_active' => false]);
+
+    expect(fn () => Assignment::factory()->create(['employee_id' => $employee->id]))
+        ->toThrow(InvalidArgumentException::class);
+});
+
+it('allows editing an existing assignment untouched by employee_id even if that employee later became inactive', function () {
+    $employee = Employee::factory()->create();
+    $assignment = Assignment::factory()->create(['employee_id' => $employee->id]);
+    $employee->update(['is_active' => false]);
+
+    $assignment->update(['notes' => 'Updated after employee went inactive']);
+
+    expect($assignment->fresh()->notes)->toBe('Updated after employee went inactive');
+});
+
+it('treats an inactive department contact as no contact for notification purposes', function () {
+    $contact = Employee::factory()->create(['is_active' => false]);
+    $department = Department::factory()->create(['contact_employee_id' => $contact->id]);
+    $assignment = Assignment::factory()->toDepartment()->create(['department_id' => $department->id]);
+
+    expect($assignment->recipientEmployee())->toBeNull();
+});
