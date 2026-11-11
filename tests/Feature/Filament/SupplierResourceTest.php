@@ -7,10 +7,13 @@ use App\Filament\Resources\Suppliers\Pages\ViewSupplier;
 use App\Filament\Resources\Suppliers\RelationManagers\AssetsRelationManager;
 use App\Filament\Resources\Suppliers\RelationManagers\LicensesRelationManager;
 use App\Filament\Resources\Suppliers\RelationManagers\MaintenanceRecordsRelationManager;
+use App\Filament\Resources\Suppliers\RelationManagers\SuppliesRelationManager;
 use App\Models\Asset;
 use App\Models\License;
 use App\Models\MaintenanceRecord;
+use App\Models\ServiceContract;
 use App\Models\Supplier;
+use App\Models\Supply;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -185,4 +188,59 @@ it('shows asset, license and maintenance record counts on the supplier view page
         ->assertSee('2')
         ->assertSee('1')
         ->assertSee('3');
+});
+
+it('shows the supplies belonging to the supplier in the Insumos tab', function () {
+    $supplier = Supplier::factory()->create();
+    $supply = Supply::factory()->create(['supplier_id' => $supplier->id]);
+    Supply::factory()->create();
+
+    Livewire::test(SuppliesRelationManager::class, [
+        'ownerRecord' => $supplier,
+        'pageClass' => ViewSupplier::class,
+    ])->assertCanSeeTableRecords([$supply]);
+});
+
+it('has no create/edit/delete actions on the Insumos tab (read-only)', function () {
+    $supplier = Supplier::factory()->create();
+
+    Livewire::test(SuppliesRelationManager::class, [
+        'ownerRecord' => $supplier,
+        'pageClass' => ViewSupplier::class,
+    ])
+        ->assertTableActionDoesNotExist('create')
+        ->assertTableActionDoesNotExist('edit')
+        ->assertTableActionDoesNotExist('delete');
+});
+
+it('shows service contract and supply counts on the supplier view page', function () {
+    $supplier = Supplier::factory()->create();
+    ServiceContract::factory()->count(2)->create(['supplier_id' => $supplier->id]);
+    Supply::factory()->count(4)->create(['supplier_id' => $supplier->id]);
+
+    Livewire::test(ViewSupplier::class, ['record' => $supplier->getRouteKey()])
+        ->assertSee('2')
+        ->assertSee('4');
+});
+
+it('allows deleting a supplier with associated supplies, nulling the FK', function () {
+    $supplier = Supplier::factory()->create();
+    $supply = Supply::factory()->create(['supplier_id' => $supplier->id]);
+
+    Livewire::test(EditSupplier::class, ['record' => $supplier->getRouteKey()])
+        ->callAction('delete');
+
+    expect(Supplier::find($supplier->id))->toBeNull()
+        ->and($supply->fresh()->supplier_id)->toBeNull();
+});
+
+it('refuses to delete a supplier with associated service contracts', function () {
+    $supplier = Supplier::factory()->create();
+    ServiceContract::factory()->create(['supplier_id' => $supplier->id]);
+
+    Livewire::test(EditSupplier::class, ['record' => $supplier->getRouteKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    expect(Supplier::find($supplier->id))->not->toBeNull();
 });
