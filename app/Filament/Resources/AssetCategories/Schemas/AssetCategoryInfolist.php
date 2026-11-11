@@ -23,8 +23,13 @@ class AssetCategoryInfolist
                             ->label('Activos')
                             ->state(fn ($record) => $record->assets()->count())
                             ->badge(),
+
+                        TextEntry::make('supplies_count')
+                            ->label('Insumos')
+                            ->state(fn ($record) => $record->supplies()->count())
+                            ->badge(),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Descripción')
                     ->icon('heroicon-o-document-text')
