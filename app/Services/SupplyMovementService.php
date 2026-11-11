@@ -18,11 +18,17 @@ class SupplyMovementService
     {
         $quantity = (int) $data['quantity'];
 
-        if ($quantity > $supply->quantity_available) {
-            throw new RuntimeException("No hay stock suficiente de \"{$supply->name}\" (disponible: {$supply->quantity_available}).");
-        }
-
         return DB::transaction(function () use ($supply, $data, $quantity) {
+            // Locked re-read: two concurrent registrations against the same supply,
+            // both near its stock limit, could otherwise each pass a stale check
+            // before either commits and over-draw it, the same class of race
+            // LicenseAssignment::save() locks the parent License against.
+            $supply = Supply::whereKey($supply->id)->lockForUpdate()->first();
+
+            if ($quantity > $supply->quantity_available) {
+                throw new RuntimeException("No hay stock suficiente de \"{$supply->name}\" (disponible: {$supply->quantity_available}).");
+            }
+
             $supply->decrement('quantity_available', $quantity);
 
             if ($data['type'] === 'reemplazo') {

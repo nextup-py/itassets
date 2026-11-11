@@ -12,17 +12,24 @@ class SupplyAdjustmentService
     public function register(Supply $supply, array $data): SupplyAdjustment
     {
         $quantity = (int) $data['quantity'];
+        $target = $data['target'] ?? 'available';
+        $column = $target === 'damaged' ? 'quantity_damaged' : 'quantity_available';
 
-        if ($quantity > $supply->quantity_available) {
-            throw new RuntimeException("No hay stock suficiente de \"{$supply->name}\" para dar de baja (disponible: {$supply->quantity_available}).");
-        }
+        return DB::transaction(function () use ($supply, $data, $quantity, $target, $column) {
+            // Locked re-read, same reasoning as SupplyMovementService::register().
+            $supply = Supply::whereKey($supply->id)->lockForUpdate()->first();
 
-        return DB::transaction(function () use ($supply, $data, $quantity) {
-            $supply->decrement('quantity_available', $quantity);
+            if ($quantity > $supply->{$column}) {
+                $label = $target === 'damaged' ? 'insumos dañados' : 'stock';
+                throw new RuntimeException("No hay suficiente {$label} de \"{$supply->name}\" para dar de baja (disponible: {$supply->{$column}}).");
+            }
+
+            $supply->decrement($column, $quantity);
 
             return SupplyAdjustment::create([
                 'supply_id' => $supply->id,
                 'quantity' => $quantity,
+                'target' => $target,
                 'reason' => $data['reason'],
                 'notes' => $data['notes'] ?? null,
             ]);

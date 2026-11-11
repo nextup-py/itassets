@@ -29,3 +29,28 @@ it('refuses to adjust more than the available stock', function () {
         'reason' => 'damage',
     ]);
 })->throws(RuntimeException::class);
+
+it('disposes of damaged stock without touching quantity_available', function () {
+    $supply = Supply::factory()->create(['quantity_available' => 10, 'quantity_damaged' => 4]);
+
+    $adjustment = app(SupplyAdjustmentService::class)->register($supply, [
+        'quantity' => 3,
+        'target' => 'damaged',
+        'reason' => 'disposed',
+    ]);
+
+    expect($supply->fresh())
+        ->quantity_available->toBe(10)
+        ->quantity_damaged->toBe(1);
+    expect($adjustment->target)->toBe('damaged');
+});
+
+it('refuses to dispose of more damaged stock than is on hand', function () {
+    $supply = Supply::factory()->create(['quantity_damaged' => 2]);
+
+    app(SupplyAdjustmentService::class)->register($supply, [
+        'quantity' => 5,
+        'target' => 'damaged',
+        'reason' => 'disposed',
+    ]);
+})->throws(RuntimeException::class);

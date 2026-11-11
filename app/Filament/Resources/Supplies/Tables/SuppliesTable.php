@@ -105,7 +105,7 @@ class SuppliesTable
                     ])
                     ->action(function (Supply $record, array $data): void {
                         try {
-                            app(SupplyAdjustmentService::class)->register($record, $data);
+                            app(SupplyAdjustmentService::class)->register($record, ['target' => 'available', ...$data]);
                         } catch (RuntimeException $e) {
                             Notification::make()->danger()->title('No se pudo registrar la baja')->body($e->getMessage())->send();
 
@@ -113,6 +113,43 @@ class SuppliesTable
                         }
 
                         Notification::make()->success()->title('Baja registrada correctamente')->send();
+                    }),
+
+                Action::make('disposeDamaged')
+                    ->label('Disponer de dañados')
+                    ->icon('heroicon-o-trash')
+                    ->color('gray')
+                    ->authorize('update_supply')
+                    ->visible(fn (Supply $record): bool => $record->quantity_damaged > 0)
+                    ->requiresConfirmation()
+                    ->form([
+                        TextInput::make('quantity')
+                            ->label('Cantidad a disponer')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(fn (Supply $record) => $record->quantity_damaged)
+                            ->default(1),
+
+                        Select::make('reason')
+                            ->label('Motivo')
+                            ->options(SupplyAdjustment::DISPOSAL_REASONS)
+                            ->required(),
+
+                        Textarea::make('notes')
+                            ->label('Notas')
+                            ->rows(2),
+                    ])
+                    ->action(function (Supply $record, array $data): void {
+                        try {
+                            app(SupplyAdjustmentService::class)->register($record, ['target' => 'damaged', ...$data]);
+                        } catch (RuntimeException $e) {
+                            Notification::make()->danger()->title('No se pudo registrar la disposición')->body($e->getMessage())->send();
+
+                            return;
+                        }
+
+                        Notification::make()->success()->title('Disposición registrada correctamente')->send();
                     }),
             ])
             ->defaultSort('name');

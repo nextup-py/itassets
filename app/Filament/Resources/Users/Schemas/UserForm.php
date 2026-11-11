@@ -7,6 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rules\Password;
 
 class UserForm
 {
@@ -34,11 +35,12 @@ class UserForm
                     ->password()
                     ->revealable()
                     ->required(fn ($livewire) => $livewire instanceof CreateRecord)
-                    ->minLength(8)
+                    ->rule(Password::default())
+                    ->showAllValidationMessages()
                     ->same('password_confirmation')
                     ->dehydrated(fn ($state) => filled($state))
                     ->placeholder('Dejar vacío para mantener actual')
-                    ->helperText('Mínimo 8 caracteres.')
+                    ->helperText('Mínimo 10 caracteres, mayúsculas y minúsculas, al menos un número.')
                     ->maxLength(255)
                     ->columnSpan(1),
 
