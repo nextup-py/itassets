@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -48,5 +49,14 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Applies to every password Laravel/Filament validates against Password::default()
+        // (Filament's own profile-edit and password-reset pages already use it; UserForm
+        // does too). Kept lenient outside production so local dev/tests aren't slowed down
+        // by the uncompromised() check's outbound HTTP call, and so existing test fixtures
+        // (e.g. 'password123') don't need to satisfy the stricter policy.
+        Password::defaults(fn () => $this->app->environment('production')
+            ? Password::min(10)->mixedCase()->numbers()->uncompromised()
+            : Password::min(8));
     }
 }
