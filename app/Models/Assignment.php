@@ -42,6 +42,29 @@ class Assignment extends Model
             if (! empty($assignment->employee_id) && ! empty($assignment->department_id)) {
                 throw new \InvalidArgumentException('Una asignación no puede tener empleado y departamento a la vez.');
             }
+
+            // Only re-validate when employee_id is actually being set (a new
+            // assignment, or a recipient change on an existing one) — an
+            // untouched assignment whose employee later became inactive must
+            // still be editable (e.g. to register its return).
+            if (! empty($assignment->employee_id) && (! $assignment->exists || $assignment->isDirty('employee_id'))) {
+                $isActive = Employee::whereKey($assignment->employee_id)->where('is_active', true)->exists();
+
+                if (! $isActive) {
+                    throw new \InvalidArgumentException('No se puede asignar un activo a un empleado inactivo.');
+                }
+            }
+        });
+
+        // assignment_asset.assignment_id is cascadeOnDelete() at the DB level,
+        // so deleting an Assignment the normal way never fires AssignmentAsset's
+        // own deleted hook (the one that reverts Asset.status to 'available') —
+        // same gotcha as MaintenanceRecord/MaintenanceRecordSupply. Detaching
+        // first (the relation's using() makes detach() delete each pivot row
+        // individually, which does fire that event) restores every asset's
+        // status before the parent row, and its now-empty cascade, go.
+        static::deleting(function (Assignment $assignment) {
+            $assignment->assets()->detach();
         });
 
         static::updated(function (Assignment $assignment) {
@@ -80,7 +103,16 @@ class Assignment extends Model
 
     public function recipientEmployee(): ?Employee
     {
-        return $this->employee ?? $this->department?->contactEmployee;
+        if ($this->employee) {
+            return $this->employee;
+        }
+
+        $contact = $this->department?->contactEmployee;
+
+        // An inactive contact (e.g. no longer with the company) is treated
+        // as if the department had none — notifyEmployee()/the assignment
+        // PDF skip it instead of mailing a departed employee indefinitely.
+        return $contact?->is_active ? $contact : null;
     }
 
     public function getRecipientLabel(): string

@@ -26,6 +26,16 @@ class Department extends Model
         return $this->hasMany(Employee::class);
     }
 
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    public function supplyMovements(): HasMany
+    {
+        return $this->hasMany(SupplyMovement::class);
+    }
+
     public function contactEmployee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'contact_employee_id');

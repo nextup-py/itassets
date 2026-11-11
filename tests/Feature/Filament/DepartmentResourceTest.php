@@ -3,8 +3,10 @@
 use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Departments\Pages\EditDepartment;
 use App\Filament\Resources\Departments\Pages\ViewDepartment;
+use App\Models\Assignment;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\SupplyMovement;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -127,6 +129,37 @@ it('sets a contact employee for a department', function () {
         ->assertHasNoFormErrors();
 
     expect(Department::where('name', 'Infraestructura')->first()->contact_employee_id)->toBe($employee->id);
+});
+
+it('blocks deleting a department with no employees but existing department-level assignments', function () {
+    $department = Department::factory()->create();
+    $asset = \App\Models\Asset::factory()->create();
+    $assignment = Assignment::factory()->toDepartment()->create(['department_id' => $department->id]);
+    $assignment->assets()->attach($asset->id, ['assigned_at' => now()]);
+
+    Livewire::test(EditDepartment::class, ['record' => $department->getRouteKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    expect(Department::find($department->id))->not->toBeNull();
+});
+
+it('blocks deleting a department with no employees but existing supply movements', function () {
+    $department = Department::factory()->create();
+    $supply = \App\Models\Supply::factory()->create();
+    SupplyMovement::create([
+        'supply_id' => $supply->id,
+        'type' => 'entrega',
+        'quantity' => 1,
+        'department_id' => $department->id,
+        'performed_at' => now(),
+    ]);
+
+    Livewire::test(EditDepartment::class, ['record' => $department->getRouteKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    expect(Department::find($department->id))->not->toBeNull();
 });
 
 it('shows the contact employee on the department view page', function () {
